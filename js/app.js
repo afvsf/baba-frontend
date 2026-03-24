@@ -320,6 +320,78 @@ function renderRanking(id,obj,campo,desc=true){
     });
 }
 
+// ===== PDF =====
+function gerarPDFMensal(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const mes = document.getElementById('mesRef').value;
+
+  if(!mes) return alert("Selecione o mês");
+
+  const pagos = banco.mensalidades?.[mes]?.pagos || [];
+  const devedores = getDevedoresMes();
+
+  const receita = pagos.length * 40;
+
+  let gastos = 0;
+
+  Object.entries(banco.babas).forEach(([data, baba])=>{
+    if(data.startsWith(mes)){
+      (baba.gastos || []).forEach(g=>{
+        gastos += g.valor;
+      });
+    }
+  });
+
+  const saldo = receita - gastos;
+
+  let y = 10;
+
+  doc.text("PRESTAÇÃO DE CONTAS - BABA", 10, y);
+  y += 10;
+
+  doc.text("Mês: " + mes, 10, y);
+  y += 10;
+
+  doc.text("Receita: R$ " + receita, 10, y);
+  y += 10;
+
+  doc.text("Gastos: R$ " + gastos, 10, y);
+  y += 10;
+
+  doc.text("Saldo: R$ " + saldo, 10, y);
+
+  doc.save("financeiro-baba.pdf");
+}
+// ===== WHATSAPP =====
+function cobrarWhatsApp(){
+  const mes = document.getElementById('mesRef').value;
+
+  if(!mes) return alert("Selecione o mês");
+
+  const devedores = getDevedoresMes();
+
+  if(devedores.length === 0){
+    alert("Ninguém devendo 👍");
+    return;
+  }
+
+  let msg = `⚠️ *BABA - MENSALIDADE ${mes}*\n\n`;
+
+  msg += "Pendentes:\n\n";
+
+  devedores.forEach(nome=>{
+    msg += `• ${nome}\n`;
+  });
+
+  msg += "\n💰 Favor regularizar.";
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+
+  window.open(url, "_blank");
+}
+
 // ===== AUX =====
 function setText(id,valor){
   const el = document.getElementById(id);
