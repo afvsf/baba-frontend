@@ -161,18 +161,31 @@ function carregarMensalistas(){
 }
 
 // ===== MENSALIDADES =====
-async function marcarMensalidade(){
+function marcarMensalidade(){
   const mes = val('mesRef');
-  const jogadorId = val('jogadorMensal');
+  const nome = val('jogadorMensal');
 
-  await fetch(API + '/mensalidade',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ mes, jogadorId })
-  });
+  if(!mes) return alert("Selecione o mês");
 
-  carregarDados();
+  if(!banco.mensalidades[mes]){
+    banco.mensalidades[mes] = { pagos: [] };
+  }
+
+  const hoje = new Date().toISOString().split('T')[0];
+
+  const jaPagou = banco.mensalidades[mes].pagos
+    .find(p => p.nome === nome);
+
+  if(!jaPagou){
+    banco.mensalidades[mes].pagos.push({
+      nome,
+      data: hoje
+    });
+  }
+
+  salvar();
 }
+
 
 function renderMensalidades(){
   const mes = val('mesRef');
@@ -183,11 +196,11 @@ function renderMensalidades(){
 
   const pagos = banco.mensalidades?.[mes]?.pagos || [];
 
-  pagos.forEach(nome=>{
-    let li = document.createElement('li');
-    li.textContent = nome + ' ✅';
-    ul.appendChild(li);
-  });
+ pagos.forEach(p=>{
+  let li = document.createElement('li');
+  li.textContent = `${p.nome} - ${p.data} ✅`;
+  ul.appendChild(li);
+});
 }
 
 // ===== DEVEDORES =====
@@ -199,9 +212,10 @@ function getDevedoresMes(){
     .filter(j=>j.tipo === 'mensal')
     .map(j=>j.nome);
 
-  const pagos = banco.mensalidades?.[mes]?.pagos || [];
+ const pagos = banco.mensalidades?.[mes]?.pagos || [];
+const nomesPagos = pagos.map(p => p.nome);
 
-  return mensalistas.filter(n => !pagos.includes(n));
+return mensalistas.filter(n => !nomesPagos.includes(n));
 }
 
 function renderDevedores(){
@@ -429,8 +443,8 @@ function gerarPDFMensal(){
     y += 6;
   } else {
     pagos.forEach(p=>{
-      doc.text(`• ${p}`, 10, y);
-      y += 6;
+  doc.text(`• ${p.nome} - ${p.data}`, 10, y);
+  y += 6;
 
       if(y > 270){
         doc.addPage();
