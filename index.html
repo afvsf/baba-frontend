@@ -1,0 +1,103 @@
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baba PRO Ranking</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><h1>⚽ Baba PRO Ranking</h1></header>
+
+<div class="container">
+
+<div class="card">
+<h2>👤 Cadastro de Jogadores</h2>
+<input id="novoJogador" placeholder="Nome do jogador">
+
+<select id="tipoJogador">
+  <option value="mensal">Mensalista</option>
+  <option value="avulso">Avulso</option>
+</select>
+
+<button onclick="cadastrarJogador()">Cadastrar</button>
+<ul id="listaCadastro"></ul>
+</div>
+
+<div class="card">
+<h2>📅 Data do Baba</h2>
+<input type="date" id="data" onchange="trocarData()">
+</div>
+
+<div class="card">
+<h2>➕ Registrar Participação</h2>
+<select id="jogadorSelect"></select>
+<input id="gols" type="number" placeholder="Gols">
+<input id="cartoes" type="number" placeholder="Cartões">
+<input id="obs" placeholder="Observação">
+<select id="pagamento">
+<option value="não">Não pagou</option>
+<option value="sim">Pagou</option>
+</select>
+<button class="btn" onclick="registrar()">Registrar</button>
+</div>
+
+<div class="card">
+<h2>💰 Controle Financeiro</h2>
+
+<p>Total arrecadado: R$ <span id="total"></span></p>
+<p>Total gastos: R$ <span id="gastos"></span></p>
+<p><b>Saldo: R$ <span id="saldo"></span></b></p>
+
+<div class="card">
+<h2>💰 Mensalidades</h2>
+
+<input type="month" id="mesRef">
+
+<select id="jogadorMensal">
+</select>
+
+<button onclick="marcarMensalidade()">Marcar como Pago</button>
+
+<ul id="listaMensalidades"></ul>
+</div>
+
+<h3>➕ Novo gasto</h3>
+<input id="gastoValor" placeholder="Valor">
+<input id="gastoDesc" placeholder="Descrição">
+<button class="btn" onclick="addGasto()">Adicionar</button>
+
+<ul id="listaGastos"></ul>
+</div>
+
+<div class="grid">
+<div class="card">
+<h2>🏆 Artilharia</h2>
+<ul id="rankingGols"></ul>
+</div>
+
+<div class="card">
+<h2>👥 Presença</h2>
+<ul id="rankingPresenca"></ul>
+</div>
+</div>
+
+<div class="grid">
+<div class="card">
+<h2>💰 Pagadores</h2>
+<ul id="rankingPagamentos"></ul>
+</div>
+
+<div class="card">
+<h2>🟨 Disciplina</h2>
+<ul id="rankingCartoes"></ul>
+</div>
+</div>
+<button onclick="gerarPDFMensal()">📄 Gerar PDF</button>
+<button onclick="cobrarWhatsApp()">📲 Cobrar no WhatsApp</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="js/app.js"></script>
+</body>
+</html>
