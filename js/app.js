@@ -321,12 +321,12 @@ function renderRanking(id,obj,campo,desc=true){
 }
 
 // ===== PDF =====
+
 function gerarPDFMensal(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   const mes = document.getElementById('mesRef').value;
-
   if(!mes) return alert("Selecione o mês");
 
   const pagos = banco.mensalidades?.[mes]?.pagos || [];
@@ -335,7 +335,6 @@ function gerarPDFMensal(){
   const receita = pagos.length * 40;
 
   let gastos = 0;
-
   Object.entries(banco.babas).forEach(([data, baba])=>{
     if(data.startsWith(mes)){
       (baba.gastos || []).forEach(g=>{
@@ -346,24 +345,103 @@ function gerarPDFMensal(){
 
   const saldo = receita - gastos;
 
-  let y = 10;
+  let y = 15;
 
-  doc.text("PRESTAÇÃO DE CONTAS - BABA", 10, y);
+  // ===== TÍTULO =====
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("PRESTAÇÃO DE CONTAS - BABA", 105, y, { align: "center" });
+
   y += 10;
 
-  doc.text("Mês: " + mes, 10, y);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Mês: ${mes}`, 10, y);
+
+  y += 5;
+
+  // ===== LINHA =====
+  doc.line(10, y, 200, y);
+
   y += 10;
 
-  doc.text("Receita: R$ " + receita, 10, y);
+  // ===== RESUMO =====
+  doc.setFont("helvetica", "bold");
+  doc.text("RESUMO FINANCEIRO", 10, y);
+
+  y += 8;
+
+  doc.setFont("helvetica", "normal");
+  doc.text(`Receita: R$ ${receita}`, 10, y);
+  y += 6;
+
+  doc.text(`Gastos: R$ ${gastos}`, 10, y);
+  y += 6;
+
+  doc.setFont("helvetica", "bold");
+  doc.text(`Saldo: R$ ${saldo}`, 10, y);
+
   y += 10;
 
-  doc.text("Gastos: R$ " + gastos, 10, y);
+  doc.line(10, y, 200, y);
+
   y += 10;
 
-  doc.text("Saldo: R$ " + saldo, 10, y);
+  // ===== PAGANTES =====
+  doc.setFont("helvetica", "bold");
+  doc.text("PAGANTES", 10, y);
 
-  doc.save("financeiro-baba.pdf");
+  y += 8;
+
+  doc.setFont("helvetica", "normal");
+
+  if(pagos.length === 0){
+    doc.text("Nenhum pagamento registrado", 10, y);
+    y += 6;
+  } else {
+    pagos.forEach(p=>{
+      doc.text(`• ${p}`, 10, y);
+      y += 6;
+    });
+  }
+
+  y += 5;
+
+  doc.line(10, y, 200, y);
+
+  y += 10;
+
+  // ===== DEVEDORES =====
+  doc.setFont("helvetica", "bold");
+  doc.text("DEVEDORES", 10, y);
+
+  y += 8;
+
+  doc.setFont("helvetica", "normal");
+
+  if(devedores.length === 0){
+    doc.text("Nenhum devedor 👍", 10, y);
+  } else {
+    devedores.forEach(d=>{
+      doc.text(`• ${d}`, 10, y);
+      y += 6;
+    });
+  }
+
+  y += 15;
+
+  // ===== RODAPÉ =====
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+
+  const dataAtual = new Date().toLocaleDateString('pt-BR');
+
+  doc.text(`Gerado em: ${dataAtual}`, 10, 285);
+
+  doc.save(`financeiro-baba-${mes}.pdf`);
 }
+
+
 // ===== WHATSAPP =====
 function cobrarWhatsApp(){
   const mes = document.getElementById('mesRef').value;
