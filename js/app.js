@@ -321,7 +321,6 @@ function renderRanking(id,obj,campo,desc=true){
 }
 
 // ===== PDF =====
-
 function gerarPDFMensal(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -335,10 +334,17 @@ function gerarPDFMensal(){
   const receita = pagos.length * 40;
 
   let gastos = 0;
+  let listaGastos = [];
+
   Object.entries(banco.babas).forEach(([data, baba])=>{
     if(data.startsWith(mes)){
       (baba.gastos || []).forEach(g=>{
         gastos += g.valor;
+        listaGastos.push({
+          data,
+          desc: g.desc,
+          valor: g.valor
+        });
       });
     }
   });
@@ -359,8 +365,6 @@ function gerarPDFMensal(){
   doc.text(`Mês: ${mes}`, 10, y);
 
   y += 5;
-
-  // ===== LINHA =====
   doc.line(10, y, 200, y);
 
   y += 10;
@@ -370,19 +374,45 @@ function gerarPDFMensal(){
   doc.text("RESUMO FINANCEIRO", 10, y);
 
   y += 8;
-
   doc.setFont("helvetica", "normal");
   doc.text(`Receita: R$ ${receita}`, 10, y);
-  y += 6;
 
+  y += 6;
   doc.text(`Gastos: R$ ${gastos}`, 10, y);
-  y += 6;
 
+  y += 6;
   doc.setFont("helvetica", "bold");
   doc.text(`Saldo: R$ ${saldo}`, 10, y);
 
   y += 10;
+  doc.line(10, y, 200, y);
 
+  y += 10;
+
+  // ===== GASTOS DETALHADOS =====
+  doc.setFont("helvetica", "bold");
+  doc.text("GASTOS DETALHADOS", 10, y);
+
+  y += 8;
+  doc.setFont("helvetica", "normal");
+
+  if(listaGastos.length === 0){
+    doc.text("Nenhum gasto registrado", 10, y);
+    y += 6;
+  } else {
+    listaGastos.forEach(g=>{
+      doc.text(`${g.data} - ${g.desc} - R$ ${g.valor}`, 10, y);
+      y += 6;
+
+      // quebra de página automática
+      if(y > 270){
+        doc.addPage();
+        y = 15;
+      }
+    });
+  }
+
+  y += 5;
   doc.line(10, y, 200, y);
 
   y += 10;
@@ -392,21 +422,24 @@ function gerarPDFMensal(){
   doc.text("PAGANTES", 10, y);
 
   y += 8;
-
   doc.setFont("helvetica", "normal");
 
   if(pagos.length === 0){
-    doc.text("Nenhum pagamento registrado", 10, y);
+    doc.text("Nenhum pagamento", 10, y);
     y += 6;
   } else {
     pagos.forEach(p=>{
       doc.text(`• ${p}`, 10, y);
       y += 6;
+
+      if(y > 270){
+        doc.addPage();
+        y = 15;
+      }
     });
   }
 
   y += 5;
-
   doc.line(10, y, 200, y);
 
   y += 10;
@@ -416,7 +449,6 @@ function gerarPDFMensal(){
   doc.text("DEVEDORES", 10, y);
 
   y += 8;
-
   doc.setFont("helvetica", "normal");
 
   if(devedores.length === 0){
@@ -425,22 +457,23 @@ function gerarPDFMensal(){
     devedores.forEach(d=>{
       doc.text(`• ${d}`, 10, y);
       y += 6;
+
+      if(y > 270){
+        doc.addPage();
+        y = 15;
+      }
     });
   }
-
-  y += 15;
 
   // ===== RODAPÉ =====
   doc.setFontSize(9);
   doc.setTextColor(100);
 
   const dataAtual = new Date().toLocaleDateString('pt-BR');
-
   doc.text(`Gerado em: ${dataAtual}`, 10, 285);
 
   doc.save(`financeiro-baba-${mes}.pdf`);
 }
-
 
 // ===== WHATSAPP =====
 function cobrarWhatsApp(){
