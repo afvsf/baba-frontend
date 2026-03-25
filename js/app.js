@@ -1,3 +1,42 @@
+function ajustarBanco(){
+  let db = JSON.parse(localStorage.getItem('baba_db') || '{}');
+
+  // estrutura base
+  if(!db.jogadores) db.jogadores = [];
+  if(!db.babas) db.babas = {};
+  if(!db.mensalidades) db.mensalidades = {};
+
+  // ajustar jogadores antigos
+  db.jogadores = db.jogadores.map(j => {
+    if(typeof j === 'string'){
+      return {
+        nome: j,
+        apelido: '',
+        posicao: '',
+        telefone: '',
+        tipo: 'avulso'
+      };
+    }
+
+    return {
+      nome: j.nome,
+      apelido: j.apelido || '',
+      posicao: j.posicao || '',
+      telefone: j.telefone || '',
+      tipo: j.tipo || (j.mensalista ? 'mensal' : 'avulso')
+    };
+  });
+
+  // garantir estrutura dos babas
+  Object.keys(db.babas).forEach(data => {
+    if(!db.babas[data].registros) db.babas[data].registros = [];
+    if(!db.babas[data].gastos) db.babas[data].gastos = [];
+  });
+
+  localStorage.setItem('baba_db', JSON.stringify(db));
+  return db;
+}
+
 const API = 'https://baba-backend.onrender.com';
 
 let banco = {
@@ -41,7 +80,11 @@ async function carregarDados(){
     if(!banco.mensalidades[m.mes]){
       banco.mensalidades[m.mes] = { pagos: [] };
     }
-    banco.mensalidades[m.mes].pagos.push(m.jogadorId);
+    banco.mensalidades[m.mes].pagos.push({
+  id: m.jogadorId,
+  nome: getNome(m.jogadorId),
+  data: m.data || ''
+});
   });
 
   render();
@@ -112,16 +155,55 @@ async function registrar(){
 // ===== RENDER =====
 function render(){
 
-  // lista jogadores
-  const lista = document.getElementById('listaCadastro');
-  if(lista){
-    lista.innerHTML = '';
-    banco.jogadores.forEach(j=>{
-      let li = document.createElement('li');
-      li.textContent = `${j.nome} (${j.tipo})`;
-      lista.appendChild(li);
-    });
-  }
+// TABELA DE JOGADORES NO INDEX
+const tabela = document.getElementById('bodyJogadores');
+
+if(tabela){
+  tabela.innerHTML = '';
+
+  const mesAtual = document.getElementById('mesRef')?.value;
+
+  banco.jogadores.forEach(j => {
+
+    let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
+
+    let pagou = false;
+
+    if(banco.mensalidades && banco.mensalidades[mesAtual]){
+      const pagos = banco.mensalidades?.[mesAtual]?.pagos || [];
+      const pagou = pagos.some(p => p.id === j.id);
+    }
+
+    let status = '';
+    let classe = '';
+
+    if(j.tipo === 'mensal'){
+      if(pagou){
+        status = '✅ Em dia';
+        classe = 'ok';
+      }else{
+        status = '❌ Devendo';
+        classe = 'devendo';
+      }
+    }else{
+      status = 'Avulso';
+      classe = 'avulso';
+    }
+
+    let tr = document.createElement('tr');
+    tr.className = classe;
+
+    tr.innerHTML = `
+      <td>${j.nome}</td>
+      <td>${j.apelido || '-'}</td>
+      <td>${j.posicao || '-'}</td>
+      <td>${tipo}</td>
+      <td>${status}</td>
+    `;
+
+    tabela.appendChild(tr);
+  });
+}
 
   // select jogadores
   const select = document.getElementById('jogadorSelect');
@@ -129,7 +211,7 @@ function render(){
     select.innerHTML = '';
     banco.jogadores.forEach(j=>{
       let opt = document.createElement('option');
-      opt.value = j.nome;
+      opt.value = j.id;
       opt.textContent = `${j.nome} (${j.tipo})`;
       select.appendChild(opt);
     });
@@ -154,7 +236,7 @@ function carregarMensalistas(){
     .filter(j => j.tipo === 'mensal')
     .forEach(j=>{
       let opt = document.createElement('option');
-      opt.value = j.nome;
+      opt.value = j.id;
       opt.textContent = j.nome;
       select.appendChild(opt);
     });
@@ -163,7 +245,7 @@ function carregarMensalistas(){
 // ===== MENSALIDADES =====
 function marcarMensalidade(){
   const mes = val('mesRef');
-  const nome = val('jogadorMensal');
+  const jogadorId = val('jogadorMensal');
 
   if(!mes) return alert("Selecione o mês");
 
@@ -171,15 +253,16 @@ function marcarMensalidade(){
     banco.mensalidades[mes] = { pagos: [] };
   }
 
-  const hoje = new Date().toISOString().split('T')[0];
+  const jogador = banco.jogadores.find(j => j.id === jogadorId);
 
-  const jaPagou = banco.mensalidades[mes].pagos
-    .find(p => p.nome === nome);
+  const existe = banco.mensalidades[mes].pagos
+    .some(p => p.id === jogadorId);
 
-  if(!jaPagou){
+  if(!existe){
     banco.mensalidades[mes].pagos.push({
-      nome,
-      data: hoje
+      id: jogador.id,
+      nome: jogador.nome,
+      data: new Date().toISOString().split('T')[0]
     });
   }
 
@@ -213,9 +296,12 @@ function getDevedoresMes(){
     .map(j=>j.nome);
 
  const pagos = banco.mensalidades?.[mes]?.pagos || [];
-const nomesPagos = pagos.map(p => p.nome);
+const idsPagos = pagos.map(p => p.id);
 
-return mensalistas.filter(n => !nomesPagos.includes(n));
+return banco.jogadores
+  .filter(j => j.tipo === 'mensal')
+  .filter(j => !idsPagos.some(id => id === j.id))
+  .map(j => j.nome);
 }
 
 function renderDevedores(){
@@ -230,15 +316,26 @@ function renderDevedores(){
     ul.appendChild(li);
   });
 }
-
+// marcar pagamento via botão
 function marcarPago(nome){
   const mes = val('mesRef');
+  const jogador = banco.jogadores.find(j => j.nome === nome);
 
   if(!banco.mensalidades[mes]){
     banco.mensalidades[mes] = { pagos: [] };
   }
 
-  banco.mensalidades[mes].pagos.push(nome);
+  const existe = banco.mensalidades[mes].pagos
+    .some(p => p.id === jogador.id);
+
+  if(!existe){
+    banco.mensalidades[mes].pagos.push({
+      id: jogador.id,
+      nome: jogador.nome,
+      data: new Date().toISOString().split('T')[0]
+    });
+  }
+
   salvar();
 }
 
@@ -345,7 +442,7 @@ function gerarPDFMensal(){
   const pagos = banco.mensalidades?.[mes]?.pagos || [];
   const devedores = getDevedoresMes();
 
-  const receita = pagos.length * 40;
+  const receita = pagos.length * 20;
 
   let gastos = 0;
   let listaGastos = [];
