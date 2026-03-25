@@ -648,7 +648,7 @@ function isDevedorAnual(jogador){
     const pagou = pagos.some(p => p.id === jogador.id);
 
     if(!pagou){
-      return true; // achou 1 mês em aberto → já é devedor
+      return true; // achou 1 mês em aberto → já é devedor mensalidades
     }
   }
 
@@ -686,6 +686,5 @@ function contarMesesDevendo(jogador){
 
     inicio.setMonth(inicio.getMonth() + 1);
   }
-
   return totalDevendo;
 }
