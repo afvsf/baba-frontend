@@ -1,41 +1,14 @@
-function ajustarBanco(){
-  let db = JSON.parse(localStorage.getItem('baba_db') || '{}');
 
-  // estrutura base
-  if(!db.jogadores) db.jogadores = [];
-  if(!db.babas) db.babas = {};
-  if(!db.mensalidades) db.mensalidades = {};
-
-  // ajustar jogadores antigos
-  db.jogadores = db.jogadores.map(j => {
-    if(typeof j === 'string'){
-      return {
-        nome: j,
-        apelido: '',
-        posicao: '',
-        telefone: '',
-        tipo: 'avulso'
-      };
-    }
-
-    return {
-      nome: j.nome,
-      apelido: j.apelido || '',
-      posicao: j.posicao || '',
-      telefone: j.telefone || '',
-      tipo: j.tipo || (j.mensalista ? 'mensal' : 'avulso')
-    };
-  });
-
-  // garantir estrutura dos babas
-  Object.keys(db.babas).forEach(data => {
-    if(!db.babas[data].registros) db.babas[data].registros = [];
-    if(!db.babas[data].gastos) db.babas[data].gastos = [];
-  });
-
-  localStorage.setItem('baba_db', JSON.stringify(db));
-  return db;
+if (window.banco) {
+  console.warn("Banco já inicializado");
+} else {
+  window.banco = {
+    jogadores: [],
+    babas: {},
+    mensalidades: {}
+  };
 }
+
 
 const API = 'https://baba-backend.onrender.com';
 
@@ -185,10 +158,10 @@ if(tabela){
 
     let pagou = false;
 
-    if(banco.mensalidades && banco.mensalidades[mesAtual]){
-      const pagos = banco.mensalidades?.[mesAtual]?.pagos || [];
-      const pagou = pagos.some(p => p.id === j.id);
-    }
+  if(banco.mensalidades && banco.mensalidades[mesAtual]){
+  const pagos = banco.mensalidades?.[mesAtual]?.pagos || [];
+  pagou = pagos.some(p => p.id === j.id); // ✅ sem const
+}
 
    let status = '';
     let classe = '';
@@ -675,7 +648,7 @@ function isDevedorAnual(jogador){
     const pagou = pagos.some(p => p.id === jogador.id);
 
     if(!pagou){
-      return true; // achou 1 mês em aberto → já é devedor
+      return true; // achou 1 mês em aberto → já é devedor mensalidades
     }
   }
 
@@ -685,10 +658,24 @@ function isDevedorAnual(jogador){
 function contarMesesDevendo(jogador){
   if(jogador.tipo !== 'mensal') return 0;
 
-  const meses = getUltimos12Meses();
+  const hoje = new Date();
+  const limiteDia = 10;
+
+  const dataCadastro = new Date(jogador.dataCadastro);
+  let inicio = new Date(dataCadastro.getFullYear(), dataCadastro.getMonth(), 1);
+
+  let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+  // se ainda NÃO passou dia 10 → não cobra mês atual
+  if(hoje.getDate() <= limiteDia){
+    fim.setMonth(fim.getMonth() - 1);
+  }
+
   let totalDevendo = 0;
 
-  for(let mes of meses){
+  while(inicio <= fim){
+
+    const mes = inicio.toISOString().slice(0,7);
     const pagos = banco.mensalidades?.[mes]?.pagos || [];
 
     const pagou = pagos.some(p => p.id === jogador.id);
@@ -696,7 +683,8 @@ function contarMesesDevendo(jogador){
     if(!pagou){
       totalDevendo++;
     }
-  }
 
+    inicio.setMonth(inicio.getMonth() + 1);
+  }
   return totalDevendo;
 }
