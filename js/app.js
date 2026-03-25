@@ -54,7 +54,10 @@ async function carregarDados(){
   const gastos = await fetch(API + '/gastos').then(r=>r.json());
 
   banco = {
-    jogadores,
+     jogadores: jogadores.map(j => ({
+    ...j,
+    dataCadastro: j.dataCadastro || new Date().toISOString().slice(0,10)
+  })),
     babas: {},
     mensalidades: {}
   };
@@ -101,8 +104,18 @@ function getNome(id){
 
 // ===== CADASTRO =====
 async function cadastrarJogador(){
-  const nome = val('novoJogador');
+  const nome = val('nome') || val('novoJogador');
   const tipo = val('tipoJogador');
+  const apelido = val('apelido') || '';
+  const posicao = val('posicao') || '';
+  const telefone = val('telefone') || '';
+
+  let dataCadastro = val('dataCadastro');
+
+  // se não preencher, usa hoje
+  if(!dataCadastro){
+    dataCadastro = new Date().toISOString().slice(0,10);
+  }
 
   if(!nome) return;
 
@@ -112,13 +125,16 @@ async function cadastrarJogador(){
     body: JSON.stringify({
       id:'j'+Date.now(),
       nome,
-      tipo
+      apelido,
+      posicao,
+      telefone,
+      tipo,
+      dataCadastro
     })
   });
 
   carregarDados();
 }
-
 
 // ===== DATA =====
 function trocarData(){
@@ -174,19 +190,23 @@ if(tabela){
       const pagou = pagos.some(p => p.id === j.id);
     }
 
-    let status = '';
+   let status = '';
     let classe = '';
 
     if(j.tipo === 'mensal'){
-      if(pagou){
+
+      const devendo = contarMesesDevendo(j);
+
+      if(devendo > 0){
+        status = `❌ Devendo (${devendo} mês${devendo > 1 ? 'es' : ''})`;
+        classe = 'devendo';
+      }else{
         status = '✅ Em dia';
         classe = 'ok';
-      }else{
-        status = '❌ Devendo';
-        classe = 'devendo';
       }
+
     }else{
-      status = 'Avulso';
+      status = '🎟️ Avulso';
       classe = 'avulso';
     }
 
@@ -629,3 +649,54 @@ function limpar(){
 
 // ===== INIT =====
 carregarDados();
+
+// ===== FUNÇÕES AUXILIARES =====
+function getUltimos12Meses(){
+  const meses = [];
+  const hoje = new Date();
+
+  for(let i=0; i<12; i++){
+    let d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    let mes = d.toISOString().slice(0,7);
+    meses.push(mes);
+  }
+
+  return meses;
+}
+// Verifica se um jogador mensalista é devedor (não pagou algum dos últimos 12 meses)
+function isDevedorAnual(jogador){
+  if(jogador.tipo !== 'mensal') return false;
+
+  const meses = getUltimos12Meses();
+
+  for(let mes of meses){
+    const pagos = banco.mensalidades?.[mes]?.pagos || [];
+
+    const pagou = pagos.some(p => p.id === jogador.id);
+
+    if(!pagou){
+      return true; // achou 1 mês em aberto → já é devedor
+    }
+  }
+
+  return false;
+}
+// Conta quantos meses um jogador mensalista está devendo (não pagou nos últimos 12 meses)
+function contarMesesDevendo(jogador){
+  if(jogador.tipo !== 'mensal') return 0;
+
+  const meses = getUltimos12Meses();
+  let totalDevendo = 0;
+
+  for(let mes of meses){
+    const pagos = banco.mensalidades?.[mes]?.pagos || [];
+
+    const pagou = pagos.some(p => p.id === jogador.id);
+
+    if(!pagou){
+      totalDevendo++;
+    }
+  }
+
+  return totalDevendo;
+}
