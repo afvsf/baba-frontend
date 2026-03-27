@@ -1,22 +1,14 @@
-
-if (window.banco) {
-  console.warn("Banco já inicializado");
-} else {
-  window.banco = {
-    jogadores: [],
-    babas: {},
-    mensalidades: {}
-  };
-}
-
-
 const API = 'https://baba-backend.onrender.com';
 
-let banco = {
+// 🔥 usa apenas UM banco global
+let banco = window.banco || {
   jogadores: [],
   babas: {},
   mensalidades: {}
 };
+
+// salva no window (global)
+window.banco = banco;
 
 let dataAtual = '';
 
