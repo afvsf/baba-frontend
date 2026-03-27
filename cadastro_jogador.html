@@ -3,108 +3,275 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baba PRO Cadastro Completo</title>
-<link rel="stylesheet" href="css/stylejogador.css">
+<title>Baba PRO - Jogadores</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+}
+
+header{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+  font-size:22px;
+}
+
+.container{
+  display:grid;
+  grid-template-columns: 1fr 2fr;
+  gap:20px;
+  padding:20px;
+}
+
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:10px;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn{ background:#22c55e; color:#000; }
+.btn-del{ background:#ef4444; color:#fff; }
+.btn-edit{ background:#3b82f6; color:#fff; }
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #334155;
+  text-align:left;
+}
+
+.devendo{ color:#ef4444; }
+.ok{ color:#22c55e; }
+</style>
+
 </head>
 <body>
-<header><h1>⚽ Baba PRO Cadastro Completo</h1></header>
+
+<header>⚽ Baba PRO - Gestão de Jogadores</header>
 
 <div class="container">
 
+<!-- CADASTRO -->
 <div class="card">
-<h2>👤 Cadastro Completo de Jogador</h2>
+<h2>👤 Cadastro</h2>
+
 <input id="nome" placeholder="Nome">
 <input id="apelido" placeholder="Apelido">
-<input id="posicao" placeholder="Posição (ex: atacante)">
+<input id="posicao" placeholder="Posição">
 <input id="telefone" placeholder="Telefone">
 
-<label>Data de cadastro:</label>
+<label>Data Cadastro</label>
 <input type="date" id="dataCadastro">
 
-<label><input type="checkbox" id="mensalista"> Mensalista</label>
-<button class="btn" onclick="cadastrarJogador()">Cadastrar</button>
-<ul id="listaJogadores"></ul>
+<label>Tipo</label>
+<select id="tipoJogador">
+  <option value="avulso">Avulso</option>
+  <option value="mensal">Mensalista</option>
+</select>
+
+<button class="btn" onclick="salvarJogador()">Salvar</button>
+
 </div>
 
+<!-- LISTA -->
 <div class="card">
-<h2>📊 Perfil do Jogador</h2>
-<select id="perfilSelect" onchange="verPerfil()"></select>
-<div id="perfil"></div>
+<h2>📋 Jogadores</h2>
+
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Posição</th>
+<th>Tipo</th>
+<th>Status</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="tabelaJogadores"></tbody>
+</table>
+
 </div>
 
 </div>
 
 <script>
 
-let banco = JSON.parse(localStorage.getItem('baba_db')||'{"jogadores":[],"babas":{}}');
+const API = 'https://baba-backend.onrender.com';
 
-function salvar(){
-localStorage.setItem('baba_db',JSON.stringify(banco));
-render();
+let jogadores = [];
+let mensalidades = {};
+let editandoId = null;
+
+// ===== CARREGAR =====
+async function carregar(){
+  const j = await fetch(API+'/jogadores').then(r=>r.json());
+  const m = await fetch(API+'/mensalidades').then(r=>r.json());
+
+  jogadores = j;
+
+  mensalidades = {};
+  m.forEach(x=>{
+    if(!mensalidades[x.mes]) mensalidades[x.mes] = [];
+    mensalidades[x.mes].push(x.jogadorId);
+  });
+
+  render();
 }
 
-function cadastrarJogador(){
-const jogador={
-nome:val('nome'),
-apelido:val('apelido'),
-posicao:val('posicao'),
-telefone:val('telefone'),
-mensalista:document.getElementById('mensalista').checked
-};
+// ===== SALVAR =====
+async function salvarJogador(){
 
-if(!jogador.nome)return;
+  const jogador = {
+    id: editandoId || 'j'+Date.now(),
+    nome: val('nome'),
+    apelido: val('apelido'),
+    posicao: val('posicao'),
+    telefone: val('telefone'),
+    tipo: val('tipoJogador'),
+    dataCadastro: val('dataCadastro') || new Date().toISOString().slice(0,10)
+  };
 
-banco.jogadores.push(jogador);
-salvar();
-limpar();
+  if(!jogador.nome) return alert("Nome obrigatório");
+
+  await fetch(API+'/jogadores',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(jogador)
+  });
+
+  limpar();
+  editandoId = null;
+  carregar();
 }
 
+// ===== EDITAR =====
+function editar(id){
+  const j = jogadores.find(x=>x.id===id);
+
+  valSet('nome', j.nome);
+  valSet('apelido', j.apelido);
+  valSet('posicao', j.posicao);
+  valSet('telefone', j.telefone);
+  valSet('tipoJogador', j.tipo);
+  valSet('dataCadastro', j.dataCadastro);
+
+  editandoId = id;
+}
+
+// ===== EXCLUIR =====
+async function excluir(id){
+  if(!confirm("Excluir jogador?")) return;
+
+  await fetch(API+'/jogadores/'+id,{
+    method:'DELETE'
+  });
+
+  carregar();
+}
+
+// ===== STATUS =====
+function contarDevendo(j){
+  if(j.tipo !== 'mensal') return 0;
+
+  const hoje = new Date();
+  const limite = 10;
+
+  let inicio = new Date(j.dataCadastro);
+  inicio.setDate(1);
+
+  let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+  if(hoje.getDate() <= limite){
+    fim.setMonth(fim.getMonth() - 1);
+  }
+
+  let devendo = 0;
+
+  while(inicio <= fim){
+    const mes = inicio.toISOString().slice(0,7);
+    const pagos = mensalidades[mes] || [];
+
+    if(!pagos.includes(j.id)){
+      devendo++;
+    }
+
+    inicio.setMonth(inicio.getMonth()+1);
+  }
+
+  return devendo;
+}
+
+// ===== RENDER =====
 function render(){
+  const tb = document.getElementById('tabelaJogadores');
+  tb.innerHTML = '';
 
-// lista
-listaJogadores.innerHTML='';
-banco.jogadores.forEach(j=>{
-let li=document.createElement('li');
-li.textContent=`${j.nome} (${j.apelido||''}) - ${j.posicao||''} ${j.mensalista?'💰':'❌'}`;
-listaJogadores.appendChild(li);
-});
+  jogadores.forEach(j=>{
 
-// select perfil
-perfilSelect.innerHTML='';
-banco.jogadores.forEach(j=>{
-let opt=document.createElement('option');
-opt.value=j.nome;
-opt.textContent=j.nome;
-perfilSelect.appendChild(opt);
-});
+    const dev = contarDevendo(j);
+
+    let status = j.tipo==='mensal'
+      ? (dev>0 ? `❌ ${dev} mês(es)` : '✅ Em dia')
+      : '🎟️ Avulso';
+
+    let tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${j.nome}</td>
+      <td>${j.posicao||'-'}</td>
+      <td>${j.tipo}</td>
+      <td class="${dev>0?'devendo':'ok'}">${status}</td>
+      <td>
+        <button class="btn-edit" onclick="editar('${j.id}')">Editar</button>
+        <button class="btn-del" onclick="excluir('${j.id}')">Excluir</button>
+      </td>
+    `;
+
+    tb.appendChild(tr);
+  });
 }
 
-function verPerfil(){
-const nome=val('perfilSelect');
-const j=banco.jogadores.find(x=>x.nome===nome);
+// ===== UTILS =====
+function val(id){ return document.getElementById(id).value }
+function valSet(id,v){ document.getElementById(id).value = v }
 
-if(!j)return;
-
-perfil.innerHTML=`
-<h3>${j.nome}</h3>
-<p>Apelido: ${j.apelido}</p>
-<p>Posição: ${j.posicao}</p>
-<p>Telefone: ${j.telefone}</p>
-<p>Tipo: ${j.mensalista?'Mensalista':'Avulso'}</p>
-`;
+function limpar(){
+  ['nome','apelido','posicao','telefone','dataCadastro'].forEach(id=>{
+    valSet(id,'');
+  });
 }
 
-function val(id){return document.getElementById(id).value}
-function limpar(){['nome','apelido','posicao','telefone'].forEach(id=>document.getElementById(id).value='')}
-
-render();
-
+// ===== INIT =====
+carregar();
 
 </script>
 
-<script src="js/app.js"></script>
-
 </body>
 </html>
-
 
