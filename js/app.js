@@ -333,7 +333,7 @@ function calcularFinanceiro(){
     ul.innerHTML = '';
     (baba.gastos || []).forEach(g=>{
       let li = document.createElement('li');
-      li.textContent = `${g.desc} - R$ ${g.valor}`;
+      li.textContent = `${g.descricao} - R$ ${g.valor}`;
       ul.appendChild(li);
     });
   }
@@ -348,7 +348,7 @@ async function addGasto(){
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       data: dataAtual,
-      desc: val('gastoDesc'),
+      descricao: val('gastoDesc'),
       valor: parseFloat(val('gastoValor')) || 0
     })
   });
@@ -390,14 +390,14 @@ function renderRankingGeral(){
   renderRanking('rankingCartoes',dados,'cartoes',false);
 }
 
-function renderRanking(id,obj,campo,desc=true){
+function renderRanking(id,obj,campo,descricao=true){
   const ul = document.getElementById(id);
   if(!ul) return;
 
   ul.innerHTML='';
 
   Object.entries(obj)
-    .sort((a,b)=> desc ? b[1][campo]-a[1][campo] : a[1][campo]-b[1][campo])
+    .sort((a,b)=> descricao ? b[1][campo]-a[1][campo] : a[1][campo]-b[1][campo])
     .forEach(([nome,val])=>{
       let li = document.createElement('li');
       li.textContent=`${nome} - ${val[campo]}`;
@@ -427,7 +427,7 @@ function gerarPDFMensal(){
         gastos += g.valor;
         listaGastos.push({
           data,
-          desc: g.desc,
+          descricao: g.descricao,
           valor: g.valor
         });
       });
@@ -486,7 +486,7 @@ function gerarPDFMensal(){
     y += 6;
   } else {
     listaGastos.forEach(g=>{
-      doc.text(`${g.data} - ${g.desc} - R$ ${g.valor}`, 10, y);
+      doc.text(`${g.data} - ${g.descricao} - R$ ${g.valor}`, 10, y);
       y += 6;
 
       // quebra de página automática
