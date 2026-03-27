@@ -228,30 +228,22 @@ function carregarMensalistas(){
 }
 
 // ===== MENSALIDADES =====
-function marcarMensalidade(){
+async function marcarMensalidade(){
   const mes = val('mesRef');
   const jogadorId = val('jogadorMensal');
 
   if(!mes) return alert("Selecione o mês");
 
-  if(!banco.mensalidades[mes]){
-    banco.mensalidades[mes] = { pagos: [] };
-  }
+  await fetch(API + '/mensalidades', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      mes,
+      jogadorId
+    })
+  });
 
-  const jogador = banco.jogadores.find(j => j.id === jogadorId);
-
-  const existe = banco.mensalidades[mes].pagos
-    .some(p => p.id === jogadorId);
-
-  if(!existe){
-    banco.mensalidades[mes].pagos.push({
-      id: jogador.id,
-      nome: jogador.nome,
-      data: new Date().toISOString().split('T')[0]
-    });
-  }
-
-  salvar();
+  carregarDados(); // 🔥 recarrega tudo do backend
 }
 
 
@@ -302,27 +294,24 @@ function renderDevedores(){
   });
 }
 // marcar pagamento via botão
-function marcarPago(nome){
+async function marcarPago(nome){
   const mes = val('mesRef');
   const jogador = banco.jogadores.find(j => j.nome === nome);
 
-  if(!banco.mensalidades[mes]){
-    banco.mensalidades[mes] = { pagos: [] };
-  }
+  if(!jogador) return;
 
-  const existe = banco.mensalidades[mes].pagos
-    .some(p => p.id === jogador.id);
+  await fetch(API + '/mensalidades', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      mes,
+      jogadorId: jogador.id
+    })
+  });
 
-  if(!existe){
-    banco.mensalidades[mes].pagos.push({
-      id: jogador.id,
-      nome: jogador.nome,
-      data: new Date().toISOString().split('T')[0]
-    });
-  }
-
-  salvar();
+  carregarDados();
 }
+
 
 // ===== FINANCEIRO =====
 function calcularFinanceiro(){
