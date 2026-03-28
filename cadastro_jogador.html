@@ -218,11 +218,14 @@ function contarDevendo(jogador){
   const hoje = new Date();
   const limiteDia = 10;
 
-  let inicio = new Date(jogador.dataCadastro);
-  inicio = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
+  // 🔥 NORMALIZA DATA (evita bug timezone)
+  const [ano, mes] = jogador.dataCadastro.split('-').map(Number);
+
+  let inicio = new Date(ano, mes - 1, 1);
 
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
+  // regra dia 10
   if(hoje.getDate() <= limiteDia){
     fim.setMonth(fim.getMonth() - 1);
   }
@@ -231,11 +234,11 @@ function contarDevendo(jogador){
 
   while(inicio <= fim){
 
-    const mes = inicio.toISOString().slice(0,7);
+    const mesRef = inicio.getFullYear() + '-' + String(inicio.getMonth()+1).padStart(2,'0');
 
-    const pagos = mensalidades[mes] || [];
+    const pagos = mensalidades[mesRef] || [];
 
-    const pagou = pagos.includes(String(jogador.id)); // 🔥 CORREÇÃO FINAL
+    const pagou = pagos.includes(String(jogador.id));
 
     if(!pagou){
       total++;
@@ -246,7 +249,6 @@ function contarDevendo(jogador){
 
   return total;
 }
-
  
 
 // ===== RENDER =====
