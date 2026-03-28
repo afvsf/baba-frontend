@@ -191,7 +191,7 @@ function editar(id){
   valSet('posicao', j.posicao);
   valSet('telefone', j.telefone);
   valSet('tipoJogador', j.tipo);
-  valSet('dataCadastro', j.dataCadastro);
+  valSet('dataCadastro', j.dataCadastro ? j.dataCadastro.split('T')[0] : '');
 
   editandoId = id;
   atualizarBotao();
