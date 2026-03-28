@@ -197,7 +197,7 @@ async function excluir(id){
 }
 
 // ===== STATUS =====
-function contarDevendo(jogador){
+function contarDevendo2(jogador){
 
   if(jogador.tipo !== 'mensal') return 0;
 
@@ -235,7 +235,7 @@ function contarDevendo(jogador){
   return total;
 }
 
-  function contarMesesDevendo(jogador){
+  function contarDevendo(jogador){
   if(!jogador.dataCadastro) return 0;
 
   const hoje = new Date();
