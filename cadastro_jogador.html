@@ -137,7 +137,7 @@ async function carregar(){
 
   mensalidades = {};
   m.forEach(x=>{
-    console.log(carregar);
+    console.log(m);
     if(!mensalidades[x.mes]) mensalidades[x.mes] = [];
     mensalidades[x.mes].push(x.jogadorid);
   });
@@ -197,14 +197,14 @@ async function excluir(id){
 }
 
 // ===== STATUS =====
-function contarDevendo2(jogador){
+function contarDevendo(jogador){
 
   if(jogador.tipo !== 'mensal') return 0;
 
+  if(!jogador.dataCadastro) return 0;
+
   const hoje = new Date();
   const limiteDia = 10;
-
-  if(!jogador.dataCadastro) return 0;
 
   let inicio = new Date(jogador.dataCadastro);
   inicio = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
@@ -223,7 +223,7 @@ function contarDevendo2(jogador){
 
     const pagos = mensalidades[mes] || [];
 
-    const pagou = pagos.includes(jogador.id); // 🔥 AQUI MUDA TUDO
+    const pagou = pagos.includes(String(jogador.id)); // 🔥 CORREÇÃO FINAL
 
     if(!pagou){
       total++;
@@ -235,37 +235,7 @@ function contarDevendo2(jogador){
   return total;
 }
 
-  function contarDevendo(jogador){
-  if(!jogador.dataCadastro) return 0;
-
-  const hoje = new Date();
-  const limiteDia = 10;
-
-  let inicio = new Date(jogador.dataCadastro);
-  inicio = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
-
-  let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-
-  if(hoje.getDate() <= limiteDia){
-    fim.setMonth(fim.getMonth() - 1);
-  }
-
-  let total = 0;
-
-  while(inicio <= fim){
-    const mes = inicio.toISOString().slice(0,7);
-
-    const pagou = mensalidades.some(m =>
-      m.jogadorid === jogador.id && m.mes === mes
-    );
-
-    if(!pagou) total++;
-
-    inicio.setMonth(inicio.getMonth() + 1);
-  }
-
-  return total;
-}
+ 
 
 // ===== RENDER =====
 function render(){
