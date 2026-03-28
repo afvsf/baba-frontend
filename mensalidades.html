@@ -67,6 +67,7 @@ document.getElementById('btnAtualizar').addEventListener('click', carregar);
 let jogadores = [];
 let mensalidades = {};
 
+// ===== GERAR MESES =====
 function getMesesAno(ano){
   let meses = [];
   for(let i=0;i<12;i++){
@@ -76,7 +77,7 @@ function getMesesAno(ano){
   return meses;
 }
 
-// regra dia 10
+// ===== REGRA DIA 10 =====
 function podeCobrarMes(mes){
   const hoje = new Date();
   const limite = 10;
@@ -94,7 +95,7 @@ function podeCobrarMes(mes){
   return dataMes < new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 }
 
-// carregar dados
+// ===== CARREGAR DADOS =====
 async function carregar(){
 
   const ano = document.getElementById('ano').value;
@@ -114,7 +115,7 @@ async function carregar(){
   render(ano);
 }
 
-// render tabela
+// ===== RENDER =====
 function render(ano){
 
   const meses = getMesesAno(ano);
@@ -141,63 +142,63 @@ function render(ano){
       meses.forEach(mes => {
 
         const pagos = mensalidades[mes] || [];
-const pagamento = pagos.find(p => String(p.jogadorId) === String(j.id));
+        const pagamento = pagos.find(p => String(p.jogadorId) === String(j.id));
 
-let classe = '';
-let conteudo = '';
+        let classe = '';
+        let conteudo = '';
 
-// 🔥 DATA CADASTRO SEGURA
-let dataCadastro = new Date(2000,0,1);
+        // DATA CADASTRO SEGURA
+        let dataCadastro = new Date(2000,0,1);
 
-if(j.dataCadastro){
-  const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
-  dataCadastro = new Date(anoCad, mesCad - 1, 1);
-}
+        if(j.dataCadastro){
+          const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+          dataCadastro = new Date(anoCad, mesCad - 1, 1);
+        }
 
-const [anoMes, mesMes] = mes.split('-').map(Number);
-const dataMes = new Date(anoMes, mesMes - 1, 1);
+        const [anoMes, mesMes] = mes.split('-').map(Number);
+        const dataMes = new Date(anoMes, mesMes - 1, 1);
 
-// ✅ PAGOU
-if(pagamento){
-  classe = 'ok';
-  conteudo = `
-    ✅
-    <br>R$ ${pagamento.valor || 20}
-    <br>${pagamento.data || ''}
-  `;
-}
+        // ✅ PAGOU
+        if(pagamento){
+          classe = 'ok';
+          conteudo = `
+            ✅
+            <br>R$ ${pagamento.valor || 20}
+            <br>${pagamento.data || ''}
+          `;
+        }
 
-// 🚫 ANTES DO CADASTRO
-else if(dataMes < dataCadastro){
-  conteudo = '-';
-}
+        // 🚫 ANTES DO CADASTRO
+        else if(dataMes < dataCadastro){
+          conteudo = '-';
+        }
 
-// ❌ DEVENDO
-else if(podeCobrarMes(mes)){
-  classe = 'devendo';
-  conteudo = `
-    ❌
-    <br>
-    <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
-  `;
-}
+        // ❌ DEVENDO
+        else if(podeCobrarMes(mes)){
+          classe = 'devendo';
+          conteudo = `
+            ❌
+            <br>
+            <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+          `;
+        }
 
-// ⏳ AINDA NÃO COBRAR
-else{
-  conteudo = '-';
-}
+        // ⏳ AINDA NÃO COBRAR
+        else{
+          conteudo = '-';
         }
 
         html += `<td class="${classe}">${conteudo}</td>`;
       });
 
-      html += `</tr>`; // 🔥 FECHA LINHA
+      html += `</tr>`;
     });
 
-  document.getElementById('tbody').innerHTML = html; // 🔥 ATUALIZA TABELA
+  document.getElementById('tbody').innerHTML = html;
 }
 
-  async function pagar(jogadorId, mes){
+// ===== PAGAMENTO =====
+async function pagar(jogadorId, mes){
 
   let valor = prompt("Digite o valor da mensalidade:", "20");
   if(valor === null) return;
@@ -221,9 +222,10 @@ else{
 
   carregar();
 }
-  
 
-  
+// ===== INIT =====
+carregar();
+
 </script>
 
 </body>
