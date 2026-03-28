@@ -95,7 +95,7 @@ th,td{
   <option value="mensal">Mensalista</option>
 </select>
 
-<button class="btn" onclick="salvarJogador()">Salvar</button>
+<button id="btnSalvar" class="btn">Salvar</button>
 
 </div>
 
@@ -160,11 +160,21 @@ async function salvarJogador(){
 
   if(!jogador.nome) return alert("Nome obrigatório");
 
-  await fetch(API+'/jogadores',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(jogador)
-  });
+  if(editandoId){
+    // 🔥 UPDATE
+    await fetch(API+'/jogadores/'+editandoId,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(jogador)
+    });
+  } else {
+    // 🔥 INSERT
+    await fetch(API+'/jogadores',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(jogador)
+    });
+  }
 
   limpar();
   editandoId = null;
@@ -266,6 +276,8 @@ function render(){
     tb.appendChild(tr);
   });
 }
+//Botão Salvar/Atualizar Jogador
+document.getElementById('btnSalvar').textContent = editandoId ? 'Atualizar' : 'Salvar';
 
 // ===== UTILS =====
 function val(id){ return document.getElementById(id).value }
