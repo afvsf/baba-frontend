@@ -150,10 +150,25 @@ function render(ano){
         // DATA CADASTRO SEGURA
         let dataCadastro = new Date(2000,0,1);
 
-        if(j.dataCadastro){
-          const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
-          dataCadastro = new Date(anoCad, mesCad - 1, 1);
-        }
+     // 🔥 SE NÃO TEM DATA, NÃO COBRA NADA
+if(!j.dataCadastro){
+  html += `<td>-</td>`;
+  return;
+}
+
+// 🔥 DATA CADASTRO
+const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+const dataCadastro = new Date(anoCad, mesCad - 1, 1);
+
+// 🔥 DATA DO MÊS
+const [anoMes, mesMes] = mes.split('-').map(Number);
+const dataMes = new Date(anoMes, mesMes - 1, 1);
+
+// 🚫 NÃO MOSTRAR NADA ANTES DO CADASTRO
+if(dataMes < dataCadastro){
+  html += `<td>-</td>`;
+  return;
+}
 
         const [anoMes, mesMes] = mes.split('-').map(Number);
         const dataMes = new Date(anoMes, mesMes - 1, 1);
