@@ -196,35 +196,74 @@ async function excluir(id){
 }
 
 // ===== STATUS =====
-function contarDevendo(j){
-  if(j.tipo !== 'mensal') return 0;
+function contarDevendo(jogador){
+
+  if(jogador.tipo !== 'mensal') return 0;
 
   const hoje = new Date();
-  const limite = 10;
+  const limiteDia = 10;
 
-  let inicio = new Date(j.dataCadastro);
-  inicio.setDate(1);
+  if(!jogador.dataCadastro) return 0;
+
+  let inicio = new Date(jogador.dataCadastro);
+  inicio = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
 
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
-  if(hoje.getDate() <= limite){
+  if(hoje.getDate() <= limiteDia){
     fim.setMonth(fim.getMonth() - 1);
   }
 
-  let devendo = 0;
+  let total = 0;
+
+  while(inicio <= fim){
+
+    const mes = inicio.toISOString().slice(0,7);
+
+    const pagos = mensalidades[mes] || [];
+
+    const pagou = pagos.includes(jogador.id); // 🔥 AQUI MUDA TUDO
+
+    if(!pagou){
+      total++;
+    }
+
+    inicio.setMonth(inicio.getMonth() + 1);
+  }
+
+  return total;
+}
+
+  function contarMesesDevendo(jogador){
+  if(!jogador.dataCadastro) return 0;
+
+  const hoje = new Date();
+  const limiteDia = 10;
+
+  let inicio = new Date(jogador.dataCadastro);
+  inicio = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
+
+  let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+  if(hoje.getDate() <= limiteDia){
+    fim.setMonth(fim.getMonth() - 1);
+  }
+
+  let total = 0;
 
   while(inicio <= fim){
     const mes = inicio.toISOString().slice(0,7);
-    const pagos = mensalidades[mes] || [];
 
-    if(!pagos.includes(j.id)){
-      devendo++;
-    }
+    const pagou = mensalidades.some(m =>
+      m.jogadorid === jogador.id && m.mes === mes
+    );
 
-    inicio.setMonth(inicio.getMonth()+1);
+    if(!pagou) total++;
+
+    inicio.setMonth(inicio.getMonth() + 1);
   }
 
-  return devendo;
+  return total;
 }
 
 // ===== RENDER =====
@@ -237,7 +276,7 @@ function render(){
     const dev = contarDevendo(j);
 
     let status = j.tipo==='mensal'
-      ? (dev>0 ? `❌ ${dev} mês(es)` : '✅ Em dia')
+      ? (dev>0 ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'}` : '✅ Em dia')
       : '🎟️ Avulso';
 
     let tr = document.createElement('tr');
