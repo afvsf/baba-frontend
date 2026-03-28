@@ -119,7 +119,7 @@ function render(ano){
 
   const meses = getMesesAno(ano);
 
-  // header
+  // HEADER
   let th = '<tr><th>Jogador</th>';
   meses.forEach(m=>{
     th += `<th>${m}</th>`;
@@ -128,66 +128,72 @@ function render(ano){
 
   document.getElementById('thead').innerHTML = th;
 
-  // body
+  // BODY
   let html = '';
 
-jogadores
-  .filter(j => j.tipo === 'mensal')
-  .forEach(j => {
+  jogadores
+    .filter(j => j.tipo === 'mensal')
+    .forEach(j => {
 
-    html += `<tr>`;
-    html += `<td>${j.nome}</td>`;
+      html += `<tr>`;
+      html += `<td>${j.nome}</td>`;
 
-    meses.forEach(mes => {
+      meses.forEach(mes => {
 
-      const pagos = mensalidades[mes] || [];
-      const pagamento = pagos.find(p => String(p.jogadorid) === String(j.id));
+        const pagos = mensalidades[mes] || [];
+        const pagamento = pagos.find(p => String(p.jogadorid) === String(j.id));
 
-      let classe = '';
-      let conteudo = '';
+        let classe = '';
+        let conteudo = '';
 
-      if(!j.dataCadastro){
-        conteudo = '-';
-      } else {
-
-        const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
-        const dataCadastro = new Date(anoCad, mesCad - 1, 1);
-
-        const [anoMes, mesMes] = mes.split('-').map(Number);
-        const dataMes = new Date(anoMes, mesMes - 1, 1);
-
-        if(pagamento){
-          classe = 'ok';
-          conteudo = `
-            ✅
-            <br>R$ ${pagamento.valor || 20}
-            <br>${pagamento.data || ''}
-          `;
-        }
-        else if(dataMes < dataCadastro){
+        // 🔥 SEM DATA CADASTRO
+        if(!j.dataCadastro){
           conteudo = '-';
-        }
-        else if(podeCobrarMes(mes)){
-          classe = 'devendo';
-          conteudo = `
-            ❌
-            <br>
-            <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
-          `;
-        }
-        else{
-          conteudo = '-';
-        }
-      }
+        } else {
 
-      html += `<td class="${classe}">${conteudo}</td>`;
+          const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+          const dataCadastro = new Date(anoCad, mesCad - 1, 1);
+
+          const [anoMes, mesMes] = mes.split('-').map(Number);
+          const dataMes = new Date(anoMes, mesMes - 1, 1);
+
+          // ✅ PAGOU
+          if(pagamento){
+            classe = 'ok';
+            conteudo = `
+              ✅
+              <br>R$ ${pagamento.valor || 20}
+              <br>${pagamento.data || ''}
+            `;
+          }
+
+          // 🚫 ANTES DO CADASTRO
+          else if(dataMes < dataCadastro){
+            conteudo = '-';
+          }
+
+          // ❌ DEVENDO
+          else if(podeCobrarMes(mes)){
+            classe = 'devendo';
+            conteudo = `
+              ❌
+              <br>
+              <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+            `;
+          }
+
+          else{
+            conteudo = '-';
+          }
+        }
+
+        html += `<td class="${classe}">${conteudo}</td>`;
+      });
+
+      html += `</tr>`; // 🔥 FECHA LINHA
     });
 
-    html += `</tr>`;
-  });
-
-document.getElementById('tbody').innerHTML = html;
-    
+  document.getElementById('tbody').innerHTML = html; // 🔥 ATUALIZA TABELA
 }
 
   async function pagar(jogadorId, mes){
