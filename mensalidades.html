@@ -173,20 +173,28 @@ function render(ano){
 // pagar
 async function pagar(jogadorId, mes){
 
+  let valor = prompt("Digite o valor da mensalidade:", "20");
+  if(valor === null) return;
+
+  valor = parseFloat(valor);
+
+  let data = prompt("Data do pagamento (YYYY-MM-DD):", 
+    new Date().toISOString().slice(0,10)
+  );
+
   await fetch(API + '/mensalidades',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       jogadorId,
-      mes
+      mes,
+      valor,
+      data
     })
   });
 
   carregar();
 }
-
-// init
-carregar();
 
 </script>
 
