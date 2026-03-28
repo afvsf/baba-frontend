@@ -139,33 +139,48 @@ function render(ano){
       meses.forEach(mes => {
 
   const pagos = mensalidades[mes] || [];
-  const pagamento = pagos.find(p => p.jogadorid === j.id);
+const pagamento = pagos.find(p => String(p.jogadorid) === String(j.id));
 
-  let classe = '';
-  let conteudo = '';
+let classe = '';
+let conteudo = '';
 
-  if(pagamento){
-    classe = 'ok';
+// 🔥 DATA CADASTRO
+const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+const dataCadastro = new Date(anoCad, mesCad - 1, 1);
 
-    conteudo = `
-      ✅
-      <br>R$ ${pagamento.valor || 20}
-      <br>${pagamento.data || ''}
-    `;
-  } else {
+// 🔥 DATA DO MÊS
+const [anoMes, mesMes] = mes.split('-').map(Number);
+const dataMes = new Date(anoMes, mesMes - 1, 1);
 
-    if(podeCobrarMes(mes)){
-      classe = 'devendo';
+if(pagamento){
+  classe = 'ok';
 
-      conteudo = `
-        ❌
-        <br>
-        <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
-      `;
-    } else {
-      conteudo = '-';
-    }
-  }
+  conteudo = `
+    ✅
+    <br>R$ ${pagamento.valor || 20}
+    <br>${pagamento.data || ''}
+  `;
+}
+
+// 🔥 NÃO COBRAR ANTES DO CADASTRO
+else if(dataMes < dataCadastro){
+  conteudo = '-';
+}
+
+// 🔥 COBRAR NORMAL
+else if(podeCobrarMes(mes)){
+  classe = 'devendo';
+
+  conteudo = `
+    ❌
+    <br>
+    <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+  `;
+}
+
+else{
+  conteudo = '-';
+}
 
   html += `<td class="${classe}">${conteudo}</td>`;
 });
