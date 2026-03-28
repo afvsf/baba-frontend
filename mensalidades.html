@@ -141,50 +141,51 @@ function render(ano){
       meses.forEach(mes => {
 
         const pagos = mensalidades[mes] || [];
-        const pagamento = pagos.find(p => String(p.jogadorid) === String(j.id));
+const pagamento = pagos.find(p => String(p.jogadorId) === String(j.id));
 
-        let classe = '';
-        let conteudo = '';
+let classe = '';
+let conteudo = '';
 
-        // 🔥 SEM DATA CADASTRO
-        if(!j.dataCadastro){
-          conteudo = '-';
-        } else {
+// 🔥 DATA CADASTRO SEGURA
+let dataCadastro = new Date(2000,0,1);
 
-          const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
-          const dataCadastro = new Date(anoCad, mesCad - 1, 1);
+if(j.dataCadastro){
+  const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+  dataCadastro = new Date(anoCad, mesCad - 1, 1);
+}
 
-          const [anoMes, mesMes] = mes.split('-').map(Number);
-          const dataMes = new Date(anoMes, mesMes - 1, 1);
+const [anoMes, mesMes] = mes.split('-').map(Number);
+const dataMes = new Date(anoMes, mesMes - 1, 1);
 
-          // ✅ PAGOU
-          if(pagamento){
-            classe = 'ok';
-            conteudo = `
-              ✅
-              <br>R$ ${pagamento.valor || 20}
-              <br>${pagamento.data || ''}
-            `;
-          }
+// ✅ PAGOU
+if(pagamento){
+  classe = 'ok';
+  conteudo = `
+    ✅
+    <br>R$ ${pagamento.valor || 20}
+    <br>${pagamento.data || ''}
+  `;
+}
 
-          // 🚫 ANTES DO CADASTRO
-          else if(dataMes < dataCadastro){
-            conteudo = '-';
-          }
+// 🚫 ANTES DO CADASTRO
+else if(dataMes < dataCadastro){
+  conteudo = '-';
+}
 
-          // ❌ DEVENDO
-          else if(podeCobrarMes(mes)){
-            classe = 'devendo';
-            conteudo = `
-              ❌
-              <br>
-              <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
-            `;
-          }
+// ❌ DEVENDO
+else if(podeCobrarMes(mes)){
+  classe = 'devendo';
+  conteudo = `
+    ❌
+    <br>
+    <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+  `;
+}
 
-          else{
-            conteudo = '-';
-          }
+// ⏳ AINDA NÃO COBRAR
+else{
+  conteudo = '-';
+}
         }
 
         html += `<td class="${classe}">${conteudo}</td>`;
