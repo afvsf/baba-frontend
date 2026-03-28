@@ -95,7 +95,7 @@ th,td{
   <option value="mensal">Mensalista</option>
 </select>
 
-<button id="btnSalvar" class="btn">Salvar</button>
+<button id="btnSalvar" class="btn" onclick="salvarJogador()">Salvar</button>
 
 </div>
 
@@ -179,6 +179,7 @@ async function salvarJogador(){
   limpar();
   editandoId = null;
   carregar();
+  atualizarBotao();
 }
 
 // ===== EDITAR =====
@@ -193,6 +194,7 @@ function editar(id){
   valSet('dataCadastro', j.dataCadastro);
 
   editandoId = id;
+  atualizarBotao();
 }
 
 // ===== EXCLUIR =====
@@ -277,7 +279,10 @@ function render(){
   });
 }
 //Botão Salvar/Atualizar Jogador
-document.getElementById('btnSalvar').textContent = editandoId ? 'Atualizar' : 'Salvar';
+function atualizarBotao(){
+  const btn = document.getElementById('btnSalvar');
+  btn.textContent = editandoId ? 'Atualizar' : 'Salvar';
+}
 
 // ===== UTILS =====
 function val(id){ return document.getElementById(id).value }
@@ -291,6 +296,7 @@ function limpar(){
 
 // ===== INIT =====
 carregar();
+atualizarBotao();
 
 </script>
 
