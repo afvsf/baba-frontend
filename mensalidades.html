@@ -139,57 +139,59 @@ function render(ano){
       meses.forEach(mes => {
 
   const pagos = mensalidades[mes] || [];
-const pagamento = pagos.find(p => String(p.jogadorid) === String(j.id));
+  const pagamento = pagos.find(p => String(p.jogadorid) === String(j.id));
 
-let classe = '';
-let conteudo = '';
+  let classe = '';
+  let conteudo = '';
 
-// 🔥 DATA CADASTRO
-const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
-const dataCadastro = new Date(anoCad, mesCad - 1, 1);
+  // 🔥 PROTEÇÃO
+  if(!j.dataCadastro){
+    conteudo = '-';
+  } else {
 
-// 🔥 DATA DO MÊS
-const [anoMes, mesMes] = mes.split('-').map(Number);
-const dataMes = new Date(anoMes, mesMes - 1, 1);
+    // 🔥 DATA CADASTRO
+    const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+    const dataCadastro = new Date(anoCad, mesCad - 1, 1);
 
-if(pagamento){
-  classe = 'ok';
+    // 🔥 DATA DO MÊS
+    const [anoMes, mesMes] = mes.split('-').map(Number);
+    const dataMes = new Date(anoMes, mesMes - 1, 1);
 
-  conteudo = `
-    ✅
-    <br>R$ ${pagamento.valor || 20}
-    <br>${pagamento.data || ''}
-  `;
-}
+    if(pagamento){
+      classe = 'ok';
 
-// 🔥 NÃO COBRAR ANTES DO CADASTRO
-else if(dataMes < dataCadastro){
-  conteudo = '-';
-}
+      conteudo = `
+        ✅
+        <br>R$ ${pagamento.valor || 20}
+        <br>${pagamento.data || ''}
+      `;
+    }
 
-// 🔥 COBRAR NORMAL
-else if(podeCobrarMes(mes)){
-  classe = 'devendo';
+    // 🔥 NÃO COBRAR ANTES DO CADASTRO
+    else if(dataMes < dataCadastro){
+      conteudo = '-';
+    }
 
-  conteudo = `
-    ❌
-    <br>
-    <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
-  `;
-}
+    // 🔥 COBRAR
+    else if(podeCobrarMes(mes)){
+      classe = 'devendo';
 
-else{
-  conteudo = '-';
-}
+      conteudo = `
+        ❌
+        <br>
+        <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+      `;
+    }
+
+    else{
+      conteudo = '-';
+    }
+
+  } // ✅ FECHAMENTO CORRETO AQUI
 
   html += `<td class="${classe}">${conteudo}</td>`;
 });
-
-      html += `</tr>`;
-    });
-
-  document.getElementById('tbody').innerHTML = html;
-}
+     
 
 // pagar
 async function pagar(jogadorId, mes){
