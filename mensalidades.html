@@ -169,10 +169,7 @@ if(dataMes < dataCadastro){
   html += `<td>-</td>`;
   return;
 }
-
-        const [anoMes, mesMes] = mes.split('-').map(Number);
-        const dataMes = new Date(anoMes, mesMes - 1, 1);
-
+     
         // ✅ PAGOU
         if(pagamento){
           classe = 'ok';
