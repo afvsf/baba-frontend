@@ -306,6 +306,9 @@ html += `<td class="${classe}">${conteudo}</td>`;
     });
 
   document.getElementById('tbody').innerHTML = html;
+
+  atualizarDashboard();
+  
 }
 
 // ===== PAGAMENTO =====
@@ -332,7 +335,7 @@ async function pagar(jogadorId, mes){
   });
 
   carregar();
-  atualizarDashboard();
+  
 }
 
 // INIT
