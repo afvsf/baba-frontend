@@ -42,8 +42,8 @@ button:hover { opacity:0.8; }
   text-align:center;
 }
 </style>
-
 </head>
+
 <body>
 
 <h1>💰 Controle de Mensalidades</h1>
@@ -60,6 +60,7 @@ button:hover { opacity:0.8; }
 </table>
 
 <script>
+
 const API = 'https://baba-backend.onrender.com';
 
 document.getElementById('btnAtualizar').addEventListener('click', carregar);
@@ -95,7 +96,7 @@ function podeCobrarMes(mes){
   return dataMes < new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 }
 
-// ===== CARREGAR DADOS =====
+// ===== CARREGAR =====
 async function carregar(){
 
   const ano = document.getElementById('ano').value;
@@ -126,7 +127,6 @@ function render(ano){
     th += `<th>${m}</th>`;
   });
   th += '</tr>';
-
   document.getElementById('thead').innerHTML = th;
 
   // BODY
@@ -147,29 +147,17 @@ function render(ano){
         let classe = '';
         let conteudo = '';
 
-        // DATA CADASTRO SEGURA
-       // let dataCadastro = new Date(2000,0,1);
+        // 🔥 DATA CADASTRO
+        let dataCadastro = null;
 
-     // 🔥 SE NÃO TEM DATA, NÃO COBRA NADA
-if(!j.dataCadastro){
-  html += `<td>-</td>`;
-  return;
-}
+        if(j.dataCadastro){
+          const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
+          dataCadastro = new Date(anoCad, mesCad - 1, 1);
+        }
 
-// 🔥 DATA CADASTRO
-const [anoCad, mesCad] = j.dataCadastro.split('-').map(Number);
-const dataCadastro = new Date(anoCad, mesCad - 1, 1);
+        const [anoMes, mesMes] = mes.split('-').map(Number);
+        const dataMes = new Date(anoMes, mesMes - 1, 1);
 
-// 🔥 DATA DO MÊS
-const [anoMes, mesMes] = mes.split('-').map(Number);
-const dataMes = new Date(anoMes, mesMes - 1, 1);
-
-// 🚫 NÃO MOSTRAR NADA ANTES DO CADASTRO
-if(dataMes < dataCadastro){
-  html += `<td>-</td>`;
-  return;
-}
-     
         // ✅ PAGOU
         if(pagamento){
           classe = 'ok';
@@ -181,7 +169,7 @@ if(dataMes < dataCadastro){
         }
 
         // 🚫 ANTES DO CADASTRO
-        else if(dataMes < dataCadastro){
+        else if(dataCadastro && dataMes < dataCadastro){
           conteudo = '-';
         }
 
@@ -195,7 +183,7 @@ if(dataMes < dataCadastro){
           `;
         }
 
-        // ⏳ AINDA NÃO COBRAR
+        // ⏳ NÃO COBRAR AINDA
         else{
           conteudo = '-';
         }
@@ -209,7 +197,7 @@ if(dataMes < dataCadastro){
   document.getElementById('tbody').innerHTML = html;
 }
 
-// ===== PAGAMENTO =====
+// ===== PAGAR =====
 async function pagar(jogadorId, mes){
 
   let valor = prompt("Digite o valor da mensalidade:", "20");
@@ -217,7 +205,8 @@ async function pagar(jogadorId, mes){
 
   valor = parseFloat(valor);
 
-  let data = prompt("Data do pagamento (YYYY-MM-DD)", 
+  let data = prompt(
+    "Data do pagamento (YYYY-MM-DD)",
     new Date().toISOString().slice(0,10)
   );
 
