@@ -211,6 +211,53 @@ function atualizarDashboard(){
   document.getElementById('totalDevendo').textContent = devendo;
   document.getElementById('totalJogadores').textContent = jogadores.length;
 }
+
+ // ===== CALCULAR RESUMO MENSAL =====
+  function calcularResumoMensal(ano){
+
+  const meses = getMesesAno(ano);
+
+  let resumo = {};
+
+  meses.forEach(mes=>{
+    resumo[mes] = { total: 0, devendo: 0 };
+  });
+
+  jogadores
+    .filter(j => j.tipo === 'mensal')
+    .forEach(j => {
+
+      const dataCadStr = j.dataCadastro || j.datacadastro;
+      if(!dataCadStr) return;
+
+      const [anoCad, mesCad] = dataCadStr.split('T')[0].split('-').map(Number);
+      const dataCadastro = new Date(anoCad, mesCad - 1, 1);
+
+      meses.forEach(mes => {
+
+        const [anoMes, mesMes] = mes.split('-').map(Number);
+        const dataMes = new Date(anoMes, mesMes - 1, 1);
+
+        if(dataMes < dataCadastro) return;
+
+        const pagos = mensalidades[mes] || [];
+
+        const pagamento = pagos.find(p =>
+          String(p.jogadorId || p.jogadorid) === String(j.id)
+        );
+
+        if(pagamento){
+          resumo[mes].total += Number(pagamento.valor || 20);
+        } else if(podeCobrarMes(mes)){
+          resumo[mes].devendo++;
+        }
+
+      });
+
+    });
+
+  return resumo;
+}
   
 // ===== RENDER =====
 function render(ano){
@@ -218,11 +265,28 @@ function render(ano){
   const meses = getMesesAno(ano);
 
   // HEADER
-  let th = '<tr><th>Jogador</th>';
-  meses.forEach(m=>{
-    th += `<th>${m}</th>`;
-  });
-  th += '</tr>';
+ const resumo = calcularResumoMensal(ano);
+
+// LINHA 1 → MESES
+let th = '<tr><th>Jogador</th>';
+meses.forEach(m=>{
+  th += `<th>${m}</th>`;
+});
+th += '</tr>';
+
+// LINHA 2 → RESUMO
+th += '<tr><th>Resumo</th>';
+
+meses.forEach(mes=>{
+  th += `
+    <th style="font-size:12px">
+      💰 ${resumo[mes].total.toFixed(2)}<br>
+      ❌ ${resumo[mes].devendo}
+    </th>
+  `;
+});
+
+th += '</tr>';
   document.getElementById('thead').innerHTML = th;
 
   // BODY
