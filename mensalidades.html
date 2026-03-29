@@ -41,6 +41,37 @@ button:hover { opacity:0.8; }
   margin-bottom:20px;
   text-align:center;
 }
+
+  .dashboard{
+  display:flex;
+  gap:15px;
+  margin-bottom:20px;
+  justify-content:center;
+}
+
+.box{
+  background:#fff;
+  padding:15px;
+  border-radius:10px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+  text-align:center;
+  min-width:150px;
+}
+
+.ok{
+  background:#d4edda;
+  font-weight:bold;
+}
+
+.devendo{
+  background:#f8d7da;
+  font-weight:bold;
+}
+
+.futuro{
+  background:#e2e8f0;
+  color:#555;
+}
 </style>
 
 </head>
@@ -53,7 +84,23 @@ button:hover { opacity:0.8; }
   <input type="number" id="ano" value="2026">
   <button onclick="carregar()">Atualizar</button>
 </div>
+<div class="dashboard">
+  <div class="box">
+    💰 Total arrecadado<br>
+    <b id="totalArrecadado">R$ 0</b>
+  </div>
 
+  <div class="box">
+    ❌ Inadimplentes<br>
+    <b id="totalDevendo">0</b>
+  </div>
+
+  <div class="box">
+    👥 Jogadores<br>
+    <b id="totalJogadores">0</b>
+  </div>
+</div>
+  
 <table>
   <thead id="thead"></thead>
   <tbody id="tbody"></tbody>
@@ -115,6 +162,53 @@ async function carregar(){
   render(ano);
 }
 
+  // ===== ATUALIZAR =====
+function atualizarDashboard(){
+
+  let total = 0;
+  let devendo = 0;
+
+  jogadores.forEach(j => {
+
+    if(j.tipo !== 'mensal') return;
+
+    const dataCadStr = j.dataCadastro || j.datacadastro;
+    if(!dataCadStr) return;
+
+    const hoje = new Date();
+
+    const [anoCad, mesCad] = dataCadStr.split('T')[0].split('-').map(Number);
+    let inicio = new Date(anoCad, mesCad - 1, 1);
+
+    let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+    if(hoje.getDate() <= 10){
+      fim.setMonth(fim.getMonth() - 1);
+    }
+
+    while(inicio <= fim){
+
+      const mes = inicio.toISOString().slice(0,7);
+
+      const pagos = mensalidades[mes] || [];
+      const pagou = pagos.some(p => String(p.jogadorId) === String(j.id));
+
+      if(pagou){
+        const p = pagos.find(x => String(x.jogadorId) === String(j.id));
+        total += Number(p.valor || 20);
+      } else {
+        devendo++;
+      }
+
+      inicio.setMonth(inicio.getMonth() + 1);
+    }
+  });
+
+  document.getElementById('totalArrecadado').textContent = 'R$ ' + total.toFixed(2);
+  document.getElementById('totalDevendo').textContent = devendo;
+  document.getElementById('totalJogadores').textContent = jogadores.length;
+}
+  
 // ===== RENDER =====
 function render(ano){
 
@@ -193,12 +287,13 @@ else if(podeCobrarMes(mes)){
   conteudo = `
     ❌
     <br>
-    <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+    <button onclick="pagar('${j.id}','${mes}')">💰 Pagar</button>
   `;
 }
 
 else{
-  conteudo = '-';
+  classe = 'futuro';
+  conteudo = '⏳';
 }
 
 html += `<td class="${classe}">${conteudo}</td>`;
@@ -234,6 +329,7 @@ async function pagar(jogadorId, mes){
   });
 
   carregar();
+  atualizarDashboard();
 }
 
 // INIT
