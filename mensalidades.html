@@ -167,12 +167,24 @@ if(dataMes < dataCadastro){
 
 // ✅ PAGOU
 else if(pagamento){
+
   classe = 'ok';
-  conteudo = `
-    ✅
-    <br>R$ ${pagamento.valor || 20}
-    <br>${pagamento.data || ''}
-  `;
+
+  // 🔥 FORMATA DATA (remove horário)
+ let dataFormatada = pagamento.data
+    ? new Date(pagamento.data).toLocaleDateString('pt-BR')
+    : '';
+
+  // 🔥 VALOR PADRÃO
+  let valorPago = pagamento.valor || 20;
+
+conteudo = `
+  <div style="font-size:14px">
+    ✅<br>
+    <b>R$ ${valorPago.toFixed(2)}</b><br>
+    <small>${dataFormatada}</small>
+  </div>
+`;
 }
 
 // ❌ DEVENDO
