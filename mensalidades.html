@@ -191,13 +191,14 @@ function atualizarDashboard(){
       const mes = inicio.toISOString().slice(0,7);
 
       const pagos = mensalidades[mes] || [];
-      const pagou = pagos.some(p => String(p.jogadorId || p.jogadorid) === String(j.id));
 
-      if(pagou){
-        const p = pagos.find(x => 
-  String(x.jogadorId || x.jogadorid) === String(j.id)
-);
-        total += Number(p.valor || 20);
+      // 🔥 CORREÇÃO PRINCIPAL
+      const pagamento = pagos.find(p => 
+        String(p.jogadorId || p.jogadorid) === String(j.id)
+      );
+
+      if(pagamento){
+        total += Number(pagamento.valor || 20); // 🔥 soma correta
       } else {
         devendo++;
       }
