@@ -333,8 +333,8 @@ else if(pagamento){
 
   // 🔥 FORMATA DATA (remove horário)
  let dataFormatada = pagamento.data
-    ? new Date(pagamento.data).toLocaleDateString('pt-BR')
-    : '';
+  ? pagamento.data.split('-').reverse().join('/')
+  : '';
 
   // 🔥 VALOR PADRÃO
   let valorPago = pagamento.valor || 20;
