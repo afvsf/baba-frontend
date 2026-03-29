@@ -191,10 +191,12 @@ function atualizarDashboard(){
       const mes = inicio.toISOString().slice(0,7);
 
       const pagos = mensalidades[mes] || [];
-      const pagou = pagos.some(p => String(p.jogadorId) === String(j.id));
+      const pagou = pagos.some(p => String(p.jogadorId || p.jogadorid) === String(j.id));
 
       if(pagou){
-        const p = pagos.find(x => String(x.jogadorId) === String(j.id));
+        const p = pagos.find(x => 
+  String(x.jogadorId || x.jogadorid) === String(j.id)
+);
         total += Number(p.valor || 20);
       } else {
         devendo++;
@@ -235,7 +237,7 @@ function render(ano){
       meses.forEach(mes => {
 
 const pagos = mensalidades[mes] || [];
-const pagamento = pagos.find(p => String(p.jogadorId) === String(j.id));
+const pagamento = pagos.find(p => String(p.jogadorId || p.jogadorid) === String(j.id));
 
 let classe = '';
 let conteudo = '';
