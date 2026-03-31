@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 Controle de Mensalidades PRO</title>
+
+<style>
+body { font-family: Arial; background:#0f172a; color:#fff; padding:20px; }
+h1 { text-align:center; }
+
+.topo { text-align:center; margin-bottom:20px; }
+
+input,button{
+  padding:8px;
+  border-radius:6px;
+  border:none;
+}
+
+button{
+  background:#22c55e;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.dashboard{
+  display:flex;
+  gap:15px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+
+.box{
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+  min-width:160px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#1e293b;
+}
+
+th,td{
+  padding:10px;
+  border:1px solid #334155;
+  text-align:center;
+}
+
+th{ background:#020617; }
+
+.ok{ background:#14532d; }
+.devendo{ background:#7f1d1d; }
+.futuro{ background:#334155; }
+.resumo{ background:#020617; font-size:12px; }
+</style>
+</head>
+
+<body>
+
+<h1>💰 Mensalidades PRO</h1>
+
+<div class="topo">
+  Ano:
+  <input type="number" id="ano" value="2026">
+  <button onclick="carregar()">Atualizar</button>
+</div>
+
+<div class="dashboard">
+  <div class="box">💰 Total<br><b id="total">R$ 0</b></div>
+  <div class="box">❌ Devendo<br><b id="devendo">0</b></div>
+  <div class="box">👥 Jogadores<br><b id="jogadores">0</b></div>
+</div>
+
+<table>
+<thead id="thead"></thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<script>
+const API = 'https://baba-backend.onrender.com';
+
+let jogadores = [];
+let mensalidades = {};
+
+// ===== MESES
+function getMeses(ano){
+  return Array.from({length:12},(_,i)=>{
+    return `${ano}-${String(i+1).padStart(2,'0')}`;
+  });
+}
+
+// ===== REGRA DIA 10
+function podeCobrar(mes){
+  const hoje = new Date();
+  const [a,m] = mes.split('-');
+  const dataMes = new Date(a, m-1, 1);
+
+  if(hoje.getFullYear()==a && hoje.getMonth()==m-1){
+    return hoje.getDate()>10;
+  }
+
+  return dataMes < new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+}
+
+// ===== CARREGAR
+async function carregar(){
+
+  const ano = document.getElementById('ano').value;
+
+  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
+  const mensal = await fetch(API+'/mensalidades').then(r=>r.json());
+
+  mensalidades = {};
+
+  mensal.forEach(m=>{
+    if(!mensalidades[m.mes]) mensalidades[m.mes]=[];
+    mensalidades[m.mes].push(m);
+  });
+
+  render(ano);
+}
+
+// ===== FORMATAR DATA
+function formatarData(data){
+  if(!data) return '';
+  return new Date(data).toLocaleDateString('pt-BR',{timeZone:'UTC'});
+}
+
+// ===== RENDER
+function render(ano){
+
+  const meses = getMeses(ano);
+
+  let total=0;
+  let dev=0;
+
+  // HEADER
+  let th='<tr><th>Jogador</th>';
+  meses.forEach(m=> th+=`<th>${m}</th>`);
+  th+='</tr>';
+
+  // RESUMO
+  let resumo='<tr class="resumo"><th>Resumo</th>';
+
+  meses.forEach(mes=>{
+    let t=0,d=0;
+
+    jogadores.filter(j=>j.tipo==='mensal').forEach(j=>{
+
+      const dataCad = j.dataCadastro || j.datacadastro;
+      if(!dataCad) return;
+
+      const dCad = new Date(dataCad.split('T')[0]);
+      const dMes = new Date(mes+'-01');
+
+      if(dMes < dCad) return;
+
+      const pag = (mensalidades[mes]||[])
+        .find(p=>String(p.jogadorId||p.jogadorid)===String(j.id));
+
+      if(pag){
+        t+=Number(pag.valor||20);
+      }else if(podeCobrar(mes)){
+        d++;
+      }
+    });
+
+    resumo+=`<th>💰${t}<br>❌${d}</th>`;
+  });
+
+  resumo+='</tr>';
+
+  document.getElementById('thead').innerHTML=th+resumo;
+
+  // BODY
+  let html='';
+
+  jogadores
+  .filter(j=>j.tipo==='mensal')
+  .forEach(j=>{
+
+    html+=`<tr><td>${j.nome}</td>`;
+
+    meses.forEach(mes=>{
+
+      const pag = (mensalidades[mes]||[])
+        .find(p=>String(p.jogadorId||p.jogadorid)===String(j.id));
+
+      const dataCadStr = j.dataCadastro || j.datacadastro;
+
+      if(!dataCadStr){
+        html+='<td>-</td>'; return;
+      }
+
+      const dCad = new Date(dataCadStr.split('T')[0]);
+      const dMes = new Date(mes+'-01');
+
+      let classe='',conteudo='';
+
+      if(dMes < dCad){
+        conteudo='-';
+      }
+
+      else if(pag){
+
+        classe='ok';
+        total+=Number(pag.valor||20);
+
+        conteudo=`
+          ✅<br>
+          R$ ${(pag.valor||20).toFixed(2)}<br>
+          <small>${formatarData(pag.data)}</small>
+        `;
+
+      }
+
+      else if(podeCobrar(mes)){
+        classe='devendo';
+        dev++;
+
+        conteudo=`❌<br>
+        <button onclick="pagar('${j.id}','${mes}')">Pagar</button>`;
+      }
+
+      else{
+        classe='futuro';
+        conteudo='⏳';
+      }
+
+      html+=`<td class="${classe}">${conteudo}</td>`;
+    });
+
+    html+='</tr>';
+  });
+
+  document.getElementById('tbody').innerHTML=html;
+
+  // DASHBOARD
+  document.getElementById('total').innerText='R$ '+total.toFixed(2);
+  document.getElementById('devendo').innerText=dev;
+  document.getElementById('jogadores').innerText=jogadores.length;
+}
+
+// ===== PAGAR
+async function pagar(jogadorId, mes){
+
+  let valor = prompt("Valor:", "20");
+  if(valor===null) return;
+
+  let data = prompt("Data:", new Date().toISOString().slice(0,10));
+
+  await fetch(API+'/mensalidades',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ jogadorId, mes, valor, data })
+  });
+
+  carregar();
+}
+
+// INIT
+carregar();
+</script>
+
+</body>
+</html>
