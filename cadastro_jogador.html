@@ -68,12 +68,44 @@ th,td{
 
 .devendo{ color:#ef4444; }
 .ok{ color:#22c55e; }
+
+.barra-topo{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#020617;
+  padding:10px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.5);
+  z-index:999;
+  display:flex;
+  align-items:center;
+}
+
+.btn-voltar{
+  background:#334155;
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+.btn-voltar:hover{
+  background:#475569;
+}
+
+  
 </style>
 
 </head>
 <body>
-  <div style="margin-bottom:15px;">
-  <button onclick="window.location.href='index.html'">⬅ Voltar</button>
+<div class="barra-topo">
+  <button onclick="window.location.href='index.html'" class="btn-voltar">
+    ⬅ Voltar
+  </button>
 </div>
 
 <header>⚽ Baba PRO - Gestão de Jogadores</header>
