@@ -172,10 +172,13 @@ async function carregar(){
 
   mensalidades = {};
   m.forEach(x=>{
-    console.log(m);
-    if(!mensalidades[x.mes]) mensalidades[x.mes] = [];
-    mensalidades[x.mes].push(String(x.jogadorId || x.jogadorid));
-  });
+  if(!mensalidades[x.mes]) mensalidades[x.mes] = [];
+
+  // 🔥 NORMALIZAÇÃO CORRETA
+  const id = String(x.jogadorId || x.jogadorid);
+
+  mensalidades[x.mes].push(id);
+});
 
   render();
 }
