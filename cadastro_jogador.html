@@ -174,7 +174,7 @@ async function carregar(){
   m.forEach(x=>{
     console.log(m);
     if(!mensalidades[x.mes]) mensalidades[x.mes] = [];
-    mensalidades[x.mes].push(x.jogadorid);
+    mensalidades[x.mes].push(String(x.jogadorId || x.jogadorid));
   });
 
   render();
