@@ -273,7 +273,7 @@ function contarDevendo(jogador){
 
     const pagos = mensalidades[mesRef] || [];
 
-    const pagou = pagos.includes(String(jogador.id));
+    const pagou = pagos.map(String).includes(String(jogador.id));
 
     if(!pagou){
       total++;
