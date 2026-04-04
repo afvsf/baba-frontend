@@ -250,20 +250,26 @@ async function excluir(id){
 function contarDevendo(jogador){
 
   if(jogador.tipo !== 'mensal') return 0;
-
   if(!jogador.dataCadastro) return 0;
 
   const hoje = new Date();
   const limiteDia = 10;
 
-  // 🔥 NORMALIZA DATA (evita bug timezone)
   const [ano, mes] = jogador.dataCadastro.split('-').map(Number);
 
-  let inicio = new Date(ano, mes - 1, 1);
+  // 🔥 AQUI ENTRA A REGRA NOVA
+  const diaCadastro = new Date(jogador.dataCadastro).getDate();
+
+  let inicio;
+
+  if(diaCadastro > 10){
+    inicio = new Date(ano, mes, 1);
+  } else {
+    inicio = new Date(ano, mes - 1, 1);
+  }
 
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
-  // regra dia 10
   if(hoje.getDate() <= limiteDia){
     fim.setMonth(fim.getMonth() - 1);
   }
@@ -271,11 +277,9 @@ function contarDevendo(jogador){
   let total = 0;
 
   while(inicio <= fim){
-
     const mesRef = inicio.getFullYear() + '-' + String(inicio.getMonth()+1).padStart(2,'0');
 
     const pagos = mensalidades[mesRef] || [];
-
     const pagou = pagos.map(String).includes(String(jogador.id));
 
     if(!pagou){
