@@ -255,18 +255,19 @@ function contarDevendo(jogador){
   const hoje = new Date();
   const limiteDia = 10;
 
-  const [ano, mes] = jogador.dataCadastro.split('-').map(Number);
+  const dataObj = new Date(jogador.dataCadastro);
 
-  // 🔥 AQUI ENTRA A REGRA NOVA
-  const diaCadastro = new Date(jogador.dataCadastro).getDate();
+const ano = dataObj.getFullYear();
+const mes = dataObj.getMonth() + 1;
+const diaCadastro = dataObj.getDate();
 
-  let inicio;
+let inicio;
 
-  if(diaCadastro > 10){
-    inicio = new Date(ano, mes, 1);
-  } else {
-    inicio = new Date(ano, mes - 1, 1);
-  }
+if(diaCadastro > 10){
+  inicio = new Date(ano, mes, 1);
+} else {
+  inicio = new Date(ano, mes - 1, 1);
+}
 
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
