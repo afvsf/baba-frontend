@@ -255,23 +255,12 @@ function contarDevendo(jogador){
   const hoje = new Date();
   const limiteDia = 10;
 
-  // 🔥 CORREÇÃO TOTAL DA DATA (ANTI-TIMEZONE BUG)
-  const dataObj = new Date(jogador.dataCadastro + 'T00:00:00');
+  const dataObj = new Date(jogador.dataCadastro);
 
-  const ano = dataObj.getFullYear();
-  const mes = dataObj.getMonth() + 1;
-  const diaCadastro = dataObj.getDate();
+  if(isNaN(dataObj)) return 0; // 🔥 proteção
 
-  // 🔥 REGRA DO DIA 10
-  let inicio;
+  let inicio = new Date(dataObj.getFullYear(), dataObj.getMonth(), 1);
 
-  if(diaCadastro > 10){
-    inicio = new Date(ano, mes, 1); // próximo mês
-  } else {
-    inicio = new Date(ano, mes - 1, 1); // mês atual
-  }
-
-  // 🔥 DATA FINAL (RESPEITA REGRA DO DIA 10 ATUAL)
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
   if(hoje.getDate() <= limiteDia){
@@ -286,7 +275,6 @@ function contarDevendo(jogador){
 
     const pagos = mensalidades[mesRef] || [];
 
-    // 🔥 COMPARAÇÃO SEGURA
     const pagou = pagos.map(String).includes(String(jogador.id));
 
     if(!pagou){
