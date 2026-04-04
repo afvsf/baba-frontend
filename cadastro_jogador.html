@@ -307,6 +307,7 @@ function render(){
   jogadores.forEach(j=>{
 
     const dev = contarDevendo(j);
+    let valorTotal = dev * 20;
 
     let status = j.tipo==='mensal'
       ? (dev>0 ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'}` : '✅ Em dia')
