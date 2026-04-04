@@ -250,14 +250,14 @@ async function excluir(id){
 function contarDevendo(jogador){
 
   if(jogador.tipo !== 'mensal') return 0;
-  if(!jogador.dataCadastro) return 0;
+
+  const dataCadastro = jogador.dataCadastro || jogador.datacadastro;
+  if(!dataCadastro) return 0;
 
   const hoje = new Date();
   const limiteDia = 10;
 
-  const dataObj = new Date(jogador.dataCadastro);
-
-  if(isNaN(dataObj)) return 0; // 🔥 proteção
+  const dataObj = new Date(dataCadastro);
 
   let inicio = new Date(dataObj.getFullYear(), dataObj.getMonth(), 1);
 
