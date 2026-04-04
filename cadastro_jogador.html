@@ -306,12 +306,20 @@ function render(){
 
   jogadores.forEach(j=>{
 
-    const dev = contarDevendo(j);
-    let valorTotal = dev * 20;
+   const dev = contarDevendo(j);
 
-    let status = j.tipo==='mensal'
-      ? (dev>0 ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'}` : '✅ Em dia')
-      : '🎟️ Avulso';
+let valorTotal = dev * 20;
+
+let valorFormatado = valorTotal.toLocaleString('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
+
+let status = j.tipo==='mensal'
+  ? (dev>0 
+      ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'} (${valorFormatado})`
+      : '✅ Em dia')
+  : '🎟️ Avulso';
 
     let tr = document.createElement('tr');
 
