@@ -146,6 +146,8 @@ if(tabela){
 
   banco.jogadores.forEach(j => {
 
+    console.log(j.nome, contarMesesDevendo(j));
+
     let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
 
     let pagou = false;
@@ -214,7 +216,7 @@ status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
   renderDevedores();
   calcularFinanceiro();
   renderRankingGeral();
-console.log(j.nome, contarMesesDevendo(j));
+
   
 }
 
