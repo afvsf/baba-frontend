@@ -214,7 +214,8 @@ status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
   renderDevedores();
   calcularFinanceiro();
   renderRankingGeral();
-
+console.log(j.nome, contarMesesDevendo(j));
+  
 }
 
 // ===== MENSALISTAS =====
