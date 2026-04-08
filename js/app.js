@@ -682,4 +682,5 @@ document.addEventListener('DOMContentLoaded', () => {
     mesInput.value = mesAtual;
   }
 
+  carregarDados(); // 🔥 agora roda depois do DOM pronto
 });
