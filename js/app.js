@@ -48,9 +48,9 @@ async function carregarDados(){
     if(!banco.mensalidades[m.mes]){
       banco.mensalidades[m.mes] = { pagos: [] };
     }
-    banco.mensalidades[m.mes].pagos.push({
-  id: m.jogadorId,
-  nome: getNome(m.jogadorId),
+   banco.mensalidades[m.mes].pagos.push({
+  id: m.jogadorId || m.jogadorid, // 🔥 CORREÇÃO
+  nome: getNome(m.jogadorId || m.jogadorid),
   data: m.data || ''
 });
   });
@@ -163,7 +163,14 @@ if(tabela){
       const devendo = contarMesesDevendo(j);
 
       if(devendo > 0){
-        status = `❌ Devendo (${devendo} mês${devendo > 1 ? 'es' : ''})`;
+        let valor = devendo * 20;
+
+let valorFormatado = valor.toLocaleString('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
+
+status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
         classe = 'devendo';
       }else{
         status = '✅ Em dia';
@@ -642,12 +649,14 @@ function contarMesesDevendo(jogador){
   const hoje = new Date();
   const limiteDia = 10;
 
-  const dataCadastro = new Date(jogador.dataCadastro);
-  let inicio = new Date(dataCadastro.getFullYear(), dataCadastro.getMonth(), 1);
+  const dataCadStr = jogador.dataCadastro || jogador.datacadastro;
+  if(!dataCadStr) return 0;
 
+  const [anoCad, mesCad] = dataCadStr.split('T')[0].split('-').map(Number);
+
+  let inicio = new Date(anoCad, mesCad - 1, 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
-  // se ainda NÃO passou dia 10 → não cobra mês atual
   if(hoje.getDate() <= limiteDia){
     fim.setMonth(fim.getMonth() - 1);
   }
@@ -657,9 +666,12 @@ function contarMesesDevendo(jogador){
   while(inicio <= fim){
 
     const mes = inicio.toISOString().slice(0,7);
+
     const pagos = banco.mensalidades?.[mes]?.pagos || [];
 
-    const pagou = pagos.some(p => p.id === jogador.id);
+    const pagou = pagos.some(p => 
+      String(p.id) === String(jogador.id)
+    );
 
     if(!pagou){
       totalDevendo++;
@@ -667,5 +679,6 @@ function contarMesesDevendo(jogador){
 
     inicio.setMonth(inicio.getMonth() + 1);
   }
+
   return totalDevendo;
 }
