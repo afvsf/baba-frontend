@@ -171,13 +171,12 @@ async function carregar(){
   jogadores = j;
 
   mensalidades = {};
-  m.forEach(x=>{
-  if(!mensalidades[x.mes]) mensalidades[x.mes] = [];
 
-  // 🔥 NORMALIZAÇÃO CORRETA
-  const id = String(x.jogadorId || x.jogadorid);
-
-  mensalidades[x.mes].push(id);
+m.forEach(x=>{
+  if(!mensalidades[x.mes]){
+    mensalidades[x.mes] = [];
+  }
+  mensalidades[x.mes].push(x);
 });
 
   render();
@@ -251,19 +250,18 @@ function contarDevendo(jogador){
 
   if(jogador.tipo !== 'mensal') return 0;
 
-  const dataCadastro = jogador.dataCadastro || jogador.datacadastro;
-  if(!dataCadastro) return 0;
+  const dataCadStr = jogador.dataCadastro || jogador.datacadastro;
+  if(!dataCadStr) return 0;
 
   const hoje = new Date();
-  const limiteDia = 10;
 
-  const dataObj = new Date(dataCadastro);
+  const [anoCad, mesCad] = dataCadStr.split('T')[0].split('-').map(Number);
 
-  let inicio = new Date(dataObj.getFullYear(), dataObj.getMonth(), 1);
-
+  let inicio = new Date(anoCad, mesCad - 1, 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
-  if(hoje.getDate() <= limiteDia){
+  // 🔥 REGRA DIA 10
+  if(hoje.getDate() <= 10){
     fim.setMonth(fim.getMonth() - 1);
   }
 
@@ -271,13 +269,16 @@ function contarDevendo(jogador){
 
   while(inicio <= fim){
 
-    const mesRef = inicio.getFullYear() + '-' + String(inicio.getMonth()+1).padStart(2,'0');
+    const mes = inicio.toISOString().slice(0,7);
 
-    const pagos = mensalidades[mesRef] || [];
+    const pagos = mensalidades[mes] || [];
 
-    const pagou = pagos.map(String).includes(String(jogador.id));
+    // 🔥 CORREÇÃO PRINCIPAL (SEU BUG)
+    const pagamento = pagos.find(p =>
+      String(p.jogadorId || p.jogadorid) === String(jogador.id)
+    );
 
-    if(!pagou){
+    if(!pagamento){
       total++;
     }
 
