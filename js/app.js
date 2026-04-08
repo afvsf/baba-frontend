@@ -136,87 +136,71 @@ async function registrar(){
 // ===== RENDER =====
 function render(){
 
-// TABELA DE JOGADORES NO INDEX
-const tabela = document.getElementById('bodyJogadores');
+  const tabela = document.getElementById('bodyJogadores');
 
-if(tabela){
-  tabela.innerHTML = '';
+  if(tabela){
+    tabela.innerHTML = '';
 
-  const mesAtual = document.getElementById('mesRef')?.value;
+    banco.jogadores.forEach(j => {
 
-banco.jogadores.forEach(j => {
+      console.log(j.nome, contarMesesDevendo(j));
 
-  console.log(j.nome, contarMesesDevendo(j));
+      let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
 
-  let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
+      let status = '';
+      let classe = '';
 
-  let status = '';
-  let classe = '';
+      if(j.tipo === 'mensal'){
 
-  if(j.tipo === 'mensal'){
+        const devendo = contarMesesDevendo(j);
 
-    const devendo = contarMesesDevendo(j);
+        if(devendo > 0){
 
-    if(devendo > 0){
+          let valor = devendo * 20;
 
-      let valor = devendo * 20;
+          let valorFormatado = valor.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          });
 
-      let valorFormatado = valor.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      });
+          status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
+          classe = 'devendo';
 
-      status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
-      classe = 'devendo';
+        } else {
 
-    } else {
+          status = '✅ Em dia';
+          classe = 'ok';
 
-      status = '✅ Em dia';
-      classe = 'ok';
+        }
 
-    }
+      } else {
 
-  } else {
+        status = '🎟️ Avulso';
+        classe = 'avulso';
 
-    status = '🎟️ Avulso';
-    classe = 'avulso';
+      }
 
-  }
+      let tr = document.createElement('tr');
+      tr.className = classe;
 
-  let tr = document.createElement('tr');
-  tr.className = classe;
+      tr.innerHTML = `
+        <td>${j.nome}</td>
+        <td>${j.apelido || '-'}</td>
+        <td>${j.posicao || '-'}</td>
+        <td>${tipo}</td>
+        <td>${status}</td>
+      `;
 
-  tr.innerHTML = `
-    <td>${j.nome}</td>
-    <td>${j.apelido || '-'}</td>
-    <td>${j.posicao || '-'}</td>
-    <td>${tipo}</td>
-    <td>${status}</td>
-  `;
-
-  tabela.appendChild(tr);
-});
-}
-
-  // select jogadores
-  const select = document.getElementById('jogadorSelect');
-  if(select){
-    select.innerHTML = '';
-    banco.jogadores.forEach(j=>{
-      let opt = document.createElement('option');
-      opt.value = j.id;
-      opt.textContent = `${j.nome} (${j.tipo})`;
-      select.appendChild(opt);
+      tabela.appendChild(tr);
     });
   }
 
+  // 🔥 IMPORTANTE: manter o resto do render funcionando
   carregarMensalistas();
   renderMensalidades();
   renderDevedores();
   calcularFinanceiro();
   renderRankingGeral();
-
-  
 }
 
 // ===== MENSALISTAS =====
