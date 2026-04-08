@@ -682,3 +682,15 @@ function contarMesesDevendo(jogador){
 
   return totalDevendo;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  const mesInput = document.getElementById('mesRef');
+
+  if(mesInput){
+    const hoje = new Date();
+    const mesAtual = hoje.toISOString().slice(0,7);
+    mesInput.value = mesAtual;
+  }
+
+});
