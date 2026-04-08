@@ -144,59 +144,58 @@ if(tabela){
 
   const mesAtual = document.getElementById('mesRef')?.value;
 
-  banco.jogadores.forEach(j => {
+banco.jogadores.forEach(j => {
 
-    console.log(j.nome, contarMesesDevendo(j));
+  console.log(j.nome, contarMesesDevendo(j));
 
-    let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
+  let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
 
-    let pagou = false;
+  let status = '';
+  let classe = '';
 
-  if(banco.mensalidades && banco.mensalidades[mesAtual]){
-  const pagos = banco.mensalidades?.[mesAtual]?.pagos || [];
-  pagou = pagos.some(p => p.id === j.id); // ✅ sem const
-}
+  if(j.tipo === 'mensal'){
 
-   let status = '';
-    let classe = '';
+    const devendo = contarMesesDevendo(j);
 
-    if(j.tipo === 'mensal'){
+    if(devendo > 0){
 
-      const devendo = contarMesesDevendo(j);
+      let valor = devendo * 20;
 
-      if(devendo > 0){
-        let valor = devendo * 20;
+      let valorFormatado = valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
 
-let valorFormatado = valor.toLocaleString('pt-BR', {
-  style: 'currency',
-  currency: 'BRL'
-});
+      status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
+      classe = 'devendo';
 
-status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
-        classe = 'devendo';
-      }else{
-        status = '✅ Em dia';
-        classe = 'ok';
-      }
+    } else {
 
-    }else{
-      status = '🎟️ Avulso';
-      classe = 'avulso';
+      status = '✅ Em dia';
+      classe = 'ok';
+
     }
 
-    let tr = document.createElement('tr');
-    tr.className = classe;
+  } else {
 
-    tr.innerHTML = `
-      <td>${j.nome}</td>
-      <td>${j.apelido || '-'}</td>
-      <td>${j.posicao || '-'}</td>
-      <td>${tipo}</td>
-      <td>${status}</td>
-    `;
+    status = '🎟️ Avulso';
+    classe = 'avulso';
 
-    tabela.appendChild(tr);
-  });
+  }
+
+  let tr = document.createElement('tr');
+  tr.className = classe;
+
+  tr.innerHTML = `
+    <td>${j.nome}</td>
+    <td>${j.apelido || '-'}</td>
+    <td>${j.posicao || '-'}</td>
+    <td>${tipo}</td>
+    <td>${status}</td>
+  `;
+
+  tabela.appendChild(tr);
+});
 }
 
   // select jogadores
