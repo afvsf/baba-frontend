@@ -141,58 +141,63 @@ function render(){
   if(tabela){
     tabela.innerHTML = '';
 
-    banco.jogadores.forEach(j => {
+   banco.jogadores.forEach(j => {
 
-      console.log(j.nome, contarMesesDevendo(j));
+  console.log(j.nome, contarMesesDevendo(j));
 
-      let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
+  let tipo = j.tipo === 'mensal' ? '💰 Mensalista' : '🎟️ Avulso';
 
-      let status = '';
-      let classe = '';
+  let status = '';
+  let classe = '';
 
-      if(j.tipo === 'mensal'){
+  if(j.tipo === 'mensal'){
 
-        const devendo = contarMesesDevendo(j);
+    // 🔥 GARANTE DATA
+    if(!j.dataCadastro && !j.datacadastro){
+      j.dataCadastro = new Date().toISOString().slice(0,10);
+    }
 
-        if(devendo > 0){
+    const devendo = contarMesesDevendo(j);
 
-          let valor = devendo * 20;
+    if(devendo > 0){
 
-          let valorFormatado = valor.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          });
+      let valor = devendo * 20;
 
-          status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
-          classe = 'devendo';
+      let valorFormatado = valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
 
-        } else {
+      status = `❌ ${devendo} mês${devendo > 1 ? 'es' : ''} (${valorFormatado})`;
+      classe = 'devendo';
 
-          status = '✅ Em dia';
-          classe = 'ok';
+    } else {
 
-        }
+      status = '✅ Em dia';
+      classe = 'ok';
 
-      } else {
+    }
 
-        status = '🎟️ Avulso';
-        classe = 'avulso';
+  } else {
 
-      }
+    status = '🎟️ Avulso';
+    classe = 'avulso';
 
-      let tr = document.createElement('tr');
-      tr.className = classe;
+  }
 
-      tr.innerHTML = `
-        <td>${j.nome}</td>
-        <td>${j.apelido || '-'}</td>
-        <td>${j.posicao || '-'}</td>
-        <td>${tipo}</td>
-        <td>${status}</td>
-      `;
+  let tr = document.createElement('tr');
+  tr.className = classe;
 
-      tabela.appendChild(tr);
-    });
+  tr.innerHTML = `
+    <td>${j.nome}</td>
+    <td>${j.apelido || '-'}</td>
+    <td>${j.posicao || '-'}</td>
+    <td>${tipo}</td>
+    <td>${status}</td>
+  `;
+
+  tabela.appendChild(tr);
+});
   }
 
   // 🔥 IMPORTANTE: manter o resto do render funcionando
