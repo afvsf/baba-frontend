@@ -166,7 +166,8 @@ let editandoId = null;
 // ===== CARREGAR =====
 async function carregar(){
   const j = await fetch(API+'/jogadores').then(r=>r.json());
-  const m = await fetch(API+'/mensalidades').then(r=>r.json());
+  const m = await fetch(API+'/mensalidades?ts=' + Date.now())
+  .then(r=>r.json());
 
   jogadores = j;
 
@@ -260,11 +261,6 @@ function contarDevendo(jogador){
   let inicio = new Date(anoCad, mesCad - 1, 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
-  // 🔥 REGRA DIA 10
-  if(hoje.getDate() <= 10){
-    fim.setMonth(fim.getMonth() - 1);
-  }
-
   let total = 0;
 
   while(inicio <= fim){
@@ -273,12 +269,20 @@ function contarDevendo(jogador){
 
     const pagos = mensalidades[mes] || [];
 
-    // 🔥 CORREÇÃO PRINCIPAL (SEU BUG)
     const pagamento = pagos.find(p =>
       String(p.jogadorId || p.jogadorid) === String(jogador.id)
     );
 
-    if(!pagamento){
+    // 🔥 REGRA CORRETA
+    const mesAtual =
+      inicio.getFullYear() === hoje.getFullYear() &&
+      inicio.getMonth() === hoje.getMonth();
+
+    const podeCobrar =
+      (mesAtual && hoje.getDate() > 10) ||
+      (!mesAtual && inicio < new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+
+    if(!pagamento && podeCobrar){
       total++;
     }
 
@@ -306,7 +310,7 @@ let valorFormatado = valorTotal.toLocaleString('pt-BR', {
 
 let status = j.tipo==='mensal'
   ? (dev>0 
-      ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'} (${valorFormatado})`
+      ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'}<br><small>${valorFormatado}</small>`
       : '✅ Em dia')
   : '🎟️ Avulso';
 
