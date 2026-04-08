@@ -644,12 +644,14 @@ function isDevedorAnual(jogador){
 }
 // Conta quantos meses um jogador mensalista está devendo (não pagou nos últimos 12 meses)
 function contarMesesDevendo(jogador){
+
   if(jogador.tipo !== 'mensal') return 0;
 
   const hoje = new Date();
   const limiteDia = 10;
 
   const dataCadStr = jogador.dataCadastro || jogador.datacadastro;
+
   if(!dataCadStr) return 0;
 
   const [anoCad, mesCad] = dataCadStr.split('T')[0].split('-').map(Number);
@@ -657,6 +659,7 @@ function contarMesesDevendo(jogador){
   let inicio = new Date(anoCad, mesCad - 1, 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
+  // 🔥 REGRA DIA 10
   if(hoje.getDate() <= limiteDia){
     fim.setMonth(fim.getMonth() - 1);
   }
