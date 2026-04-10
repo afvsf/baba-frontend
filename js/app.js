@@ -48,11 +48,7 @@ async function carregarDados(){
     if(!banco.mensalidades[m.mes]){
       banco.mensalidades[m.mes] = { pagos: [] };
     }
-   banco.mensalidades[m.mes].pagos.push({
-  id: m.jogadorId || m.jogadorid, // 🔥 CORREÇÃO
-  nome: getNome(m.jogadorId || m.jogadorid),
-  data: m.data || ''
-});
+   banco.mensalidades[m.mes].pagos.push(m);
   });
 
   render();
