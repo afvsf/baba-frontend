@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baba PRO - Dashboard</title>
+
+<title>⚽ Baba PRO</title>
 
 <style>
 body{
@@ -19,145 +20,80 @@ header{
   text-align:center;
 }
 
-.container{
-  padding:15px;
-  max-width:1200px;
-  margin:auto;
+.menu{
+  text-align:center;
+  margin:10px;
 }
 
-/* CARDS */
+.btn{
+  display:inline-block;
+  background:#3b82f6;
+  padding:8px 12px;
+  margin:5px;
+  border-radius:8px;
+  text-decoration:none;
+  color:#fff;
+  font-weight:bold;
+}
+
+.container{
+  padding:15px;
+}
+
 .card{
   background:#1e293b;
   padding:15px;
-  border-radius:12px;
+  border-radius:10px;
   margin-bottom:15px;
-}
-
-/* GRID RESPONSIVO */
-.grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
-  gap:15px;
-}
-
-/* TABELAS */
-.table-container{
-  overflow-x:auto;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:600px;
 }
 
 th,td{
-  padding:10px;
+  padding:8px;
   border-bottom:1px solid #334155;
-  text-align:left;
+  text-align:center;
 }
 
-/* STATUS */
 .ok{ color:#22c55e; }
 .devendo{ color:#ef4444; }
+.avulso{ color:#38bdf8; }
 
-/* INPUTS */
-input,select,button{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin:5px 0;
-  font-size:16px;
-}
-
-/* BOTÕES */
-button{
-  background:#22c55e;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-/* MENU */
-.menu{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:10px;
-  padding:10px;
 }
 
-.btn-menu{
-  flex:1;
-  min-width:140px;
-  text-align:center;
-  padding:10px;
-  background:#3b82f6;
-  color:#fff;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:bold;
-}
-
-  #resumoBaba{
-  margin-top:10px;
-  padding:10px;
-  background:#020617;
-  border-radius:8px;
-  text-align:center;
-  font-size:16px;
-}
-
-/* 📱 MOBILE */
-@media(max-width:768px){
-
-  h1{
-    font-size:20px;
+@media(max-width:600px){
+  .grid{
+    grid-template-columns:1fr;
   }
-
-  th,td{
-    font-size:14px;
-  }
-
-  .card{
-    padding:12px;
-  }
-
-  .lista-card{
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:8px;
 }
-
-  button{
-  font-size:16px;
-  padding:14px;
-}
-
-}
-
 </style>
-
 </head>
+
 <body>
 
 <header>
-  <h1>⚽ Baba PRO</h1>
+  <h2>⚽ Baba PRO</h2>
 </header>
-<div class="menu">
-<a href="cadastro_jogador.html" class="btn-menu">👤 Cadastro</a>
-<a href="mes.html" class="btn-menu">💰 Mensalidades</a>
-<a href="baba.html" class="btn-menu">⚽ Baba do Dia</a>
 
+<div class="menu">
+  <a href="cadastro_jogador.html" class="btn">👤 Cadastro</a>
+  <a href="mes.html" class="btn">💰 Mensalidades</a>
+  <a href="baba.html" class="btn">📅 Baba do Dia</a>
 </div>
+
 <div class="container">
 
 <!-- JOGADORES -->
 <div class="card">
-<h2>👥 Jogadores</h2>
+<h3>👥 Jogadores</h3>
 
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -170,10 +106,35 @@ button{
 </thead>
 <tbody id="tabelaJogadores"></tbody>
 </table>
-</div>
+
 </div>
 
+<!-- RANKINGS -->
+<div class="grid">
 
+<div class="card">
+<h3>⚽ Artilharia</h3>
+<ul id="rankingGols"></ul>
+</div>
+
+<div class="card">
+<h3>👥 Participação</h3>
+<ul id="rankingPresenca"></ul>
+</div>
+
+<div class="card">
+<h3>💰 Pagamentos</h3>
+<ul id="rankingPagamentos"></ul>
+</div>
+
+<div class="card">
+<h3>🟨 Cartões</h3>
+<ul id="rankingCartoes"></ul>
+</div>
+
+</div>
+
+</div>
 
 <script>
 const API = 'https://baba-backend.onrender.com';
@@ -183,50 +144,21 @@ let registros = [];
 let mensalidades = {};
 
 // ===== CARREGAR =====
-let ultimoHash = '';
-
-function gerarHash(dados){
-  return JSON.stringify(dados).length;
-}
-
 async function carregar(){
 
-  const jogadoresAPI = await fetch(API+'/jogadores').then(r=>r.json());
-  const registrosAPI = await fetch(API+'/registros').then(r=>r.json());
-  const mensalAPI = await fetch(API+'/mensalidades').then(r=>r.json());
+  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
+  registros = await fetch(API+'/registros').then(r=>r.json());
+  const mensal = await fetch(API+'/mensalidades').then(r=>r.json());
 
-  // 🔥 monta mensalidades
-  let mensalTemp = {};
-  mensalAPI.forEach(m=>{
-    if(!mensalTemp[m.mes]) mensalTemp[m.mes] = [];
-    mensalTemp[m.mes].push(m);
+  mensalidades = {};
+
+  mensal.forEach(m=>{
+    if(!mensalidades[m.mes]) mensalidades[m.mes]=[];
+    mensalidades[m.mes].push(m);
   });
 
-  // 🔥 cria hash dos dados
-  const novoHash = gerarHash({
-    jogadoresAPI,
-    registrosAPI,
-    mensalAPI
-  });
-
-  // 🔥 só atualiza se mudou
-  if(novoHash !== ultimoHash){
-
-    console.log('🔄 Mudança detectada, atualizando...');
-
-    ultimoHash = novoHash;
-
-    jogadores = jogadoresAPI;
-    registros = registrosAPI;
-    mensalidades = mensalTemp;
-
-    renderJogadores();
-    renderSelect();
-    renderRegistros();
-    renderResumo(data);
-  }else{
-    console.log('😴 Sem mudança...');
-  }
+  renderJogadores();
+  renderRanking();
 }
 
 // ===== STATUS =====
@@ -237,11 +169,7 @@ function contarDevendo(j){
   const hoje = new Date();
   const limite = 10;
 
-  const dataCadStr = j.dataCadastro || j.datacadastro;
-
-  if(!dataCadStr) return 0;
-
-  const dataCad = new Date(dataCadStr.split('T')[0]);
+  const dataCad = new Date(j.dataCadastro || j.datacadastro);
 
   let inicio = new Date(dataCad.getFullYear(), dataCad.getMonth(), 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
@@ -270,7 +198,7 @@ function contarDevendo(j){
   return total;
 }
 
-// ===== RENDER JOGADORES =====
+// ===== JOGADORES =====
 function renderJogadores(){
 
   const tb = document.getElementById('tabelaJogadores');
@@ -291,154 +219,65 @@ function renderJogadores(){
       <td>${j.apelido || '-'}</td>
       <td>${j.posicao || '-'}</td>
       <td>${j.tipo}</td>
-      <td class="${dev>0?'devendo':'ok'}">${status}</td>
+      <td class="${dev>0?'devendo': j.tipo==='mensal'?'ok':'avulso'}">${status}</td>
     `;
 
     tb.appendChild(tr);
   });
 }
 
-// ===== SELECT =====
-function renderSelect(){
-  const sel = document.getElementById('jogador');
-  sel.innerHTML = '';
+// ===== RANKING =====
+function renderRanking(){
 
-  jogadores.forEach(j=>{
-    let opt = document.createElement('option');
-    opt.value = j.id;
-    opt.textContent = j.nome;
-    sel.appendChild(opt);
-  });
-}
+  let dados = {};
 
-// ===== DELETAR PARTICIPAÇÃO =====  
-async function removerRegistro(id){
+  registros.forEach(r=>{
 
-  if(!confirm("Remover participação?")) return;
+    const jogador = jogadores.find(j => 
+      String(j.id) === String(r.jogadorId || r.jogadorid)
+    );
 
-  await fetch(API + '/registro/' + id, {
-    method: 'DELETE'
-  });
+    const nome = jogador ? jogador.nome : '---';
 
-  carregar();
-}
+    if(!dados[nome]){
+      dados[nome] = {
+        gols:0,
+        presenca:0,
+        cartoes:0
+      };
+    }
 
-// ===== REGISTRAR =====
-async function registrar(){
-
-  const data = document.getElementById('data').value;
-  const jogadorId = document.getElementById('jogador').value;
-
-  if(!data) return alert("Selecione data");
-
-  // 🚫 impedir duplicado
-  const jaExiste = registros.some(r =>
-    r.data === data &&
-    String(r.jogadorId || r.jogadorid) === String(jogadorId)
-  );
-
-  if(jaExiste){
-    alert("⚠️ Jogador já registrado nesse baba!");
-    return;
-  }
-
-  await fetch(API+'/registro',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      data,
-      jogadorId,
-      gols: +document.getElementById('gols').value || 0,
-      cartoes: +document.getElementById('cartoes').value || 0,
-      obs: document.getElementById('obs').value
-    })
+    dados[nome].gols += r.gols;
+    dados[nome].presenca++;
+    dados[nome].cartoes += r.cartoes;
   });
 
-  carregar();
-}
-  
-
-// ===== RENDER REGISTROS =====
-function renderRegistros(){
-
-  const data = document.getElementById('data').value;
-  const tb = document.getElementById('listaRegistros');
-
-  if(!data){
-    tb.innerHTML = '<tr><td colspan="5">Selecione uma data</td></tr>';
-    return;
-  }
-
-  const lista = registros.filter(r => r.data === data);
-
-  tb.innerHTML = '';
-
-  if(lista.length === 0){
-    tb.innerHTML = '<tr><td colspan="5">Nenhum jogador registrado</td></tr>';
-    return;
-  }
-
-  lista.forEach(r=>{
-
- const jogador = jogadores.find(j => 
-  String(j.id) === String(r.jogadorId || r.jogadorid)
-);
-
-  let tr = document.createElement('tr');
-
-  tb.innerHTML += `
-  <div class="lista-card">
-    <b>${jogador?.nome || '⚠️'}</b><br>
-    ⚽ Gols: ${r.gols} |
-    🟨 Cartões: ${r.cartoes}<br>
-    📝 ${r.obs || ''}
-  </div>
-`;
-
-  tb.appendChild(tr);
-});
-
-  renderResumo(data);
+  montarRanking('rankingGols', dados, 'gols', true);
+  montarRanking('rankingPresenca', dados, 'presenca', true);
+  montarRanking('rankingCartoes', dados, 'cartoes', false);
 }
 
-// atualizar lista ao trocar data
-document.getElementById('data').addEventListener('change', renderRegistros);
+function montarRanking(id, dados, campo, desc=true){
 
+  const ul = document.getElementById(id);
+  ul.innerHTML = '';
 
-function irCadastro(){
-  window.location.href = 'cadastro_jogador.html';
+  Object.entries(dados)
+    .sort((a,b)=> desc ? b[1][campo]-a[1][campo] : a[1][campo]-b[1][campo])
+    .slice(0,5)
+    .forEach(([nome,val])=>{
+      let li = document.createElement('li');
+      li.textContent = `${nome} - ${val[campo]}`;
+      ul.appendChild(li);
+    });
 }
 
-function irMensalidades(){
-  window.location.href = 'mes.html';
-}
-
-function irBabadia(){
-  window.location.href = 'baba.html';
-}
-
-function renderResumo(data){
-
-  const lista = registros.filter(r => r.data === data);
-
-  const totalJogadores = lista.length;
-  const totalGols = lista.reduce((s,r)=>s+r.gols,0);
-
-  document.getElementById('resumoBaba').innerHTML = `
-    👥 Jogadores: ${totalJogadores} |
-    ⚽ Gols: ${totalGols}
-  `;
- 
-}
-
-  // INIT
+// INIT
 carregar();
 
-// 🔄 verificação inteligente (5s)
-setInterval(() => {
-  carregar();
-}, 5000);
-  
+// 🔄 atualização automática leve
+setInterval(carregar, 10000);
+
 </script>
 
 </body>
