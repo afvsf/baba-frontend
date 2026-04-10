@@ -279,18 +279,42 @@ function renderSelect(){
   });
 }
 
+// ===== DELETAR PARTICIPAÇÃO =====  
+async function removerRegistro(id){
+
+  if(!confirm("Remover participação?")) return;
+
+  await fetch(API + '/registro/' + id, {
+    method: 'DELETE'
+  });
+
+  carregar();
+}
+
 // ===== REGISTRAR =====
 async function registrar(){
 
   const data = document.getElementById('data').value;
+  const jogadorId = document.getElementById('jogador').value;
+
   if(!data) return alert("Selecione data");
+
+  // 🚫 impedir duplicado
+  const jaExiste = registros.some(r =>
+    r.data === data && r.jogadorId === jogadorId
+  );
+
+  if(jaExiste){
+    alert("⚠️ Jogador já registrado nesse baba!");
+    return;
+  }
 
   await fetch(API+'/registro',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       data,
-      jogadorId: document.getElementById('jogador').value,
+      jogadorId,
       gols: +document.getElementById('gols').value || 0,
       cartoes: +document.getElementById('cartoes').value || 0,
       obs: document.getElementById('obs').value
@@ -299,6 +323,7 @@ async function registrar(){
 
   carregar();
 }
+  
 
 // ===== RENDER REGISTROS =====
 function renderRegistros(){
