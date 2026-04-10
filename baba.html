@@ -283,7 +283,6 @@ function renderTudo(){
 // ===== REGISTROS =====
 function renderRegistros(data){
 
-  const data = document.getElementById('data').value;
   const tb = document.getElementById('listaRegistros');
 
   if(!data){
@@ -291,7 +290,9 @@ function renderRegistros(data){
     return;
   }
 
-  const lista = registros.filter(r => r.data === data);
+  const lista = registros.filter(r =>
+  r.data && r.data.startsWith(data)
+);
 
   tb.innerHTML = '';
 
@@ -326,7 +327,9 @@ function renderRegistros(data){
 // ===== RESUMO =====
 function renderResumo(data){
 
-  const lista = registros.filter(r => r.data === data);
+  const lista = registros.filter(r =>
+  r.data && r.data.startsWith(data)
+);
 
   const totalJogadores = lista.length;
   const totalGols = lista.reduce((s,r)=>s+r.gols,0);
@@ -338,7 +341,9 @@ function renderResumo(data){
 // ===== RANKING =====
 function renderTop3(data){
 
-  const lista = registros.filter(r => r.data === data);
+  const lista = registros.filter(r =>
+  r.data && r.data.startsWith(data)
+);
 
   const ranking = {};
 
