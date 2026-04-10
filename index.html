@@ -256,7 +256,6 @@ async function carregar(){
     renderSelect();
     renderRegistros();
     renderResumo(data);
-
   }else{
     console.log('😴 Sem mudança...');
   }
@@ -430,6 +429,8 @@ function renderRegistros(){
 
   tb.appendChild(tr);
 });
+
+  renderResumo(data);
 }
 
 // atualizar lista ao trocar data
