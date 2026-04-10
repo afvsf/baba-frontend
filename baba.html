@@ -222,8 +222,8 @@ function renderRegistros(data){
   lista.forEach(r=>{
 
     const jogador = jogadores.find(j => 
-      String(j.id) === String(r.jogadorId)
-    );
+  String(j.id) === String(r.jogadorId || r.jogadorid)
+);
 
     let tr = document.createElement('tr');
 
