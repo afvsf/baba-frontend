@@ -181,8 +181,41 @@ async function registrar(){
   const data = document.getElementById('data').value;
   const jogadorId = document.getElementById('jogador').value;
 
-  if(!data) return alert("Selecione a data");
+  if(!data) return alert("Selecione data");
 
+  // 🔥 SE ESTÁ EDITANDO
+  if(registroEditando){
+
+    await fetch(API + '/registro/' + registroEditando, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        data,
+        jogadorId,
+        gols: +document.getElementById('gols').value || 0,
+        cartoes: +document.getElementById('cartoes').value || 0,
+        obs: document.getElementById('obs').value
+      })
+    });
+
+    registroEditando = null;
+    limparCampos();
+
+    carregar();
+    return;
+  }
+
+  // 🚫 evitar duplicado
+  const jaExiste = registros.some(r =>
+    r.data === data && String(r.jogadorId) === String(jogadorId)
+  );
+
+  if(jaExiste){
+    alert("⚠️ Jogador já registrado nesse baba!");
+    return;
+  }
+
+  // 🔥 NOVO REGISTRO
   await fetch(API+'/registro',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -195,9 +228,51 @@ async function registrar(){
     })
   });
 
+  limparCampos();
   carregar();
 }
 
+// ===== REMOVER PARTICIPAÇÃO =====
+async function removerRegistro(id){
+
+  if(!confirm("Remover participação?")) return;
+
+  await fetch(API + '/registro/' + id, {
+    method: 'DELETE'
+  });
+
+  carregar();
+}
+
+// ===== LIMPAR CAMPOS =====
+function limparCampos(){
+  document.getElementById('gols').value = '';
+  document.getElementById('cartoes').value = '';
+  document.getElementById('obs').value = '';
+}
+
+
+// ===== EDITAR PARTICIPAÇÃO =====
+let registroEditando = null;
+
+function editarRegistro(id){
+
+  const r = registros.find(r => r.id == id);
+
+  if(!r) return;
+
+  registroEditando = id;
+
+  document.getElementById('gols').value = r.gols;
+  document.getElementById('cartoes').value = r.cartoes;
+  document.getElementById('obs').value = r.obs || '';
+
+  document.getElementById('jogador').value = r.jogadorId;
+
+  alert("✏️ Editando participação...");
+}
+
+  
 // ===== RENDER GERAL =====
 function renderTudo(){
   const data = document.getElementById('data').value;
