@@ -307,13 +307,18 @@ function renderRegistros(){
   const tb = document.getElementById('listaRegistros');
 
   if(!data){
-    tb.innerHTML = '<tr><td colspan="4">Selecione uma data</td></tr>';
+    tb.innerHTML = '<tr><td colspan="5">Selecione uma data</td></tr>';
     return;
   }
 
   const lista = registros.filter(r => r.data === data);
 
   tb.innerHTML = '';
+
+  if(lista.length === 0){
+    tb.innerHTML = '<tr><td colspan="5">Nenhum jogador registrado</td></tr>';
+    return;
+  }
 
   lista.forEach(r=>{
 
@@ -325,7 +330,10 @@ function renderRegistros(){
       <td>${jogador ? jogador.nome : '---'}</td>
       <td>${r.gols}</td>
       <td>${r.cartoes}</td>
-      <td>${r.obs || ''}</td>
+      <td>${r.obs || '-'}</td>
+      <td>
+        <button onclick="removerRegistro('${r.id}')">🗑️</button>
+      </td>
     `;
 
     tb.appendChild(tr);
