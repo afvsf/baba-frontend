@@ -308,7 +308,9 @@ async function removerRegistro(id){
 async function registrar(){
 
   const data = document.getElementById('data').value;
-  const jogadorId = document.getElementById('jogador').value;
+  const jogador = jogadores.find(j => 
+  String(j.id) === String(r.jogadorId || r.jogadorid)
+);
 
   if(!data) return alert("Selecione data");
 
