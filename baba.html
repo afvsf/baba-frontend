@@ -140,7 +140,7 @@ th,td{
 
 <!-- RANKING -->
 <div class="card">
-<h3>🏆 Ranking do Dia</h3>
+<h3>🏆 Top 3 do Baba</h3>
 <ul id="rankingDia"></ul>
 </div>
 
@@ -202,7 +202,7 @@ function renderTudo(){
   const data = document.getElementById('data').value;
   renderRegistros(data);
   renderResumo(data);
-  renderRankingDia(data);
+  renderTop3(data);
 }
 
 // ===== REGISTROS =====
@@ -251,14 +251,15 @@ function renderResumo(data){
 }
 
 // ===== RANKING =====
-function renderRankingDia(data){
+function renderTop3(data){
 
   const lista = registros.filter(r => r.data === data);
+
   const ranking = {};
 
   lista.forEach(r=>{
     const jogador = jogadores.find(j => 
-      String(j.id) === String(r.jogadorId)
+      String(j.id) === String(r.jogadorId || r.jogadorid)
     );
 
     const nome = jogador ? jogador.nome : 'Desconhecido';
@@ -279,14 +280,31 @@ function renderRankingDia(data){
   const ul = document.getElementById('rankingDia');
   ul.innerHTML = '';
 
-  ordenado.forEach(([nome,stats],i)=>{
-    let medalha = i===0?'🥇 MVP':i===1?'🥈':i===2?'🥉':'';
+  if(ordenado.length === 0){
+    ul.innerHTML = '<li>Sem dados</li>';
+    return;
+  }
+
+  const top3 = ordenado.slice(0,3);
+
+  top3.forEach(([nome, stats], i)=>{
+
+    let medalha = '';
+    if(i === 0) medalha = '🥇';
+    if(i === 1) medalha = '🥈';
+    if(i === 2) medalha = '🥉';
 
     let li = document.createElement('li');
-    li.innerHTML = `${medalha} ${nome} ⚽${stats.gols} 🟨${stats.cartoes}`;
+
+    li.innerHTML = `
+      ${medalha} <b>${nome}</b><br>
+      ⚽ ${stats.gols} | 🟨 ${stats.cartoes}
+    `;
+
     ul.appendChild(li);
   });
 }
+
 
 // atualizar ao mudar data
 document.getElementById('data').addEventListener('change', renderTudo);
