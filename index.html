@@ -71,6 +71,14 @@ button{
   font-weight:bold;
 }
 
+tr:nth-child(1){
+  background: #14532d; /* melhor jogador */
+}
+
+tr td{
+  text-align:center;
+}
+
 </style>
 
 </head>
@@ -141,6 +149,9 @@ button{
 
 </div>
 
+<p id="resumoBaba"></p>
+
+  
 </div>
 
 <script>
@@ -375,6 +386,21 @@ function irCadastro(){
 
 function irMensalidades(){
   window.location.href = 'mes.html';
+}
+
+function renderResumo(data){
+
+  const lista = registros.filter(r => r.data === data);
+
+  const totalJogadores = lista.length;
+  const totalGols = lista.reduce((s,r)=>s+r.gols,0);
+
+  document.getElementById('resumoBaba').innerHTML = `
+    👥 Jogadores: ${totalJogadores} |
+    ⚽ Gols: ${totalGols}
+  `;
+
+  renderResumo(data);
 }
 
   // INIT
