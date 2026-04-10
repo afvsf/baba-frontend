@@ -204,6 +204,7 @@ async function carregar(){
     renderJogadores();
     renderSelect();
     renderRegistros();
+    renderResumo(data);
 
   }else{
     console.log('😴 Sem mudança...');
@@ -308,15 +309,14 @@ async function removerRegistro(id){
 async function registrar(){
 
   const data = document.getElementById('data').value;
-  const jogador = jogadores.find(j => 
-  String(j.id) === String(r.jogadorId || r.jogadorid)
-);
+  const jogadorId = document.getElementById('jogador').value;
 
   if(!data) return alert("Selecione data");
 
   // 🚫 impedir duplicado
   const jaExiste = registros.some(r =>
-    r.data === data && r.jogadorId === jogadorId
+    r.data === data &&
+    String(r.jogadorId || r.jogadorid) === String(jogadorId)
   );
 
   if(jaExiste){
@@ -362,9 +362,9 @@ function renderRegistros(){
 
   lista.forEach(r=>{
 
-  const jogador = jogadores.find(j => 
-    String(j.id) === String(r.jogadorId)
-  );
+ const jogador = jogadores.find(j => 
+  String(j.id) === String(r.jogadorId || r.jogadorid)
+);
 
   let tr = document.createElement('tr');
 
@@ -402,8 +402,7 @@ function renderResumo(data){
     👥 Jogadores: ${totalJogadores} |
     ⚽ Gols: ${totalGols}
   `;
-
-  renderResumo(data);
+ 
 }
 
   // INIT
