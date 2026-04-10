@@ -360,22 +360,21 @@ function renderRegistros(){
 
   lista.forEach(r=>{
 
-    const jogador = jogadores.find(j=>j.id === r.jogadorId);
+  const jogador = jogadores.find(j => 
+    String(j.id) === String(r.jogadorId)
+  );
 
-    let tr = document.createElement('tr');
+  let tr = document.createElement('tr');
 
-    tr.innerHTML = `
-      <td>${jogador ? jogador.nome : '---'}</td>
-      <td>${r.gols}</td>
-      <td>${r.cartoes}</td>
-      <td>${r.obs || '-'}</td>
-      <td>
-        <button onclick="removerRegistro('${r.id}')">🗑️</button>
-      </td>
-    `;
+  tr.innerHTML = `
+    <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
+    <td>${r.gols}</td>
+    <td>${r.cartoes}</td>
+    <td>${r.obs || ''}</td>
+  `;
 
-    tb.appendChild(tr);
-  });
+  tb.appendChild(tr);
+});
 }
 
 // atualizar lista ao trocar data
