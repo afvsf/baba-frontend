@@ -154,7 +154,7 @@ let mensalidades = {};
 let ultimoHash = '';
 
 function gerarHash(dados){
-  return JSON.stringify(dados);
+  return JSON.stringify(dados).length;
 }
 
 async function carregar(){
