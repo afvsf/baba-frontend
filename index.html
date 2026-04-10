@@ -335,8 +335,6 @@ function renderRegistros(){
 // atualizar lista ao trocar data
 document.getElementById('data').addEventListener('change', renderRegistros);
 
-// INIT
-carregar();
 
 function irCadastro(){
   window.location.href = 'cadastro_jogador.html';
@@ -346,6 +344,13 @@ function irMensalidades(){
   window.location.href = 'mes.html';
 }
 
+  // INIT
+carregar();
+
+// 🔄 verificação inteligente (5s)
+setInterval(() => {
+  carregar();
+}, 5000);
   
 </script>
 
