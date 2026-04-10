@@ -177,7 +177,12 @@ function contarDevendo(j){
   const hoje = new Date();
   const limite = 10;
 
-  const dataCad = new Date(j.dataCadastro);
+  const dataCadStr = j.dataCadastro || j.datacadastro;
+
+  if(!dataCadStr) return 0;
+
+  const dataCad = new Date(dataCadStr.split('T')[0]);
+
   let inicio = new Date(dataCad.getFullYear(), dataCad.getMonth(), 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
@@ -194,7 +199,7 @@ function contarDevendo(j){
     const pagos = mensalidades[mes] || [];
 
     const pagou = pagos.some(p =>
-      String(p.jogadorId) === String(j.id)
+      String(p.jogadorId || p.jogadorid) === String(j.id)
     );
 
     if(!pagou) total++;
