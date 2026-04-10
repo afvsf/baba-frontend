@@ -151,22 +151,50 @@ let registros = [];
 let mensalidades = {};
 
 // ===== CARREGAR =====
+let ultimoHash = '';
+
+function gerarHash(dados){
+  return JSON.stringify(dados);
+}
+
 async function carregar(){
 
-  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
-  registros = await fetch(API+'/registros').then(r=>r.json());
-  const mensal = await fetch(API+'/mensalidades').then(r=>r.json());
+  const jogadoresAPI = await fetch(API+'/jogadores').then(r=>r.json());
+  const registrosAPI = await fetch(API+'/registros').then(r=>r.json());
+  const mensalAPI = await fetch(API+'/mensalidades').then(r=>r.json());
 
-  mensalidades = {};
-
-  mensal.forEach(m=>{
-    if(!mensalidades[m.mes]) mensalidades[m.mes]=[];
-    mensalidades[m.mes].push(m);
+  // 🔥 monta mensalidades
+  let mensalTemp = {};
+  mensalAPI.forEach(m=>{
+    if(!mensalTemp[m.mes]) mensalTemp[m.mes] = [];
+    mensalTemp[m.mes].push(m);
   });
 
-  renderJogadores();
-  renderSelect();
-  renderRegistros();
+  // 🔥 cria hash dos dados
+  const novoHash = gerarHash({
+    jogadoresAPI,
+    registrosAPI,
+    mensalAPI
+  });
+
+  // 🔥 só atualiza se mudou
+  if(novoHash !== ultimoHash){
+
+    console.log('🔄 Mudança detectada, atualizando...');
+
+    ultimoHash = novoHash;
+
+    jogadores = jogadoresAPI;
+    registros = registrosAPI;
+    mensalidades = mensalTemp;
+
+    renderJogadores();
+    renderSelect();
+    renderRegistros();
+
+  }else{
+    console.log('😴 Sem mudança...');
+  }
 }
 
 // ===== STATUS =====
