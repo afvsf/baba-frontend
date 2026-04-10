@@ -114,6 +114,18 @@ button{
     padding:12px;
   }
 
+  .lista-card{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+}
+
+  button{
+  font-size:16px;
+  padding:14px;
+}
+
 }
 
 </style>
@@ -407,12 +419,14 @@ function renderRegistros(){
 
   let tr = document.createElement('tr');
 
-  tr.innerHTML = `
-    <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
-    <td>${r.gols}</td>
-    <td>${r.cartoes}</td>
-    <td>${r.obs || ''}</td>
-  `;
+  tb.innerHTML += `
+  <div class="lista-card">
+    <b>${jogador?.nome || '⚠️'}</b><br>
+    ⚽ Gols: ${r.gols} |
+    🟨 Cartões: ${r.cartoes}<br>
+    📝 ${r.obs || ''}
+  </div>
+`;
 
   tb.appendChild(tr);
 });
