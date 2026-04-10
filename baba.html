@@ -1,1 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>⚽ Baba do Dia</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+}
+
+header{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+}
+
+.container{
+  padding:15px;
+}
+
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
+input,select,button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  background:#22c55e;
+  font-weight:bold;
+}
+
+table{
+  width:100%;
+  margin-top:10px;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid #334155;
+  text-align:center;
+}
+
+#rankingDia li{
+  padding:8px;
+  border-bottom:1px solid #334155;
+}
+
+#rankingDia li:first-child{
+  background:#14532d;
+  border-radius:6px;
+}
+
+.menu{
+  text-align:center;
+  margin:10px;
+}
+
+.btn{
+  display:inline-block;
+  background:#3b82f6;
+  padding:8px 12px;
+  margin:5px;
+  border-radius:8px;
+  text-decoration:none;
+  color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>⚽ Baba do Dia</h2>
+</header>
+
+<div class="menu">
+  <a href="index.html" class="btn">🏠 Início</a>
+  <a href="cadastro_jogador.html" class="btn">👤 Cadastro</a>
+  <a href="mes.html" class="btn">💰 Mensalidades</a>
+</div>
+
+<div class="container">
+
+<!-- DATA -->
+<div class="card">
+<h3>📅 Data</h3>
+<input type="date" id="data">
+</div>
+
+<!-- REGISTRO -->
+<div class="card">
+<h3>➕ Registrar</h3>
+
+<select id="jogador"></select>
+<input type="number" id="gols" placeholder="Gols">
+<input type="number" id="cartoes" placeholder="Cartões">
+<input id="obs" placeholder="Observação">
+
+<button onclick="registrar()">Registrar</button>
+</div>
+
+<!-- RESUMO -->
+<div class="card">
+<h3>📊 Resumo</h3>
+<p id="resumoBaba"></p>
+</div>
+
+<!-- PARTICIPAÇÕES -->
+<div class="card">
+<h3>📋 Participações</h3>
+
+<table>
+<thead>
+<tr>
+<th>Jogador</th>
+<th>Gols</th>
+<th>Cartões</th>
+<th>Obs</th>
+</tr>
+</thead>
+<tbody id="listaRegistros"></tbody>
+</table>
+</div>
+
+<!-- RANKING -->
+<div class="card">
+<h3>🏆 Ranking do Dia</h3>
+<ul id="rankingDia"></ul>
+</div>
+
+</div>
+
+<script>
+const API = 'https://baba-backend.onrender.com';
+
+let jogadores = [];
+let registros = [];
+
+// ===== CARREGAR =====
+async function carregar(){
+  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
+  registros = await fetch(API+'/registros').then(r=>r.json());
+
+  renderSelect();
+  renderTudo();
+}
+
+// ===== SELECT =====
+function renderSelect(){
+  const sel = document.getElementById('jogador');
+  sel.innerHTML = '';
+
+  jogadores.forEach(j=>{
+    let opt = document.createElement('option');
+    opt.value = j.id;
+    opt.textContent = j.nome;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== REGISTRAR =====
+async function registrar(){
+
+  const data = document.getElementById('data').value;
+  const jogadorId = document.getElementById('jogador').value;
+
+  if(!data) return alert("Selecione a data");
+
+  await fetch(API+'/registro',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      data,
+      jogadorId,
+      gols: +document.getElementById('gols').value || 0,
+      cartoes: +document.getElementById('cartoes').value || 0,
+      obs: document.getElementById('obs').value
+    })
+  });
+
+  carregar();
+}
+
+// ===== RENDER GERAL =====
+function renderTudo(){
+  const data = document.getElementById('data').value;
+  renderRegistros(data);
+  renderResumo(data);
+  renderRankingDia(data);
+}
+
+// ===== REGISTROS =====
+function renderRegistros(data){
+
+  const tb = document.getElementById('listaRegistros');
+
+  if(!data){
+    tb.innerHTML = '<tr><td colspan="4">Selecione uma data</td></tr>';
+    return;
+  }
+
+  const lista = registros.filter(r => r.data === data);
+
+  tb.innerHTML = '';
+
+  lista.forEach(r=>{
+
+    const jogador = jogadores.find(j => 
+      String(j.id) === String(r.jogadorId)
+    );
+
+    let tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
+      <td>${r.gols}</td>
+      <td>${r.cartoes}</td>
+      <td>${r.obs || ''}</td>
+    `;
+
+    tb.appendChild(tr);
+  });
+}
+
+// ===== RESUMO =====
+function renderResumo(data){
+
+  const lista = registros.filter(r => r.data === data);
+
+  const totalJogadores = lista.length;
+  const totalGols = lista.reduce((s,r)=>s+r.gols,0);
+
+  document.getElementById('resumoBaba').innerHTML =
+    `👥 ${totalJogadores} jogadores | ⚽ ${totalGols} gols`;
+}
+
+// ===== RANKING =====
+function renderRankingDia(data){
+
+  const lista = registros.filter(r => r.data === data);
+  const ranking = {};
+
+  lista.forEach(r=>{
+    const jogador = jogadores.find(j => 
+      String(j.id) === String(r.jogadorId)
+    );
+
+    const nome = jogador ? jogador.nome : 'Desconhecido';
+
+    if(!ranking[nome]){
+      ranking[nome] = { gols:0, cartoes:0 };
+    }
+
+    ranking[nome].gols += r.gols;
+    ranking[nome].cartoes += r.cartoes;
+  });
+
+  const ordenado = Object.entries(ranking).sort((a,b)=>{
+    if(b[1].gols !== a[1].gols) return b[1].gols - a[1].gols;
+    return a[1].cartoes - b[1].cartoes;
+  });
+
+  const ul = document.getElementById('rankingDia');
+  ul.innerHTML = '';
+
+  ordenado.forEach(([nome,stats],i)=>{
+    let medalha = i===0?'🥇 MVP':i===1?'🥈':i===2?'🥉':'';
+
+    let li = document.createElement('li');
+    li.innerHTML = `${medalha} ${nome} ⚽${stats.gols} 🟨${stats.cartoes}`;
+    ul.appendChild(li);
+  });
+}
+
+// atualizar ao mudar data
+document.getElementById('data').addEventListener('change', renderTudo);
+
+// INIT
+carregar();
+</script>
+
+</body>
+</html>
