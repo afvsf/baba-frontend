@@ -132,6 +132,7 @@ th,td{
 <th>Gols</th>
 <th>Cartões</th>
 <th>Obs</th>
+<th>Ações</th>
 </tr>
 </thead>
 <tbody id="listaRegistros"></tbody>
@@ -208,10 +209,11 @@ function renderTudo(){
 // ===== REGISTROS =====
 function renderRegistros(data){
 
+  const data = document.getElementById('data').value;
   const tb = document.getElementById('listaRegistros');
 
   if(!data){
-    tb.innerHTML = '<tr><td colspan="4">Selecione uma data</td></tr>';
+    tb.innerHTML = '<tr><td colspan="5">Selecione uma data</td></tr>';
     return;
   }
 
@@ -219,11 +221,16 @@ function renderRegistros(data){
 
   tb.innerHTML = '';
 
+  if(lista.length === 0){
+    tb.innerHTML = '<tr><td colspan="5">Nenhum jogador registrado</td></tr>';
+    return;
+  }
+
   lista.forEach(r=>{
 
     const jogador = jogadores.find(j => 
-  String(j.id) === String(r.jogadorId || r.jogadorid)
-);
+      String(j.id) === String(r.jogadorId || r.jogadorid)
+    );
 
     let tr = document.createElement('tr');
 
@@ -232,6 +239,10 @@ function renderRegistros(data){
       <td>${r.gols}</td>
       <td>${r.cartoes}</td>
       <td>${r.obs || ''}</td>
+      <td>
+        <button onclick="editarRegistro('${r.id}')">✏️</button>
+        <button onclick="removerRegistro('${r.id}')">🗑️</button>
+      </td>
     `;
 
     tb.appendChild(tr);
