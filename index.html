@@ -173,50 +173,7 @@ button{
 </div>
 </div>
 
-<!-- DATA -->
-<div class="card">
-<h2>📅 Data do Baba</h2>
-<input type="date" id="data">
-</div>
 
-<!-- REGISTRO -->
-<div class="grid">
-<h2>➕ Registrar Participação</h2>
-
-<select id="jogador"></select>
-<input type="number" id="gols" placeholder="Gols">
-<input type="number" id="cartoes" placeholder="Cartões">
-<input id="obs" placeholder="Observação">
-
-<button onclick="registrar()">Registrar</button>
-
-</div>
-
-<!-- LISTA PARTICIPAÇÕES -->
-<div class="card">
-<h2>📋 Participações</h2>
-  
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>Jogador</th>
-<th>Gols</th>
-<th>Cartões</th>
-<th>Obs</th>
-</tr>
-</thead>
-<tbody id="listaRegistros"></tbody>
-</table>
-
-<p id="resumoBaba"></p>
-</div> 
-</div>
-
-
-
-  
-</div>
 
 <script>
 const API = 'https://baba-backend.onrender.com';
