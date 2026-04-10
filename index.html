@@ -1,111 +1,320 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baba PRO Ranking</title>
-<link rel="stylesheet" href="css/style.css">
-<header>
-  <h1>⚽ Baba PRO Ranking</h1>
-  <a href="cadastro_jogador.html" class="btn">➕ Cadastrar Jogador</a>
-  <a href="mes.html" class="btn">💰 Mensalidades</a>
-</header>
+<title>Baba PRO - Dashboard</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+}
+
+header{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+}
+
+.container{
+  padding:20px;
+}
+
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #334155;
+}
+
+.ok{ color:#22c55e; }
+.devendo{ color:#ef4444; }
+
+input,select,button{
+  padding:8px;
+  border-radius:6px;
+  border:none;
+  margin:5px;
+}
+
+button{
+  background:#22c55e;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.menu{
+  margin-top:10px;
+}
+
+.btn-menu{
+  display:inline-block;
+  margin:5px;
+  padding:8px 15px;
+  background:#3b82f6;
+  color:#fff;
+  border-radius:8px;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+</style>
+
 </head>
 <body>
+
+<header>
+  <h1>⚽ Baba PRO</h1>
+</header>
+<div class="menu">
+<a href="cadastro_jogador.html" class="btn-menu">👤 Cadastro</a>
+<a href="mes.html" class="btn-menu">💰 Mensalidades</a>
+</div>
 <div class="container">
 
-<div class="card">
-
+<!-- JOGADORES -->
 <div class="card">
 <h2>👥 Jogadores</h2>
-<table id="tabelaJogadores">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Apelido</th>
-      <th>Posição</th>
-      <th>Tipo</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody id="bodyJogadores"></tbody>
+
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Apelido</th>
+<th>Posição</th>
+<th>Tipo</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="tabelaJogadores"></tbody>
 </table>
+
 </div>
 
+<!-- DATA -->
 <div class="card">
 <h2>📅 Data do Baba</h2>
-<input type="date" id="data" onchange="trocarData()">
+<input type="date" id="data">
 </div>
 
+<!-- REGISTRO -->
 <div class="card">
 <h2>➕ Registrar Participação</h2>
-<select id="jogadorSelect"></select>
-<input id="gols" type="number" placeholder="Gols">
-<input id="cartoes" type="number" placeholder="Cartões">
+
+<select id="jogador"></select>
+<input type="number" id="gols" placeholder="Gols">
+<input type="number" id="cartoes" placeholder="Cartões">
 <input id="obs" placeholder="Observação">
-<select id="pagamento">
-<option value="não">Não pagou</option>
-<option value="sim">Pagou</option>
-</select>
-<button class="btn" onclick="registrar()">Registrar</button>
+
+<button onclick="registrar()">Registrar</button>
+
 </div>
 
+<!-- LISTA PARTICIPAÇÕES -->
 <div class="card">
-<h2>💰 Controle Financeiro</h2>
+<h2>📋 Participações</h2>
 
-<p>Total arrecadado: R$ <span id="total"></span></p>
-<p>Total gastos: R$ <span id="gastos"></span></p>
-<p><b>Saldo: R$ <span id="saldo"></span></b></p>
+<table>
+<thead>
+<tr>
+<th>Jogador</th>
+<th>Gols</th>
+<th>Cartões</th>
+<th>Obs</th>
+</tr>
+</thead>
+<tbody id="listaRegistros"></tbody>
+</table>
 
-<div class="card">
-<h2>💰 Mensalidades</h2>
-
-<input type="month" id="mesRef" onchange="render()">
-
-<select id="jogadorMensal">
-</select>
-
-<button onclick="marcarMensalidade()">Marcar como Pago</button>
-
-<ul id="listaMensalidades"></ul>
 </div>
 
-<h3>➕ Novo gasto</h3>
-<input id="gastoValor" placeholder="Valor">
-<input id="gastoDesc" placeholder="Descrição">
-<button class="btn" onclick="addGasto()">Adicionar</button>
-
-<ul id="listaGastos"></ul>
 </div>
 
-<div class="grid">
-<div class="card">
-<h2>🏆 Artilharia</h2>
-<ul id="rankingGols"></ul>
-</div>
+<script>
+const API = 'https://baba-backend.onrender.com';
 
-<div class="card">
-<h2>👥 Presença</h2>
-<ul id="rankingPresenca"></ul>
-</div>
-</div>
+let jogadores = [];
+let registros = [];
+let mensalidades = {};
 
-<div class="grid">
-<div class="card">
-<h2>💰 Pagadores</h2>
-<ul id="rankingPagamentos"></ul>
-</div>
+// ===== CARREGAR =====
+async function carregar(){
 
-<div class="card">
-<h2>🟨 Disciplina</h2>
-<ul id="rankingCartoes"></ul>
-</div>
-</div>
-<button onclick="gerarPDFMensal()">📄 Gerar PDF</button>
-<button onclick="cobrarWhatsApp()">📲 Cobrar no WhatsApp</button>
-</div>
+  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
+  registros = await fetch(API+'/registros').then(r=>r.json());
+  const mensal = await fetch(API+'/mensalidades').then(r=>r.json());
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  mensalidades = {};
 
-<script src="js/app.js"></script>
+  mensal.forEach(m=>{
+    if(!mensalidades[m.mes]) mensalidades[m.mes]=[];
+    mensalidades[m.mes].push(m);
+  });
+
+  renderJogadores();
+  renderSelect();
+  renderRegistros();
+}
+
+// ===== STATUS =====
+function contarDevendo(j){
+
+  if(j.tipo !== 'mensal') return 0;
+
+  const hoje = new Date();
+  const limite = 10;
+
+  const dataCad = new Date(j.dataCadastro);
+  let inicio = new Date(dataCad.getFullYear(), dataCad.getMonth(), 1);
+  let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+  if(hoje.getDate() <= limite){
+    fim.setMonth(fim.getMonth()-1);
+  }
+
+  let total = 0;
+
+  while(inicio <= fim){
+
+    const mes = inicio.toISOString().slice(0,7);
+
+    const pagos = mensalidades[mes] || [];
+
+    const pagou = pagos.some(p =>
+      String(p.jogadorId) === String(j.id)
+    );
+
+    if(!pagou) total++;
+
+    inicio.setMonth(inicio.getMonth()+1);
+  }
+
+  return total;
+}
+
+// ===== RENDER JOGADORES =====
+function renderJogadores(){
+
+  const tb = document.getElementById('tabelaJogadores');
+  tb.innerHTML = '';
+
+  jogadores.forEach(j=>{
+
+    const dev = contarDevendo(j);
+
+    let status = j.tipo === 'mensal'
+      ? (dev > 0 ? `❌ ${dev} mês(es)` : '✅ Em dia')
+      : '🎟️ Avulso';
+
+    let tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${j.nome}</td>
+      <td>${j.apelido || '-'}</td>
+      <td>${j.posicao || '-'}</td>
+      <td>${j.tipo}</td>
+      <td class="${dev>0?'devendo':'ok'}">${status}</td>
+    `;
+
+    tb.appendChild(tr);
+  });
+}
+
+// ===== SELECT =====
+function renderSelect(){
+  const sel = document.getElementById('jogador');
+  sel.innerHTML = '';
+
+  jogadores.forEach(j=>{
+    let opt = document.createElement('option');
+    opt.value = j.id;
+    opt.textContent = j.nome;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== REGISTRAR =====
+async function registrar(){
+
+  const data = document.getElementById('data').value;
+  if(!data) return alert("Selecione data");
+
+  await fetch(API+'/registro',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      data,
+      jogadorId: document.getElementById('jogador').value,
+      gols: +document.getElementById('gols').value || 0,
+      cartoes: +document.getElementById('cartoes').value || 0,
+      obs: document.getElementById('obs').value
+    })
+  });
+
+  carregar();
+}
+
+// ===== RENDER REGISTROS =====
+function renderRegistros(){
+
+  const data = document.getElementById('data').value;
+  const tb = document.getElementById('listaRegistros');
+
+  if(!data){
+    tb.innerHTML = '<tr><td colspan="4">Selecione uma data</td></tr>';
+    return;
+  }
+
+  const lista = registros.filter(r => r.data === data);
+
+  tb.innerHTML = '';
+
+  lista.forEach(r=>{
+
+    const jogador = jogadores.find(j=>j.id === r.jogadorId);
+
+    let tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${jogador ? jogador.nome : '---'}</td>
+      <td>${r.gols}</td>
+      <td>${r.cartoes}</td>
+      <td>${r.obs || ''}</td>
+    `;
+
+    tb.appendChild(tr);
+  });
+}
+
+// atualizar lista ao trocar data
+document.getElementById('data').addEventListener('change', renderRegistros);
+
+// INIT
+carregar();
+
+function irCadastro(){
+  window.location.href = 'cadastro_jogador.html';
+}
+
+function irMensalidades(){
+  window.location.href = 'mes.html';
+}
+
+  
+</script>
+
 </body>
 </html>
