@@ -1,4 +1,4 @@
-const API = 'https://baba-backend.onrender.com';
+const API = 'https://baba-backend-production.up.railway.app';
 
 // 🔥 usa apenas UM banco global
 let banco = window.banco || {
