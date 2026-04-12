@@ -109,7 +109,9 @@ th,td{
 
 <select id="jogador"></select>
 <input type="number" id="gols" placeholder="Gols">
-<input type="number" id="cartoes" placeholder="Cartões">
+<input type="number" id="amarelo" placeholder="🟨 Amarelo">
+<input type="number" id="azul" placeholder="🟦 Azul">
+<input type="number" id="vermelho" placeholder="🟥 Vermelho">
 <input id="obs" placeholder="Observação">
 
 <button onclick="registrar()">Registrar</button>
@@ -130,7 +132,9 @@ th,td{
 <tr>
 <th>Jogador</th>
 <th>Gols</th>
-<th>Cartões</th>
+<th>🟨</th>
+<th>🟦</th>
+<th>🟥</th>
 <th>Obs</th>
 <th>Ações</th>
 </tr>
@@ -193,7 +197,9 @@ async function registrar(){
         data,
         jogadorId,
         gols: +document.getElementById('gols').value || 0,
-        cartoes: +document.getElementById('cartoes').value || 0,
+        cartao_amarelo: +document.getElementById('amarelo').value || 0,
+        cartao_azul: +document.getElementById('azul').value || 0,
+        cartao_vermelho: +document.getElementById('vermelho').value || 0,
         obs: document.getElementById('obs').value
       })
     });
@@ -246,7 +252,9 @@ async function removerRegistro(id){
 // ===== LIMPAR CAMPOS =====
 function limparCampos(){
   document.getElementById('gols').value = '';
-  document.getElementById('cartoes').value = '';
+  document.getElementById('amarelo').value = '';
+  document.getElementById('azul').value = '';
+  document.getElementById('vermelho').value = '';
   document.getElementById('obs').value = '';
 }
 
@@ -263,7 +271,9 @@ function editarRegistro(id){
   registroEditando = id;
 
   document.getElementById('gols').value = r.gols;
-  document.getElementById('cartoes').value = r.cartoes;
+  document.getElementById('amarelo').value = r.cartao_amarelo || 0;
+  document.getElementById('azul').value = r.cartao_azul || 0;
+  document.getElementById('vermelho').value = r.cartao_vermelho || 0;
   document.getElementById('obs').value = r.obs || '';
 
   document.getElementById('jogador').value = r.jogadorId;
@@ -286,7 +296,7 @@ function renderRegistros(data){
   const tb = document.getElementById('listaRegistros');
 
   if(!data){
-    tb.innerHTML = '<tr><td colspan="5">Selecione uma data</td></tr>';
+    tb.innerHTML = '<tr><td colspan="7">Selecione uma data</td></tr>';
     return;
   }
 
@@ -297,7 +307,7 @@ function renderRegistros(data){
   tb.innerHTML = '';
 
   if(lista.length === 0){
-    tb.innerHTML = '<tr><td colspan="5">Nenhum jogador registrado</td></tr>';
+    tb.innerHTML = '<tr><td colspan="7">Nenhum jogador registrado</td></tr>';
     return;
   }
 
@@ -312,7 +322,9 @@ function renderRegistros(data){
     tr.innerHTML = `
       <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
       <td>${r.gols}</td>
-      <td>${r.cartoes}</td>
+      <td>${r.cartao_amarelo || 0}</td>
+      <td>${r.cartao_azul || 0}</td>
+      <td>${r.cartao_vermelho || 0}</td>
       <td>${r.obs || ''}</td>
       <td>
         <button onclick="editarRegistro('${r.id}')">✏️</button>
@@ -355,17 +367,23 @@ function renderTop3(data){
     const nome = jogador ? jogador.nome : 'Desconhecido';
 
     if(!ranking[nome]){
-      ranking[nome] = { gols:0, cartoes:0 };
+      ranking[nome] = { gols:0, amarelo:0, azul:0, vermelho:0 };
     }
 
     ranking[nome].gols += r.gols;
-    ranking[nome].cartoes += r.cartoes;
+    ranking[nome].amarelo += r.cartao_amarelo || 0;
+    ranking[nome].azul += r.cartao_azul || 0;
+    ranking[nome].vermelho += r.cartao_vermelho || 0;
   });
 
   const ordenado = Object.entries(ranking).sort((a,b)=>{
-    if(b[1].gols !== a[1].gols) return b[1].gols - a[1].gols;
-    return a[1].cartoes - b[1].cartoes;
-  });
+  if(b[1].gols !== a[1].gols) return b[1].gols - a[1].gols;
+
+  const cartoesA = a[1].amarelo + a[1].azul + (a[1].vermelho * 2);
+  const cartoesB = b[1].amarelo + b[1].azul + (b[1].vermelho * 2);
+
+  return cartoesA - cartoesB;
+});
 
   const ul = document.getElementById('rankingDia');
   ul.innerHTML = '';
@@ -388,7 +406,7 @@ function renderTop3(data){
 
     li.innerHTML = `
       ${medalha} <b>${nome}</b><br>
-      ⚽ ${stats.gols} | 🟨 ${stats.cartoes}
+      ⚽ ${stats.gols} | 🟨 ${stats.amarelo} | 🟦 ${stats.azul} | 🟥 ${stats.vermelho}
     `;
 
     ul.appendChild(li);
