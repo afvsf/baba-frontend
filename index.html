@@ -274,11 +274,20 @@ function montarRanking(id, dados, campo, desc=true){
   ul.innerHTML = '';
 
   Object.entries(dados)
-    .sort((a,b)=> desc ? b[1][campo]-a[1][campo] : a[1][campo]-b[1][campo])
+
+    // 🔥 FILTRO: só quem tem cartão > 0
+    .filter(([_, val]) => val[campo] > 0)
+
+    // 🔥 ORDEM: maior → menor
+    .sort((a,b)=> b[1][campo] - a[1][campo])
+
     .slice(0,5)
     .forEach(([nome,val])=>{
+
       let li = document.createElement('li');
-        if(campo === 'vermelho'){
+
+      // 🎨 visual com emoji
+      if(campo === 'vermelho'){
         li.textContent = `🟥 ${nome} - ${val[campo]}`;
       } else if(campo === 'amarelo'){
         li.textContent = `🟨 ${nome} - ${val[campo]}`;
@@ -287,6 +296,7 @@ function montarRanking(id, dados, campo, desc=true){
       } else {
         li.textContent = `${nome} - ${val[campo]}`;
       }
+
       ul.appendChild(li);
     });
 }
