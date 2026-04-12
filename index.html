@@ -123,13 +123,18 @@ th,td{
 </div>
 
 <div class="card">
-<h3>💰 Pagamentos</h3>
-<ul id="rankingPagamentos"></ul>
+<h3>🟨 Cartão Amarelo</h3>
+<ul id="rankingAmarelo"></ul>
 </div>
 
 <div class="card">
-<h3>🟨 Cartões</h3>
-<ul id="rankingCartoes"></ul>
+<h3>🟦 Cartão Azul</h3>
+<ul id="rankingAzul"></ul>
+</div>
+
+<div class="card">
+<h3>🟥 Cartão Vermelho</h3>
+<ul id="rankingVermelho"></ul>
 </div>
 
 </div>
@@ -239,22 +244,28 @@ function renderRanking(){
 
     const nome = jogador ? jogador.nome : '---';
 
-    if(!dados[nome]){
-      dados[nome] = {
-        gols:0,
-        presenca:0,
-        cartoes:0
-      };
-    }
+if(!dados[nome]){
+  dados[nome] = {
+    gols:0,
+    presenca:0,
+    amarelo:0,
+    azul:0,
+    vermelho:0
+  };
+}
 
-    dados[nome].gols += r.gols;
-    dados[nome].presenca++;
-    dados[nome].cartoes += r.cartoes;
+dados[nome].gols += r.gols || 0;
+dados[nome].presenca++;
+dados[nome].amarelo += r.cartao_amarelo || 0;
+dados[nome].azul += r.cartao_azul || 0;
+dados[nome].vermelho += r.cartao_vermelho || 0;
   });
 
   montarRanking('rankingGols', dados, 'gols', true);
   montarRanking('rankingPresenca', dados, 'presenca', true);
-  montarRanking('rankingCartoes', dados, 'cartoes', false);
+  montarRanking('rankingAmarelo', dados, 'amarelo', true);
+  montarRanking('rankingAzul', dados, 'azul', true);
+  montarRanking('rankingVermelho', dados, 'vermelho', true);
 }
 
 function montarRanking(id, dados, campo, desc=true){
@@ -267,7 +278,15 @@ function montarRanking(id, dados, campo, desc=true){
     .slice(0,5)
     .forEach(([nome,val])=>{
       let li = document.createElement('li');
-      li.textContent = `${nome} - ${val[campo]}`;
+        if(campo === 'vermelho'){
+        li.textContent = `🟥 ${nome} - ${val[campo]}`;
+      } else if(campo === 'amarelo'){
+        li.textContent = `🟨 ${nome} - ${val[campo]}`;
+      } else if(campo === 'azul'){
+        li.textContent = `🟦 ${nome} - ${val[campo]}`;
+      } else {
+        li.textContent = `${nome} - ${val[campo]}`;
+      }
       ul.appendChild(li);
     });
 }
