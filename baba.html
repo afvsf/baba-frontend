@@ -115,6 +115,11 @@ th,td{
 <input id="obs" placeholder="Observação">
 
 <button onclick="registrar()">Registrar</button>
+
+<button id="btnCancelar" onclick="cancelarEdicao()" style="background:#ef4444; display:none;">
+❌ Cancelar edição
+</button>
+  
 </div>
 
 <!-- RESUMO -->
@@ -228,7 +233,9 @@ async function registrar(){
       data,
       jogadorId,
       gols: +document.getElementById('gols').value || 0,
-      cartoes: +document.getElementById('cartoes').value || 0,
+      cartao_amarelo: +document.getElementById('amarelo').value || 0,
+      cartao_azul: +document.getElementById('azul').value || 0,
+      cartao_vermelho: +document.getElementById('vermelho').value || 0,
       obs: document.getElementById('obs').value
     })
   });
@@ -265,7 +272,6 @@ let registroEditando = null;
 function editarRegistro(id){
 
   const r = registros.find(r => r.id == id);
-
   if(!r) return;
 
   registroEditando = id;
@@ -278,7 +284,19 @@ function editarRegistro(id){
 
   document.getElementById('jogador').value = r.jogadorId;
 
-  alert("✏️ Editando participação...");
+  // 🔥 MOSTRA BOTÃO CANCELAR
+  document.getElementById('btnCancelar').style.display = 'block';
+
+  toast("✅ Registro salvo!");
+}
+
+function cancelarEdicao(){
+  registroEditando = null;
+  limparCampos();
+
+  document.getElementById('btnCancelar').style.display = 'none';
+
+  toast("✅ Registro salvo!");
 }
 
   
@@ -311,30 +329,51 @@ function renderRegistros(data){
     return;
   }
 
-  lista.forEach(r=>{
+lista.forEach(r=>{
 
-    const jogador = jogadores.find(j => 
-      String(j.id) === String(r.jogadorId || r.jogadorid)
-    );
+  const jogador = jogadores.find(j => 
+    String(j.id) === String(r.jogadorId || r.jogadorid)
+  );
 
-    let tr = document.createElement('tr');
+  let tr = document.createElement('tr');
 
-    tr.innerHTML = `
-      <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
-      <td>${r.gols}</td>
-      <td>${r.cartao_amarelo || 0}</td>
-      <td>${r.cartao_azul || 0}</td>
-      <td>${r.cartao_vermelho || 0}</td>
-      <td>${r.obs || ''}</td>
-      <td>
-        <button onclick="editarRegistro('${r.id}')">✏️</button>
-        <button onclick="removerRegistro('${r.id}')">🗑️</button>
-      </td>
-    `;
+  // 🔥 destaque visual
+  if(r.id == registroEditando){
+    tr.style.background = '#334155';
+  }
 
-    tb.appendChild(tr);
-  });
+  tr.innerHTML = `
+    <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
+    <td>${r.gols}</td>
+    <td>${r.cartao_amarelo || 0}</td>
+    <td>${r.cartao_azul || 0}</td>
+    <td>${r.cartao_vermelho || 0}</td>
+    <td>${r.obs || ''}</td>
+    <td>
+      <button onclick="editarRegistro('${r.id}')">✏️</button>
+      <button onclick="removerRegistro('${r.id}')">🗑️</button>
+    </td>
+  `;
+
+  tb.appendChild(tr);
+});
+
+function toast(msg){
+  let t = document.createElement('div');
+
+  t.textContent = msg;
+  t.style.position = 'fixed';
+  t.style.bottom = '20px';
+  t.style.right = '20px';
+  t.style.background = '#22c55e';
+  t.style.padding = '10px 15px';
+  t.style.borderRadius = '8px';
+
+  document.body.appendChild(t);
+
+  setTimeout(()=> t.remove(), 3000);
 }
+  
 
 // ===== RESUMO =====
 function renderResumo(data){
