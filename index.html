@@ -255,16 +255,32 @@ function contarDevendo(j){
 function renderJogadores(){
 
   const tb = document.getElementById('tabelaJogadores');
+  const mobile = document.getElementById('listaMobile');
+
   tb.innerHTML = '';
+  mobile.innerHTML = '';
 
   jogadores.forEach(j=>{
 
     const dev = contarDevendo(j);
 
-    let status = j.tipo === 'mensal'
-      ? (dev > 0 ? `❌ ${dev} mês(es)` : '✅ Em dia')
-      : '🎟️ Avulso';
+    let status = '';
+    let classe = '';
 
+    if(j.tipo === 'mensal'){
+      if(dev > 0){
+        status = `❌ ${dev} mês(es)`;
+        classe = 'devendo';
+      }else{
+        status = '✅ Em dia';
+        classe = 'ok';
+      }
+    }else{
+      status = '🎟️ Avulso';
+      classe = 'avulso';
+    }
+
+    // ===== TABELA (desktop)
     let tr = document.createElement('tr');
 
     tr.innerHTML = `
@@ -272,10 +288,25 @@ function renderJogadores(){
       <td>${j.apelido || '-'}</td>
       <td>${j.posicao || '-'}</td>
       <td>${j.tipo}</td>
-      <td class="${dev>0?'devendo': j.tipo==='mensal'?'ok':'avulso'}">${status}</td>
+      <td class="${classe}">${status}</td>
     `;
 
     tb.appendChild(tr);
+
+    // ===== CARD (mobile)
+    let card = document.createElement('div');
+    card.className = 'card-jogador';
+
+    card.innerHTML = `
+      <h4>${j.apelido || j.nome}</h4>
+      <div class="card-info">Nome: ${j.nome}</div>
+      <div class="card-info">Posição: ${j.posicao || '-'}</div>
+      <div class="card-info">Tipo: ${j.tipo}</div>
+      <div class="card-status ${classe}">${status}</div>
+    `;
+
+    mobile.appendChild(card);
+
   });
 }
 
