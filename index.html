@@ -68,10 +68,47 @@ th,td{
   gap:10px;
 }
 
-@media(max-width:600px){
-  .grid{
-    grid-template-columns:1fr;
+/* 📱 MOBILE */
+@media(max-width: 600px){
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
   }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    background: #1e293b;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  td {
+    text-align: left;
+    padding: 6px 8px;
+    border: none;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  td::before {
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    font-weight: bold;
+    color: #94a3b8;
+  }
+
+  td:nth-child(1)::before { content: "Nome"; }
+  td:nth-child(2)::before { content: "Apelido"; }
+  td:nth-child(3)::before { content: "Posição"; }
+  td:nth-child(4)::before { content: "Tipo"; }
+  td:nth-child(5)::before { content: "Status"; }
+
 }
 </style>
 </head>
