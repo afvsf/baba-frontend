@@ -174,22 +174,28 @@ function contarDevendo(j){
   const hoje = new Date();
   const limite = 10;
 
-  const dataCad = new Date(j.dataCadastro || j.datacadastro);
+  const dataCadStr = j.dataCadastro || j.datacadastro;
 
-  let inicio = new Date(dataCad.getFullYear(), dataCad.getMonth(), 1);
+  if(!dataCadStr) return 0;
+
+  // 🔥 CORREÇÃO: evitar bug de timezone
+  const [ano, mes] = dataCadStr.split('T')[0].split('-').map(Number);
+
+  let inicio = new Date(ano, mes - 1, 1);
   let fim = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
+  // 🔥 REGRA DIA 10 (igual mes.html)
   if(hoje.getDate() <= limite){
-    fim.setMonth(fim.getMonth()-1);
+    fim.setMonth(fim.getMonth() - 1);
   }
 
   let total = 0;
 
   while(inicio <= fim){
 
-    const mes = inicio.toISOString().slice(0,7);
+    const mesRef = inicio.toISOString().slice(0,7);
 
-    const pagos = mensalidades[mes] || [];
+    const pagos = mensalidades[mesRef] || [];
 
     const pagou = pagos.some(p =>
       String(p.jogadorId || p.jogadorid) === String(j.id)
@@ -197,7 +203,7 @@ function contarDevendo(j){
 
     if(!pagou) total++;
 
-    inicio.setMonth(inicio.getMonth()+1);
+    inicio.setMonth(inicio.getMonth() + 1);
   }
 
   return total;
