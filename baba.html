@@ -192,10 +192,15 @@ async function registrar(){
 
   if(!data) return alert("Selecione data");
 
-  // 🔥 SE ESTÁ EDITANDO
-  if(registroEditando){
+  // 🔍 verifica se já existe registro desse jogador nessa data
+  const existente = registros.find(r =>
+    r.data === data && String(r.jogadorId) === String(jogadorId)
+  );
 
-    await fetch(API + '/registro/' + registroEditando, {
+  // 🔥 SE EXISTE → ATUALIZA
+  if(existente){
+
+    await fetch(API + '/registro/' + existente.id, {
       method:'PUT',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
@@ -209,23 +214,12 @@ async function registrar(){
       })
     });
 
-    registroEditando = null;
-    
+    toast("♻️ Atualizado automaticamente!");
     carregar();
     return;
   }
 
-  // 🚫 evitar duplicado
-  const jaExiste = registros.some(r =>
-    r.data === data && String(r.jogadorId) === String(jogadorId)
-  );
-
-  if(jaExiste){
-    alert("⚠️ Jogador já registrado nesse baba!");
-    return;
-  }
-
-  // 🔥 NOVO REGISTRO
+  // 🔥 SE NÃO EXISTE → CRIA
   await fetch(API+'/registro',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -240,7 +234,7 @@ async function registrar(){
     })
   });
 
-  
+  toast("✅ Registrado!");
   carregar();
 }
 
