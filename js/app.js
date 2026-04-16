@@ -267,11 +267,11 @@ function getDevedoresMes(){
     .map(j=>j.nome);
 
  const pagos = banco.mensalidades?.[mes]?.pagos || [];
-const idsPagos = pagos.map(p => p.id);
+const idsPagos = pagos.map(p => String(p.jogadorId || p.jogadorid));
 
 return banco.jogadores
   .filter(j => j.tipo === 'mensal')
-  .filter(j => !idsPagos.some(id => id === j.id))
+  .filter(j => !idsPagos.includes(String(j.id)))
   .map(j => j.nome);
 }
 
@@ -620,7 +620,9 @@ function isDevedorAnual(jogador){
   for(let mes of meses){
     const pagos = banco.mensalidades?.[mes]?.pagos || [];
 
-    const pagou = pagos.some(p => p.id === jogador.id);
+    const pagou = pagos.some(p => 
+  String(p.jogadorId || p.jogadorid) === String(jogador.id)
+);
 
     if(!pagou){
       return true; // achou 1 mês em aberto → já é devedor mensalidades
