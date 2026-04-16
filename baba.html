@@ -408,7 +408,9 @@ function renderTop3(data){
       String(j.id) === String(r.jogadorId || r.jogadorid)
     );
 
-    const nome = jogador ? jogador.nome : 'Desconhecido';
+    const nome = jogador 
+  ? (jogador.apelido || jogador.nome) 
+  : 'Desconhecido';
 
     if(!ranking[nome]){
       ranking[nome] = { gols:0, amarelo:0, azul:0, vermelho:0 };
