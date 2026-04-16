@@ -305,7 +305,9 @@ function renderRanking(){
       String(j.id) === String(r.jogadorId || r.jogadorid)
     );
 
-    const nome = jogador ? jogador.nome : '---';
+    const nome = jogador 
+  ? (jogador.apelido || jogador.nome) 
+  : '---';
 
 if(!dados[nome]){
   dados[nome] = {
