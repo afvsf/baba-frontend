@@ -292,7 +292,7 @@ function render(ano){
         total += valor;
 
         pagosHTML += `
-          <div class="linha ok">
+          <div class="linha ok-text">
             ${mes} - R$ ${valor}
             <small>(${formatarData(pag.data)})</small>
           </div>
@@ -322,7 +322,7 @@ function render(ano){
         <b>❌ Devendo:</b>
         ${devendoMeses.length 
           ? devendoMeses.join(', ')
-          : '<span class="ok">Nenhum 👍</span>'}
+          : '<span class="ok-text">Nenhum 👍</span>'}
       </div>
 
       <div class="total-dev">
