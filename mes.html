@@ -96,6 +96,51 @@ th{ background:#020617; }
     padding:5px;
   }
 
+  #listaMensalMobile{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.card-jogador{
+  background:#1e293b;
+  border-radius:12px;
+  padding:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.4);
+}
+
+.card-jogador h3{
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+.meses{
+  display:flex;
+  overflow-x:auto;
+  gap:6px;
+  padding-bottom:5px;
+}
+
+.mes{
+  min-width:70px;
+  background:#334155;
+  padding:6px;
+  border-radius:8px;
+  text-align:center;
+  font-size:11px;
+}
+
+.mes.ok{ background:#14532d; }
+.mes.devendo{ background:#7f1d1d; }
+.mes.futuro{ background:#1e293b; }
+
+.mes button{
+  margin-top:4px;
+  width:100%;
+  font-size:10px;
+  padding:4px;
+}
+
 }
   
 </style>
@@ -124,10 +169,7 @@ th{ background:#020617; }
 </div>
 
 <div class="tabela-scroll">
-  <table>
-<thead id="thead"></thead>
-<tbody id="tbody"></tbody>
-  </table>
+<div id="listaMensalMobile"></div>
 </div>
 
 
@@ -192,115 +234,80 @@ function formatarData(data){
 function render(ano){
 
   const meses = getMeses(ano);
+  const container = document.getElementById('listaMensalMobile');
 
-  let total=0;
-  let dev=0;
+  let total = 0;
+  let dev = 0;
 
-  // HEADER
-  let th='<tr><th>Jogador</th>';
-  meses.forEach(m=> th+=`<th>${m}</th>`);
-  th+='</tr>';
-
-  // RESUMO
-  let resumo='<tr class="resumo"><th>Resumo</th>';
-
-  meses.forEach(mes=>{
-    let t=0,d=0;
-
-    jogadores.filter(j=>j.tipo==='mensal').forEach(j=>{
-
-      const dataCad = j.dataCadastro || j.datacadastro;
-      if(!dataCad) return;
-
-      const dCad = new Date(dataCad.split('T')[0]);
-      const dMes = new Date(mes+'-01');
-
-      if(dMes < dCad) return;
-
-      const pag = (mensalidades[mes]||[])
-        .find(p=>String(p.jogadorId||p.jogadorid)===String(j.id));
-
-      if(pag){
-        t+=Number(pag.valor||20);
-      }else if(podeCobrar(mes)){
-        d++;
-      }
-    });
-
-    resumo+=`<th>💰${t}<br>❌${d}</th>`;
-  });
-
-  resumo+='</tr>';
-
-  document.getElementById('thead').innerHTML=th+resumo;
-
-  // BODY
-  let html='';
+  container.innerHTML = '';
 
   jogadores
-  .filter(j=>j.tipo==='mensal')
-  .forEach(j=>{
+  .filter(j => j.tipo === 'mensal')
+  .forEach(j => {
 
-    html+=`<tr><td>${j.nome}</td>`;
+    let card = document.createElement('div');
+    card.className = 'card-jogador';
 
-    meses.forEach(mes=>{
+    let htmlMeses = '<div class="meses">';
+
+    meses.forEach(mes => {
 
       const pag = (mensalidades[mes]||[])
-        .find(p=>String(p.jogadorId||p.jogadorid)===String(j.id));
+        .find(p => String(p.jogadorId||p.jogadorid) === String(j.id));
 
       const dataCadStr = j.dataCadastro || j.datacadastro;
 
-      if(!dataCadStr){
-        html+='<td>-</td>'; return;
-      }
+      if(!dataCadStr) return;
 
       const dCad = new Date(dataCadStr.split('T')[0]);
       const dMes = new Date(mes+'-01');
 
-      let classe='',conteudo='';
+      let classe = '';
+      let conteudo = mes.split('-')[1];
 
       if(dMes < dCad){
-        conteudo='-';
+        classe = 'futuro';
+        conteudo += '<br>-';
       }
 
       else if(pag){
+        classe = 'ok';
+        total += Number(pag.valor||20);
 
-        classe='ok';
-        total+=Number(pag.valor||20);
-
-        conteudo=`
-          ✅<br>
-          R$ ${(pag.valor||20).toFixed(2)}<br>
-          <small>${formatarData(pag.data)}</small>
-        `;
-
+        conteudo += `<br>✅`;
       }
 
       else if(podeCobrar(mes)){
-        classe='devendo';
+        classe = 'devendo';
         dev++;
 
-        conteudo=`❌<br>
-        <button onclick="pagar('${j.id}','${mes}')">Pagar</button>`;
+        conteudo += `
+          <br>❌
+          <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+        `;
       }
 
       else{
-        classe='futuro';
-        conteudo='⏳';
+        classe = 'futuro';
+        conteudo += '<br>⏳';
       }
 
-      html+=`<td class="${classe}">${conteudo}</td>`;
+      htmlMeses += `<div class="mes ${classe}">${conteudo}</div>`;
     });
 
-    html+='</tr>';
+    htmlMeses += '</div>';
+
+    card.innerHTML = `
+      <h3>${j.apelido || j.nome}</h3>
+      ${htmlMeses}
+    `;
+
+    container.appendChild(card);
   });
 
-  document.getElementById('tbody').innerHTML=html;
-
-  // DASHBOARD
-  document.getElementById('total').innerText='R$ '+total.toFixed(2);
-  document.getElementById('devendo').innerText=dev;
-  document.getElementById('jogadores').innerText=jogadores.length;
+  document.getElementById('total').innerText = 'R$ ' + total.toFixed(2);
+  document.getElementById('devendo').innerText = dev;
+  document.getElementById('jogadores').innerText = jogadores.length;
 }
 
 // ===== PAGAR
