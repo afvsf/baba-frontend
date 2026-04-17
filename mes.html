@@ -6,10 +6,23 @@
 <title>💰 Controle de Mensalidades PRO</title>
 
 <style>
-body { font-family: Arial; background:#0f172a; color:#fff; padding:20px; }
-h1 { text-align:center; }
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  padding:20px;
+  margin:0;
+}
 
-.topo { text-align:center; margin-bottom:20px; }
+h1{
+  text-align:center;
+}
+
+/* ===== TOPO ===== */
+.topo{
+  text-align:center;
+  margin-bottom:20px;
+}
 
 input,button{
   padding:8px;
@@ -21,8 +34,14 @@ button{
   background:#22c55e;
   cursor:pointer;
   font-weight:bold;
+  transition:0.2s;
 }
 
+button:hover{
+  opacity:0.85;
+}
+
+/* ===== DASHBOARD ===== */
 .dashboard{
   display:flex;
   gap:15px;
@@ -38,10 +57,17 @@ button{
   min-width:160px;
 }
 
+/* ===== TABELA (DESKTOP) ===== */
+.tabela-scroll{
+  width:100%;
+  overflow-x:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
   background:#1e293b;
+  min-width:900px;
 }
 
 th,td{
@@ -50,22 +76,58 @@ th,td{
   text-align:center;
 }
 
-th{ background:#020617; }
+th{
+  background:#020617;
+}
 
 .ok{ background:#14532d; }
 .devendo{ background:#7f1d1d; }
 .futuro{ background:#334155; }
 .resumo{ background:#020617; font-size:12px; }
 
-.tabela-scroll{
-  width:100%;
-  overflow-x:auto;
+/* ===== MOBILE APP (CARDS) ===== */
+#listaMensalMobile{
+  display:none;
 }
 
-.tabela-scroll table{
-  min-width:900px;
+.card-jogador{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.4);
 }
 
+.card-jogador h3{
+  margin-bottom:10px;
+  font-size:16px;
+}
+
+.bloco{
+  margin-bottom:10px;
+  font-size:13px;
+}
+
+.linha{
+  margin-top:4px;
+}
+
+.ok-text{ color:#22c55e; }
+.devendo-text{ color:#ef4444; }
+
+.vazio{
+  color:#94a3b8;
+  font-size:12px;
+}
+
+.total-dev{
+  margin-top:10px;
+  font-weight:bold;
+  color:#f87171;
+  font-size:14px;
+}
+
+/* ===== MOBILE ===== */
 @media(max-width:600px){
 
   body{
@@ -86,63 +148,24 @@ th{ background:#020617; }
     width:100%;
   }
 
-  th,td{
-    font-size:11px;
-    padding:6px;
+  /* ESCONDE TABELA */
+  .tabela-scroll{
+    display:none;
+  }
+
+  /* MOSTRA CARDS */
+  #listaMensalMobile{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
   }
 
   button{
     font-size:11px;
-    padding:5px;
+    padding:6px;
   }
 
-  #listaMensalMobile{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
 }
-
-.card-jogador{
-  background:#1e293b;
-  border-radius:12px;
-  padding:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.4);
-}
-
-.card-jogador h3{
-  margin:0 0 10px;
-  font-size:16px;
-}
-
-.meses{
-  display:flex;
-  overflow-x:auto;
-  gap:6px;
-  padding-bottom:5px;
-}
-
-.mes{
-  min-width:70px;
-  background:#334155;
-  padding:6px;
-  border-radius:8px;
-  text-align:center;
-  font-size:11px;
-}
-
-.mes.ok{ background:#14532d; }
-.mes.devendo{ background:#7f1d1d; }
-.mes.futuro{ background:#1e293b; }
-
-.mes button{
-  margin-top:4px;
-  width:100%;
-  font-size:10px;
-  padding:4px;
-}
-
-}
-  
 </style>
 </head>
 
@@ -237,7 +260,7 @@ function render(ano){
   const container = document.getElementById('listaMensalMobile');
 
   let total = 0;
-  let dev = 0;
+  let devTotal = 0;
 
   container.innerHTML = '';
 
@@ -245,68 +268,73 @@ function render(ano){
   .filter(j => j.tipo === 'mensal')
   .forEach(j => {
 
-    let card = document.createElement('div');
-    card.className = 'card-jogador';
+    const dataCadStr = j.dataCadastro || j.datacadastro;
+    if(!dataCadStr) return;
 
-    let htmlMeses = '<div class="meses">';
+    const dCad = new Date(dataCadStr.split('T')[0]);
+
+    let pagosHTML = '';
+    let devendoMeses = [];
+    let totalDevJogador = 0;
 
     meses.forEach(mes => {
+
+      const dMes = new Date(mes+'-01');
+
+      if(dMes < dCad) return;
 
       const pag = (mensalidades[mes]||[])
         .find(p => String(p.jogadorId||p.jogadorid) === String(j.id));
 
-      const dataCadStr = j.dataCadastro || j.datacadastro;
+      if(pag){
 
-      if(!dataCadStr) return;
+        const valor = Number(pag.valor || 20);
+        total += valor;
 
-      const dCad = new Date(dataCadStr.split('T')[0]);
-      const dMes = new Date(mes+'-01');
-
-      let classe = '';
-      let conteudo = mes.split('-')[1];
-
-      if(dMes < dCad){
-        classe = 'futuro';
-        conteudo += '<br>-';
-      }
-
-      else if(pag){
-        classe = 'ok';
-        total += Number(pag.valor||20);
-
-        conteudo += `<br>✅`;
-      }
-
-      else if(podeCobrar(mes)){
-        classe = 'devendo';
-        dev++;
-
-        conteudo += `
-          <br>❌
-          <button onclick="pagar('${j.id}','${mes}')">Pagar</button>
+        pagosHTML += `
+          <div class="linha ok">
+            ${mes} - R$ ${valor}
+            <small>(${formatarData(pag.data)})</small>
+          </div>
         `;
+
+      } else if(podeCobrar(mes)){
+
+        devendoMeses.push(mes);
+        totalDevJogador += 20;
+        devTotal++;
       }
 
-      else{
-        classe = 'futuro';
-        conteudo += '<br>⏳';
-      }
-
-      htmlMeses += `<div class="mes ${classe}">${conteudo}</div>`;
     });
 
-    htmlMeses += '</div>';
+    let card = document.createElement('div');
+    card.className = 'card-jogador';
 
     card.innerHTML = `
       <h3>${j.apelido || j.nome}</h3>
-      ${htmlMeses}
+
+      <div class="bloco">
+        <b>💰 Pagos:</b>
+        ${pagosHTML || '<div class="vazio">Nenhum pagamento</div>'}
+      </div>
+
+      <div class="bloco">
+        <b>❌ Devendo:</b>
+        ${devendoMeses.length 
+          ? devendoMeses.join(', ')
+          : '<span class="ok">Nenhum 👍</span>'}
+      </div>
+
+      <div class="total-dev">
+        💸 Total Devendo: R$ ${totalDevJogador}
+      </div>
     `;
 
     container.appendChild(card);
   });
 
   document.getElementById('total').innerText = 'R$ ' + total.toFixed(2);
-  document.getElementById('devendo').innerText = dev;
+  document.getElementById('devendo').innerText = devTotal;
   document.getElementById('jogadores').innerText = jogadores.length;
 }
 
