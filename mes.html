@@ -310,6 +310,17 @@ function render(ano){
 
     });
 
+    // 🔥 AQUI SIM (DEPOIS DO LOOP)
+let botoesPagar = '';
+
+devendoMeses.forEach(mes => {
+  botoesPagar += `
+    <button onclick="pagar('${j.id}','${mes}')" class="btn-pagar">
+      💰 Pagar ${mes}
+    </button>
+  `;
+});
+
     let card = document.createElement('div');
     card.className = 'card-jogador';
 
@@ -321,11 +332,11 @@ function render(ano){
         ${pagosHTML || '<div class="vazio">Nenhum pagamento</div>'}
       </div>
 
-      <div class="bloco">
+<div class="bloco">
   <b>❌ Devendo:</b>
   ${
     devendoMeses.length 
-      ? `<span class="devendo-text">${devendoMeses.join(', ')}</span>`
+      ? `<div class="devendo-text">${devendoMeses.join(', ')}</div>${botoesPagar}`
       : '<span class="ok-text">Nenhum 👍</span>'
   }
 </div>
