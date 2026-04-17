@@ -252,10 +252,16 @@ function renderSelect(){
   });
 }
 
-// ===== DATA FORMATADA =====
-const dataFormatada = data 
-  ? new Date(data).toLocaleDateString('pt-BR') 
-  : '';
+// ✅ COLOQUE AQUI 👇
+function formatarDataBR(data){
+  if(!data) return '-';
+
+  const d = new Date(data);
+
+  if(isNaN(d)) return '-';
+
+  return d.toLocaleDateString('pt-BR');
+}
 
 // ===== REGISTRAR =====
 async function registrar(){
