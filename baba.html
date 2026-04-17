@@ -420,7 +420,28 @@ lista.forEach(r=>{
   `;
 
   tb.appendChild(tr);
+
+  // ===== MOBILE CARD
+let card = document.createElement('div');
+card.className = 'card-registro';
+
+card.innerHTML = `
+  <h4>${jogador ? jogador.nome : '⚠️ Não encontrado'}</h4>
+
+  <div class="info">⚽ Gols: ${r.gols}</div>
+  <div class="info">🟨 ${r.cartao_amarelo || 0} | 🟦 ${r.cartao_azul || 0} | 🟥 ${r.cartao_vermelho || 0}</div>
+  <div class="info">Obs: ${r.obs || '-'}</div>
+
+  <div class="acoes">
+    <button onclick="editarRegistro('${r.id}')">✏️</button>
+    <button onclick="removerRegistro('${r.id}')">🗑️</button>
+  </div>
+`;
+
+mobile.appendChild(card);
 });
+
+
 }
 
 function toast(msg){
