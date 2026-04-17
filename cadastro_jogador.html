@@ -97,6 +97,98 @@ th,td{
   background:#475569;
 }
 
+/* 📱 MOBILE */
+@media(max-width:600px){
+
+  body{
+    font-size:13px;
+  }
+
+  header{
+    font-size:18px;
+    padding:12px;
+  }
+
+  .container{
+    grid-template-columns: 1fr; /* 🔥 1 coluna */
+    padding:10px;
+    gap:10px;
+  }
+
+  .card{
+    padding:12px;
+  }
+
+  input, select{
+    padding:8px;
+    font-size:13px;
+  }
+
+  button{
+    padding:10px;
+    font-size:14px;
+  }
+
+  /* 🔥 TABELA VIRA CARD */
+  table, thead, tbody, th, td, tr{
+    display:block;
+    width:100%;
+  }
+
+  thead{
+    display:none;
+  }
+
+  tr{
+    background:#0f172a;
+    margin-bottom:10px;
+    padding:10px;
+    border-radius:10px;
+  }
+
+  td{
+    border:none;
+    padding:6px 5px;
+    position:relative;
+    padding-left:50%;
+  }
+
+  td::before{
+    position:absolute;
+    left:10px;
+    font-weight:bold;
+    color:#94a3b8;
+  }
+
+  td:nth-child(1)::before{ content:"Nome"; }
+  td:nth-child(2)::before{ content:"Apelido"; }
+  td:nth-child(3)::before{ content:"Posição"; }
+  td:nth-child(4)::before{ content:"Tipo"; }
+  td:nth-child(5)::before{ content:"Telefone"; }
+
+  /* 🔥 BOTÕES MAIS BONITOS */
+  .btn, .btn-edit, .btn-del{
+    width:100%;
+    margin-top:5px;
+    font-size:13px;
+  }
+
+  /* 🔥 BARRA TOPO AJUSTE */
+  .barra-topo{
+    padding:8px;
+  }
+
+  .btn-voltar{
+    font-size:12px;
+    padding:6px 10px;
+  }
+
+}
+
+.card{
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
   
 </style>
 
