@@ -308,8 +308,9 @@ function renderJogadores(){
       <div class="card-info">Nome: ${j.nome}</div>
       <div class="card-info">Posição: ${j.posicao || '-'}</div>
       <div class="card-info">Tipo: ${j.tipo}</div>
-       📅 Cadastro: ${formatarData(j.dataCadastro || j.datacadastro)}
-  </div
+      <div class="card-info">
+    📅 Cadastro: ${formatarData(j.dataCadastro || j.datacadastro)}
+  </div>
       <div class="card-status ${classe}">${status}</div>
     `;
 
