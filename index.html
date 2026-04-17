@@ -207,6 +207,13 @@ async function carregar(){
   renderRanking();
 }
 
+
+// ===== FORMATA DATA =====
+function formatarData(data){
+  if(!data) return '-';
+  return new Date(data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
 // ===== STATUS =====
 function contarDevendo(j){
 
@@ -301,6 +308,8 @@ function renderJogadores(){
       <div class="card-info">Nome: ${j.nome}</div>
       <div class="card-info">Posição: ${j.posicao || '-'}</div>
       <div class="card-info">Tipo: ${j.tipo}</div>
+       📅 Cadastro: ${formatarData(j.dataCadastro || j.datacadastro)}
+  </div
       <div class="card-status ${classe}">${status}</div>
     `;
 
