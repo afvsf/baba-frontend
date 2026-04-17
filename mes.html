@@ -264,6 +264,7 @@ function render(ano){
 
   let total = 0;
   let devTotal = 0;
+  let valorTotalDevendo = 0;
 
   container.innerHTML = '';
 
@@ -305,6 +306,7 @@ function render(ano){
 
         devendoMeses.push(mes);
         totalDevJogador += 20;
+        valorTotalDevendo += 20; // ✅ AQUI
         devTotal++;
       }
 
@@ -350,7 +352,8 @@ devendoMeses.forEach(mes => {
   });
 
   document.getElementById('total').innerText = 'R$ ' + total.toFixed(2);
-  document.getElementById('devendo').innerText = devTotal;
+  document.getElementById('devendo').innerHTML = 
+  `R$ ${valorTotalDevendo.toFixed(2)}<br><small>${devTotal} meses</small>`;
   document.getElementById('jogadores').innerText = jogadores.length;
 }
 
