@@ -244,6 +244,12 @@ m.forEach(x=>{
   render();
 }
 
+// ===== FORMATA DATA =====
+function formatarData(data){
+  if(!data) return '-';
+  return new Date(data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
 // ===== SALVAR =====
 async function salvarJogador(){
 
@@ -401,19 +407,20 @@ function render(){
     let card = document.createElement('div');
     card.className = 'card-jogador';
 
-    card.innerHTML = `
-      <h4>${j.apelido || j.nome}</h4>
+ card.innerHTML = `
+  <h4>${j.apelido || j.nome}</h4>
 
-      <div class="card-info">Nome: ${j.nome}</div>
-      <div class="card-info">Posição: ${j.posicao || '-'}</div>
-      <div class="card-info">Tipo: ${j.tipo}</div>
-      <div class="card-info ${classe}">${status}</div>
+  <div class="card-info">Nome: ${j.nome}</div>
+  <div class="card-info">Posição: ${j.posicao || '-'}</div>
+  <div class="card-info">Tipo: ${j.tipo}</div>
+  <div class="card-info">Telefone: ${j.telefone || '-'}</div>
+  <div class="card-info">📅 Cadastro: ${formatarData(j.dataCadastro || j.datacadastro)}</div>
 
-      <div class="card-acoes">
-        <button class="btn-edit" onclick="editar('${j.id}')">✏️</button>
-        <button class="btn-del" onclick="excluir('${j.id}')">🗑️</button>
-      </div>
-    `;
+  <div class="card-acoes">
+    <button class="btn-edit" onclick="editar('${j.id}')">✏️</button>
+    <button class="btn-del" onclick="excluir('${j.id}')">🗑️</button>
+  </div>
+`;
 
     mobile.appendChild(card);
 
