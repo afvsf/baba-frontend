@@ -56,6 +56,16 @@ th{ background:#020617; }
 .devendo{ background:#7f1d1d; }
 .futuro{ background:#334155; }
 .resumo{ background:#020617; font-size:12px; }
+
+.tabela-scroll{
+  width:100%;
+  overflow-x:auto;
+}
+
+.tabela-scroll table{
+  min-width:900px;
+}
+  
 </style>
 </head>
 
@@ -81,10 +91,12 @@ th{ background:#020617; }
   <div class="box">👥 Jogadores<br><b id="jogadores">0</b></div>
 </div>
 
-<table>
+<div class="tabela-scroll">
+  <table>
 <thead id="thead"></thead>
 <tbody id="tbody"></tbody>
-</table>
+  </table>
+</div>
 
 
 <!-- 🔐 AUTH -->
