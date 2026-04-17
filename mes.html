@@ -319,11 +319,13 @@ function render(ano){
       </div>
 
       <div class="bloco">
-        <b>❌ Devendo:</b>
-        ${devendoMeses.length 
-          ? devendoMeses.join(', ')
-          : '<span class="ok-text">Nenhum 👍</span>'}
-      </div>
+  <b>❌ Devendo:</b>
+  ${
+    devendoMeses.length 
+      ? `<span class="devendo-text">${devendoMeses.join(', ')}</span>`
+      : '<span class="ok-text">Nenhum 👍</span>'
+  }
+</div>
 
       <div class="total-dev">
         💸 Total Devendo: R$ ${totalDevJogador}
