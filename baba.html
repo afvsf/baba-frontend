@@ -487,43 +487,57 @@ function renderResumo(data){
 }
 
 // ===== RANKING =====
-function renderTop3(data){
+function renderTop3(){
 
-  const dataFormatada = formatarDataBR(data);
+  const rankingDias = {};
 
-  const lista = registros.filter(r =>
-  r.data && r.data.startsWith(data)
-);
+  registros.forEach(r => {
 
-  const ranking = {};
+    if(!r.data) return;
 
-  lista.forEach(r=>{
-    const jogador = jogadores.find(j => 
+    // 🔥 agrupar por data (YYYY-MM-DD)
+    const data = r.data.slice(0,10);
+
+    if(!rankingDias[data]){
+      rankingDias[data] = {
+        gols: 0,
+        jogadores: {}
+      };
+    }
+
+    rankingDias[data].gols += r.gols;
+
+    const jogador = jogadores.find(j =>
       String(j.id) === String(r.jogadorId || r.jogadorid)
     );
 
-    const nome = jogador 
-  ? (jogador.apelido || jogador.nome) 
-  : 'Desconhecido';
+    const nome = jogador
+      ? (jogador.apelido || jogador.nome)
+      : 'Desconhecido';
 
-    if(!ranking[nome]){
-      ranking[nome] = { gols:0, amarelo:0, azul:0, vermelho:0 };
+    if(!rankingDias[data].jogadores[nome]){
+      rankingDias[data].jogadores[nome] = 0;
     }
 
-    ranking[nome].gols += r.gols;
-    ranking[nome].amarelo += r.cartao_amarelo || 0;
-    ranking[nome].azul += r.cartao_azul || 0;
-    ranking[nome].vermelho += r.cartao_vermelho || 0;
+    rankingDias[data].jogadores[nome] += r.gols;
   });
 
-  const ordenado = Object.entries(ranking).sort((a,b)=>{
-  if(b[1].gols !== a[1].gols) return b[1].gols - a[1].gols;
+  // 🔥 transformar em lista ordenada
+  const ordenado = Object.entries(rankingDias)
+    .map(([data, info]) => {
 
-  const cartoesA = a[1].amarelo + a[1].azul + (a[1].vermelho * 2);
-  const cartoesB = b[1].amarelo + b[1].azul + (b[1].vermelho * 2);
+      // 🔥 achar artilheiro do dia
+      const artilheiro = Object.entries(info.jogadores)
+        .sort((a,b)=> b[1] - a[1])[0];
 
-  return cartoesA - cartoesB;
-});
+      return {
+        data,
+        gols: info.gols,
+        artilheiro: artilheiro ? artilheiro[0] : '-'
+      };
+    })
+    .sort((a,b)=> b.gols - a.gols) // 🔥 maior saldo primeiro
+    .slice(0,3);
 
   const ul = document.getElementById('rankingDia');
   ul.innerHTML = '';
@@ -533,23 +547,17 @@ function renderTop3(data){
     return;
   }
 
-  const top3 = ordenado.slice(0,3);
+  ordenado.forEach((dia, i) => {
 
-  top3.forEach(([nome, stats], i)=>{
-
-    let medalha = '';
-    if(i === 0) medalha = '🥇';
-    if(i === 1) medalha = '🥈';
-    if(i === 2) medalha = '🥉';
+    let medalha = ['🥇','🥈','🥉'][i];
 
     let li = document.createElement('li');
 
-    
-   li.innerHTML = `
-  ${medalha} <b>${nome}</b><br>
-  <small>📅 ${dataFormatada}</small><br>
-  ⚽ ${stats.gols} | 🟨 ${stats.amarelo} | 🟦 ${stats.azul} | 🟥 ${stats.vermelho}
-`;
+    li.innerHTML = `
+      ${medalha} <b>${formatarDataBR(dia.data)}</b><br>
+      ⚽ ${dia.gols} gols no dia<br>
+      👤 Artilheiro: ${dia.artilheiro}
+    `;
 
     ul.appendChild(li);
   });
