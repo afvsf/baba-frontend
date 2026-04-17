@@ -425,7 +425,7 @@ lista.forEach(r=>{
   }
 
   tr.innerHTML = `
-    <td>${jogador ? jogador.nome : '⚠️ Não encontrado'}</td>
+    <td>${jogador ? (jogador.apelido || jogador.nome) : '⚠️ Não encontrado'}</td>
     <td>${r.gols}</td>
     <td>${r.cartao_amarelo || 0}</td>
     <td>${r.cartao_azul || 0}</td>
@@ -444,7 +444,7 @@ let card = document.createElement('div');
 card.className = 'card-registro';
 
 card.innerHTML = `
-  <h4>${jogador ? jogador.nome : '⚠️ Não encontrado'}</h4>
+  <h4>${jogador ? (jogador.apelido || jogador.nome) : '⚠️ Não encontrado'}</h4>
 
   <div class="info">⚽ Gols: ${r.gols}</div>
   <div class="info">🟨 ${r.cartao_amarelo || 0} | 🟦 ${r.cartao_azul || 0} | 🟥 ${r.cartao_vermelho || 0}</div>
