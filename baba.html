@@ -374,6 +374,8 @@ function renderTudo(){
 function renderRegistros(data){
 
   const tb = document.getElementById('listaRegistros');
+  const mobile = document.getElementById('listaRegistrosMobile');
+mobile.innerHTML = '';
 
   if(!data){
     tb.innerHTML = '<tr><td colspan="7">Selecione uma data</td></tr>';
