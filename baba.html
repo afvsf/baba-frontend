@@ -254,13 +254,20 @@ function renderSelect(){
 
 // ✅ COLOQUE AQUI 👇
 function formatarDataBR(data){
+
   if(!data) return '-';
 
-  const d = new Date(data);
+  // 🔥 se já estiver no formato BR (DD/MM/YYYY)
+  if(data.includes('/')) return data;
 
-  if(isNaN(d)) return '-';
+  // 🔥 se estiver formato ISO (YYYY-MM-DD)
+  const partes = data.split('T')[0].split('-');
 
-  return d.toLocaleDateString('pt-BR');
+  if(partes.length !== 3) return data;
+
+  const [ano, mes, dia] = partes;
+
+  return `${dia}/${mes}/${ano}`;
 }
 
 // ===== REGISTRAR =====
