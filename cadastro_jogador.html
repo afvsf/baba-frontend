@@ -97,98 +97,55 @@ th,td{
   background:#475569;
 }
 
-/* 📱 MOBILE */
 @media(max-width:600px){
 
-  body{
-    font-size:13px;
-  }
-
-  header{
-    font-size:18px;
-    padding:12px;
-  }
-
   .container{
-    grid-template-columns: 1fr; /* 🔥 1 coluna */
+    grid-template-columns: 1fr;
     padding:10px;
-    gap:10px;
   }
 
-  .card{
-    padding:12px;
-  }
-
-  input, select{
-    padding:8px;
-    font-size:13px;
-  }
-
-  button{
-    padding:10px;
-    font-size:14px;
-  }
-
-  /* 🔥 TABELA VIRA CARD */
-  table, thead, tbody, th, td, tr{
-    display:block;
-    width:100%;
-  }
-
-  thead{
+  /* ❌ REMOVE tabela padrão */
+  table{
     display:none;
   }
 
-  tr{
-    background:#0f172a;
+  /* ✅ NOVO ESTILO CARD */
+  #listaJogadoresMobile{
+    display:block;
+  }
+
+  .card-jogador{
+    background:#1e293b;
     margin-bottom:10px;
-    padding:10px;
+    padding:12px;
     border-radius:10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
 
-  td{
-    border:none;
-    padding:6px 5px;
-    position:relative;
-    padding-left:50%;
+  .card-jogador h4{
+    margin:0;
+    font-size:15px;
   }
 
-  td::before{
-    position:absolute;
-    left:10px;
-    font-weight:bold;
-    color:#94a3b8;
-  }
-
-  td:nth-child(1)::before{ content:"Nome"; }
-  td:nth-child(2)::before{ content:"Apelido"; }
-  td:nth-child(3)::before{ content:"Posição"; }
-  td:nth-child(4)::before{ content:"Tipo"; }
-  td:nth-child(5)::before{ content:"Telefone"; }
-
-  /* 🔥 BOTÕES MAIS BONITOS */
-  .btn, .btn-edit, .btn-del{
-    width:100%;
-    margin-top:5px;
-    font-size:13px;
-  }
-
-  /* 🔥 BARRA TOPO AJUSTE */
-  .barra-topo{
-    padding:8px;
-  }
-
-  .btn-voltar{
+  .card-info{
     font-size:12px;
-    padding:6px 10px;
+    color:#94a3b8;
+    margin-top:4px;
+  }
+
+  .card-acoes{
+    margin-top:10px;
+    display:flex;
+    gap:5px;
+  }
+
+  .card-acoes button{
+    flex:1;
+    font-size:12px;
+    padding:6px;
   }
 
 }
-
-.card{
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
   
 </style>
 
@@ -247,6 +204,8 @@ th,td{
 <tbody id="tabelaJogadores"></tbody>
 </table>
 
+<div id="listaJogadoresMobile"></div>
+  
 </div>
 
 </div>
@@ -396,33 +355,40 @@ function contarDevendo(jogador){
 
 // ===== RENDER =====
 function render(){
+
   const tb = document.getElementById('tabelaJogadores');
+  const mobile = document.getElementById('listaJogadoresMobile');
+
   tb.innerHTML = '';
+  mobile.innerHTML = '';
 
   jogadores.forEach(j=>{
 
-   const dev = contarDevendo(j);
+    const dev = contarDevendo(j);
 
-let valorTotal = dev * 20;
+    let valorTotal = dev * 20;
 
-let valorFormatado = valorTotal.toLocaleString('pt-BR', {
-  style: 'currency',
-  currency: 'BRL'
-});
+    let valorFormatado = valorTotal.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
 
-let status = j.tipo==='mensal'
-  ? (dev>0 
-      ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'}<br><small>${valorFormatado}</small>`
-      : '✅ Em dia')
-  : '🎟️ Avulso';
+    let status = j.tipo==='mensal'
+      ? (dev>0 
+          ? `❌ ${dev} ${dev > 1 ? 'meses' : 'mês'} (${valorFormatado})`
+          : '✅ Em dia')
+      : '🎟️ Avulso';
 
+    let classe = dev>0 ? 'devendo' : 'ok';
+
+    // ===== DESKTOP (tabela)
     let tr = document.createElement('tr');
 
     tr.innerHTML = `
       <td>${j.nome}</td>
       <td>${j.posicao||'-'}</td>
       <td>${j.tipo}</td>
-      <td class="${dev>0?'devendo':'ok'}">${status}</td>
+      <td class="${classe}">${status}</td>
       <td>
         <button class="btn-edit" onclick="editar('${j.id}')">Editar</button>
         <button class="btn-del" onclick="excluir('${j.id}')">Excluir</button>
@@ -430,6 +396,27 @@ let status = j.tipo==='mensal'
     `;
 
     tb.appendChild(tr);
+
+    // ===== 📱 MOBILE (cards)
+    let card = document.createElement('div');
+    card.className = 'card-jogador';
+
+    card.innerHTML = `
+      <h4>${j.apelido || j.nome}</h4>
+
+      <div class="card-info">Nome: ${j.nome}</div>
+      <div class="card-info">Posição: ${j.posicao || '-'}</div>
+      <div class="card-info">Tipo: ${j.tipo}</div>
+      <div class="card-info ${classe}">${status}</div>
+
+      <div class="card-acoes">
+        <button class="btn-edit" onclick="editar('${j.id}')">✏️</button>
+        <button class="btn-del" onclick="excluir('${j.id}')">🗑️</button>
+      </div>
+    `;
+
+    mobile.appendChild(card);
+
   });
 }
 //Botão Salvar/Atualizar Jogador
