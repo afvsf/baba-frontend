@@ -252,6 +252,11 @@ function renderSelect(){
   });
 }
 
+// ===== DATA FORMATADA =====
+const dataFormatada = data 
+  ? new Date(data).toLocaleDateString('pt-BR') 
+  : '';
+
 // ===== REGISTRAR =====
 async function registrar(){
 
@@ -531,10 +536,11 @@ function renderTop3(data){
 
     let li = document.createElement('li');
 
-    li.innerHTML = `
-      ${medalha} <b>${nome}</b><br>
-      ⚽ ${stats.gols} | 🟨 ${stats.amarelo} | 🟦 ${stats.azul} | 🟥 ${stats.vermelho}
-    `;
+   li.innerHTML = `
+  ${medalha} <b>${nome}</b><br>
+  <small>📅 ${dataFormatada}</small><br>
+  ⚽ ${stats.gols} | 🟨 ${stats.amarelo} | 🟦 ${stats.azul} | 🟥 ${stats.vermelho}
+`;
 
     ul.appendChild(li);
   });
