@@ -489,6 +489,8 @@ function renderResumo(data){
 // ===== RANKING =====
 function renderTop3(data){
 
+  const dataFormatada = formatarDataBR(data);
+
   const lista = registros.filter(r =>
   r.data && r.data.startsWith(data)
 );
