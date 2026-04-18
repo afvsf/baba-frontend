@@ -522,7 +522,13 @@ function limpar(){
   ['nome','apelido','posicao','telefone','dataCadastro'].forEach(id=>{
     valSet(id,'');
   });
+
+  // 🔥 LIMPAR FOTO
+  arquivoFoto = null;
+  fotoAtual = '';
+  document.getElementById('previewFoto').src = '';
 }
+
 
 // ===== INIT =====
 carregar();
