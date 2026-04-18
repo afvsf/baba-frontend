@@ -182,12 +182,18 @@ th,td{
 
 <div style="text-align:center; margin-top:10px;">
 
-  <input type="file" id="fotoInput" accept="image/*" capture="user">
+ <input type="file" id="fotoInput" accept="image/*" style="display:none;">
 
-  <br>
+<button onclick="abrirCamera()">📷 Tirar Foto</button>
+<button onclick="abrirGaleria()">🖼️ Escolher Foto</button>
 
-  <img id="previewFoto"
-       style="width:80px;height:80px;border-radius:50%;margin-top:10px;object-fit:cover;">
+<img id="previewFoto" style="
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  margin-top:10px;
+  object-fit:cover;
+">
 
 </div>
   
@@ -405,6 +411,17 @@ function contarDevendo(jogador){
   return total;
 }
 
+function abrirCamera(){
+  const input = document.getElementById('fotoInput');
+  input.setAttribute('capture','environment'); // câmera traseira
+  input.click();
+}
+
+function abrirGaleria(){
+  const input = document.getElementById('fotoInput');
+  input.removeAttribute('capture'); // abre galeria
+  input.click();
+}
 
 async function uploadFoto(file){
 
