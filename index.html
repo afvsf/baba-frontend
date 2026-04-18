@@ -108,6 +108,28 @@ th,td{
     font-size:13px;
   }
 
+  #listaIndex{
+  margin-top:10px;
+}
+
+.card-registro{
+  background:#1e293b;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.card-registro h4{
+  margin:0;
+  font-size:14px;
+}
+
+.info{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:4px;
+}
+
 }
 
 </style>
@@ -178,6 +200,14 @@ th,td{
 <ul id="rankingVermelho"></ul>
 </div>
 
+<div class="card">
+  <h3>📋 Participações por Data</h3>
+
+  <input type="date" id="dataIndex">
+
+  <div id="listaIndex"></div>
+</div>
+  
 </div>
 
 </div>
@@ -318,6 +348,53 @@ function renderJogadores(){
 
   });
 }
+
+ // ===== Renderizar Participação
+function renderParticipacoesIndex(){
+
+  const data = document.getElementById('dataIndex').value;
+  const container = document.getElementById('listaIndex');
+
+  if(!data){
+    container.innerHTML = 'Selecione uma data';
+    return;
+  }
+
+  const lista = registros.filter(r =>
+    r.data && r.data.startsWith(data)
+  );
+
+  if(lista.length === 0){
+    container.innerHTML = 'Nenhuma participação';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  lista.forEach(r => {
+
+    const jogador = jogadores.find(j =>
+      String(j.id) === String(r.jogadorId || r.jogadorid)
+    );
+
+    const nome = jogador
+      ? (jogador.apelido || jogador.nome)
+      : '⚠️';
+
+    let card = document.createElement('div');
+    card.className = 'card-registro';
+
+    card.innerHTML = `
+      <h4>${nome}</h4>
+
+      <div class="info">⚽ Gols: ${r.gols}</div>
+      <div class="info">🟨 ${r.cartao_amarelo || 0} | 🟦 ${r.cartao_azul || 0} | 🟥 ${r.cartao_vermelho || 0}</div>
+      <div class="info">Obs: ${r.obs || '-'}</div>
+    `;
+
+    container.appendChild(card);
+  });
+}  
 
 // ===== RANKING =====
 function renderRanking(){
