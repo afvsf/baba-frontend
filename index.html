@@ -362,6 +362,9 @@ function renderParticipacoesIndex(){
     r.data && r.data.startsWith(data)
   );
 
+  let totalGols = 0;
+  let artilharia = {};
+
   if(lista.length === 0){
     container.innerHTML = 'Nenhuma participação';
     return;
@@ -369,7 +372,10 @@ function renderParticipacoesIndex(){
 
   container.innerHTML = '';
 
+  // 🔥 LOOP PRINCIPAL
   lista.forEach(r => {
+
+    totalGols += r.gols || 0;
 
     const jogador = jogadores.find(j =>
       String(j.id) === String(r.jogadorId || r.jogadorid)
@@ -378,6 +384,12 @@ function renderParticipacoesIndex(){
     const nome = jogador
       ? (jogador.apelido || jogador.nome)
       : '⚠️';
+
+    if(!artilharia[nome]){
+      artilharia[nome] = 0;
+    }
+
+    artilharia[nome] += r.gols || 0;
 
     let card = document.createElement('div');
     card.className = 'card-registro';
@@ -392,7 +404,30 @@ function renderParticipacoesIndex(){
 
     container.appendChild(card);
   });
-}  
+
+  // 🔥 CALCULAR ARTILHEIRO (FORA DO LOOP)
+  let artilheiro = '-';
+  let maxGols = 0;
+
+  Object.entries(artilharia).forEach(([nome, gols])=>{
+    if(gols > maxGols){
+      maxGols = gols;
+      artilheiro = nome;
+    }
+  });
+
+  // 🔥 RESUMO FINAL
+  let resumo = document.createElement('div');
+  resumo.className = 'card-registro';
+
+  resumo.innerHTML = `
+    <h4>📊 Resumo do Dia</h4>
+    <div class="info">⚽ Total de gols: ${totalGols}</div>
+    <div class="info">🥇 Artilheiro: ${artilheiro} (${maxGols} gols)</div>
+  `;
+
+  container.appendChild(resumo);
+}
 
 // ===== RANKING =====
 function renderRanking(){
