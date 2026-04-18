@@ -320,7 +320,7 @@ function renderJogadores(){
     tr.innerHTML = `
       <td style="display:flex;align-items:center;gap:8px;">
   <img 
-    src="${j.foto ? j.foto + '?t=' + Date.now() : 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
+    src="${j.foto || 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
     style="
       width:35px;
       height:35px;
@@ -347,7 +347,7 @@ function renderJogadores(){
       <div style="display:flex;align-items:center;gap:10px;">
   
   <img 
-    src="${j.foto ? j.foto + '?t=' + Date.now() : 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
+    src="${j.foto || 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
     style="
       width:50px;
       height:50px;
