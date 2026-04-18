@@ -306,7 +306,8 @@ async function salvarJogador(){
       body: JSON.stringify(jogador)
     });
   }
-
+  document.getElementById('previewFoto').src = '';
+  
   limpar();
   arquivoFoto = null; // limpa foto
   editandoId = null;
@@ -473,7 +474,7 @@ function render(){
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
 
   <img 
-    src="${j.foto || 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
+    src="${j.foto ? j.foto + '?t=' + Date.now() : 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
     onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(j.nome)}'"
     style="
       width:55px;
