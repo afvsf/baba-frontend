@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>💰 Financeiro - Baba PRO</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+}
+
+header{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+  font-size:20px;
+}
+
+.container{
+  padding:15px;
+}
+
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+}
+
+.valor{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.entrada{ color:#22c55e; }
+.saida{ color:#ef4444; }
+.saldo{ color:#38bdf8; }
+
+input,select,button{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button{
+  background:#22c55e;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.lista{
+  margin-top:10px;
+}
+
+.item{
+  background:#334155;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>💰 Financeiro do Baba</header>
+
+<div class="container">
+
+<!-- RESUMO -->
+<div class="card">
+<h3>📊 Resumo do Mês</h3>
+
+<div class="grid">
+  <div>
+    <div class="entrada">Entradas</div>
+    <div id="totalEntradas" class="valor">R$ 0,00</div>
+  </div>
+
+  <div>
+    <div class="saida">Despesas</div>
+    <div id="totalDespesas" class="valor">R$ 0,00</div>
+  </div>
+
+  <div>
+    <div class="saldo">Saldo</div>
+    <div id="saldo" class="valor">R$ 0,00</div>
+  </div>
+</div>
+</div>
+
+<!-- NOVA DESPESA -->
+<div class="card">
+<h3>➖ Nova Despesa</h3>
+
+<input id="desc" placeholder="Descrição">
+<input id="valor" type="number" placeholder="Valor">
+
+<button onclick="salvarDespesa()">Salvar Despesa</button>
+</div>
+
+<!-- LISTAS -->
+<div class="card">
+<h3>📋 Movimentações</h3>
+
+<div id="listaFinanceiro" class="lista"></div>
+</div>
+
+</div>
+
+<script>
+
+const API = 'https://baba-backend-production.up.railway.app';
+
+let mensalidades = [];
+let gastos = [];
+
+// ===== CARREGAR =====
+async function carregar(){
+
+  mensalidades = await fetch(API+'/mensalidades').then(r=>r.json());
+  gastos = await fetch(API+'/gastos').then(r=>r.json());
+
+  render();
+}
+
+// ===== SALVAR DESPESA =====
+async function salvarDespesa(){
+
+  const dados = {
+    data: new Date().toISOString(),
+    descricao: document.getElementById('desc').value,
+    valor: Number(document.getElementById('valor').value)
+  };
+
+  if(!dados.descricao || !dados.valor){
+    return alert("Preencha tudo");
+  }
+
+  await fetch(API+'/gastos',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(dados)
+  });
+
+  document.getElementById('desc').value = '';
+  document.getElementById('valor').value = '';
+
+  carregar();
+}
+
+// ===== RENDER =====
+function render(){
+
+  const lista = document.getElementById('listaFinanceiro');
+
+  lista.innerHTML = '';
+
+  let entradas = 0;
+  let despesas = 0;
+
+  // 💰 ENTRADAS (mensalidades)
+  mensalidades.forEach(m=>{
+    entradas += Number(m.valor);
+
+    let div = document.createElement('div');
+    div.className = 'item';
+
+    div.innerHTML = `
+      <div>💰 Mensalidade (${m.mes})</div>
+      <div class="entrada">+ R$ ${Number(m.valor).toFixed(2)}</div>
+    `;
+
+    lista.appendChild(div);
+  });
+
+  // ➖ DESPESAS
+  gastos.forEach(g=>{
+    despesas += Number(g.valor);
+
+    let div = document.createElement('div');
+    div.className = 'item';
+
+    div.innerHTML = `
+      <div>➖ ${g.descricao}</div>
+      <div class="saida">- R$ ${Number(g.valor).toFixed(2)}</div>
+    `;
+
+    lista.appendChild(div);
+  });
+
+  // 📊 RESUMO
+  const saldo = entradas - despesas;
+
+  document.getElementById('totalEntradas').textContent =
+    entradas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+  document.getElementById('totalDespesas').textContent =
+    despesas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+  document.getElementById('saldo').textContent =
+    saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+// INIT
+carregar();
+
+</script>
+
+</body>
+</html>
