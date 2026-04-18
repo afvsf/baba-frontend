@@ -171,6 +171,18 @@ th,td{
 
 <input id="nome" placeholder="Nome">
 <input id="apelido" placeholder="Apelido">
+
+<div style="text-align:center; margin-top:10px;">
+
+  <input type="file" id="fotoInput" accept="image/*" capture="user">
+
+  <br>
+
+  <img id="previewFoto"
+       style="width:80px;height:80px;border-radius:50%;margin-top:10px;object-fit:cover;">
+
+</div>
+  
 <input id="posicao" placeholder="Posição">
 <input id="telefone" placeholder="Telefone">
 
@@ -253,6 +265,13 @@ function formatarData(data){
 // ===== SALVAR =====
 async function salvarJogador(){
 
+  let fotoUrl = '';
+
+  // 🔥 FAZ UPLOAD SE EXISTIR FOTO
+  if(arquivoFoto){
+    fotoUrl = await uploadFoto(arquivoFoto);
+  }
+
   const jogador = {
     id: editandoId || 'j'+Date.now(),
     nome: val('nome'),
@@ -260,20 +279,19 @@ async function salvarJogador(){
     posicao: val('posicao'),
     telefone: val('telefone'),
     tipo: val('tipoJogador'),
-    dataCadastro: val('dataCadastro') || new Date().toISOString().slice(0,10)
+    dataCadastro: val('dataCadastro') || new Date().toISOString().slice(0,10),
+    foto: fotoUrl || fotoAtual
   };
 
   if(!jogador.nome) return alert("Nome obrigatório");
 
   if(editandoId){
-    // 🔥 UPDATE
     await fetch(API+'/jogadores/'+editandoId,{
       method:'PUT',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(jogador)
     });
   } else {
-    // 🔥 INSERT
     await fetch(API+'/jogadores',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -282,13 +300,18 @@ async function salvarJogador(){
   }
 
   limpar();
+  arquivoFoto = null; // limpa foto
   editandoId = null;
+
   carregar();
   atualizarBotao();
 }
 
 // ===== EDITAR =====
+let fotoAtual = '';
+
 function editar(id){
+
   const j = jogadores.find(x=>x.id===id);
 
   valSet('nome', j.nome);
@@ -303,6 +326,14 @@ function editar(id){
       ? (j.dataCadastro || j.datacadastro).split('T')[0]
       : ''
   );
+
+  // 🔥 AQUI
+  fotoAtual = j.foto || '';
+
+  // 👉 MOSTRAR FOTO NO PREVIEW AO EDITAR
+  if(fotoAtual){
+    document.getElementById('previewFoto').src = fotoAtual;
+  }
 
   editandoId = id;
   atualizarBotao();
@@ -365,6 +396,23 @@ function contarDevendo(jogador){
   return total;
 }
 
+
+async function uploadFoto(file){
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'baba_jogadores'); // seu preset
+
+  const res = await fetch('https://api.cloudinary.com/v1_1/dldjnmlon/image/upload',{
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await res.json();
+
+  return data.secure_url;
+}
+
 // ===== RENDER =====
 function render(){
 
@@ -414,7 +462,14 @@ function render(){
     card.className = 'card-jogador';
 
  card.innerHTML = `
+  <div style="display:flex;align-items:center;gap:10px;">
+  
+  <img src="${j.foto || 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
+       style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #22c55e;">
+
   <h4>${j.apelido || j.nome}</h4>
+
+</div>
 
   <div class="card-info">Nome: ${j.nome}</div>
   <div class="card-info">Posição: ${j.posicao || '-'}</div>
@@ -454,6 +509,27 @@ atualizarBotao();
 
 </script>
 
+<script>
+
+let arquivoFoto = null;
+
+document.getElementById('fotoInput').addEventListener('change', function(e){
+
+  const file = e.target.files[0];
+  if(!file) return;
+
+  arquivoFoto = file;
+
+  const reader = new FileReader();
+  reader.onload = function(){
+    document.getElementById('previewFoto').src = reader.result;
+  };
+
+  reader.readAsDataURL(file);
+});
+
+</script>
+  
 </body>
 </html>
 
