@@ -399,6 +399,7 @@ function renderParticipacoesIndex(){
   }
 
   container.innerHTML = '';
+  container.appendChild(resumoTop);
 
   // 🔥 LOOP PRINCIPAL
   lista.forEach(r => {
@@ -433,28 +434,69 @@ function renderParticipacoesIndex(){
     container.appendChild(card);
   });
 
-  // 🔥 CALCULAR ARTILHEIRO (FORA DO LOOP)
-  let artilheiro = '-';
-  let maxGols = 0;
+ // 🔥 CALCULAR ARTILHEIRO
+let artilheiro = '-';
+let maxGols = 0;
+let jogadorTop = null;
 
-  Object.entries(artilharia).forEach(([nome, gols])=>{
-    if(gols > maxGols){
-      maxGols = gols;
-      artilheiro = nome;
-    }
-  });
+lista.forEach(r => {
 
-  // 🔥 RESUMO FINAL
-  let resumo = document.createElement('div');
-  resumo.className = 'card-registro';
+  const jogador = jogadores.find(j =>
+    String(j.id) === String(r.jogadorId || r.jogadorid)
+  );
 
-  resumo.innerHTML = `
-    <h4>📊 Resumo do Dia</h4>
-    <div class="info">⚽ Total de gols: ${totalGols}</div>
-    <div class="info">🥇 Artilheiro: ${artilheiro} (${maxGols} gols)</div>
-  `;
+  const nome = jogador
+    ? (jogador.apelido || jogador.nome)
+    : '---';
 
-  container.appendChild(resumo);
+  if(artilharia[nome] > maxGols){
+    maxGols = artilharia[nome];
+    artilheiro = nome;
+    jogadorTop = jogador;
+  }
+});
+
+// 🔥 FOTO DO ARTILHEIRO
+const foto = jogadorTop?.foto
+  ? jogadorTop.foto
+  : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(artilheiro);
+
+// 🔥 CRIAR CARD TOP
+let resumoTop = document.createElement('div');
+resumoTop.className = 'card';
+
+resumoTop.innerHTML = `
+  <h3 style="text-align:center;">📊 Resumo do Dia</h3>
+
+  <p style="text-align:center;">
+    ⚽ Total de gols: <b>${totalGols}</b>
+  </p>
+
+  <div style="text-align:center;margin-top:15px;">
+
+    <h4>🏆 Artilheiro do Dia</h4>
+
+    <img 
+      src="${foto}"
+      style="
+        width:100px;
+        height:100px;
+        border-radius:50%;
+        object-fit:cover;
+        border:3px solid gold;
+        box-shadow:0 0 15px rgba(255,215,0,0.8);
+        margin-top:10px;
+      "
+    >
+
+    <p style="font-size:18px;margin:8px 0;">
+      <b>${artilheiro}</b>
+    </p>
+
+    <p>⚽ ${maxGols} gols</p>
+
+  </div>
+ 
 }
 
 // ===== RANKING =====
