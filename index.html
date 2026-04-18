@@ -468,8 +468,15 @@ function montarRanking(id, dados, campo, desc=true){
     });
 }
 
+document.getElementById('dataIndex')
+  .addEventListener('change', renderParticipacoesIndex);
+
 // INIT
 carregar();
+
+const hoje = new Date().toISOString().slice(0,10);
+document.getElementById('dataIndex').value = hoje;
+renderParticipacoesIndex();
 
 // 🔄 atualização automática leve
 setInterval(carregar, 10000);
