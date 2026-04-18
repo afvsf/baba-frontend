@@ -399,8 +399,7 @@ function renderParticipacoesIndex(){
   }
 
   container.innerHTML = '';
-  container.appendChild(resumoTop);
-
+  
   // 🔥 LOOP PRINCIPAL
   lista.forEach(r => {
 
@@ -439,20 +438,14 @@ let artilheiro = '-';
 let maxGols = 0;
 let jogadorTop = null;
 
-lista.forEach(r => {
-
-  const jogador = jogadores.find(j =>
-    String(j.id) === String(r.jogadorId || r.jogadorid)
-  );
-
-  const nome = jogador
-    ? (jogador.apelido || jogador.nome)
-    : '---';
-
-  if(artilharia[nome] > maxGols){
-    maxGols = artilharia[nome];
+Object.entries(artilharia).forEach(([nome, gols])=>{
+  if(gols > maxGols){
+    maxGols = gols;
     artilheiro = nome;
-    jogadorTop = jogador;
+
+    jogadorTop = jogadores.find(j =>
+      (j.apelido || j.nome) === nome
+    );
   }
 });
 
@@ -461,7 +454,7 @@ const foto = jogadorTop?.foto
   ? jogadorTop.foto
   : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(artilheiro);
 
-// 🔥 CRIAR CARD TOP
+// 🔥 CARD RESUMO
 let resumoTop = document.createElement('div');
 resumoTop.className = 'card';
 
@@ -496,6 +489,10 @@ resumoTop.innerHTML = `
     <p>⚽ ${maxGols} gols</p>
 
   </div>
+`;
+
+// 🔥 COLOCA NO TOPO
+container.prepend(resumoTop);
  
 }
 
