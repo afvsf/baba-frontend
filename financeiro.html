@@ -287,6 +287,8 @@ function render(){
   .filter(m => m.mes === mesSelecionado)
   .forEach(m=>{
 
+      entradas += Number(m.valor) || 0;
+
     const nome = getNomeJogador(m.jogadorId || m.jogadorid);
 
     let div = document.createElement('div');
@@ -313,7 +315,7 @@ function render(){
     .filter(g => g.data && g.data.startsWith(mesSelecionado))
     .forEach(g=>{
 
-      despesas += Number(g.valor);
+      despesas += Number(g.valor) || 0;
 
       let div = document.createElement('div');
       div.className = 'item';
