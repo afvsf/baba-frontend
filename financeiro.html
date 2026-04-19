@@ -278,17 +278,17 @@ function render(){
     div.className = 'item';
 
     div.innerHTML = `
-      <div>
-        💰 Mensalidade ${nome} (${formatarMes(m.mes)})
-        <small style="color:#94a3b8;">
-      📅 ${formatarData(m.data)}
-    </small>
-      </div>
+  <div>
+    💰 Mensalidade ${nome}
+    <div style="font-size:12px;color:#94a3b8;">
+      ${formatarMes(m.mes)} • 📅 ${formatarData(m.data)}
+    </div>
+  </div>
 
-      <div class="entrada">
-        + R$ ${Number(m.valor).toFixed(2)}
-      </div>
-    `;
+  <div class="entrada">
+    + R$ ${Number(m.valor).toFixed(2)}
+  </div>
+`;
 
     lista.appendChild(div);
 });
