@@ -121,6 +121,7 @@ button{
 <div class="card">
 <h3>➖ Nova Despesa</h3>
 
+<input type="date" id="dataGasto"> 
 <input id="desc" placeholder="Descrição">
 <input id="valor" type="number" placeholder="Valor">
 
@@ -158,11 +159,16 @@ async function carregar(){
   render();
 }
 
+function formatarData(data){
+  if(!data) return '-';
+  return new Date(data).toLocaleDateString('pt-BR');
+}
+
 // ===== SALVAR DESPESA =====
 async function salvarDespesa(){
 
   const dados = {
-    data: new Date().toISOString(),
+    data: document.getElementById('dataGasto').value || new Date().toISOString().slice(0,10),
     descricao: document.getElementById('desc').value,
     valor: Number(document.getElementById('valor').value)
   };
@@ -177,8 +183,13 @@ async function salvarDespesa(){
     body: JSON.stringify(dados)
   });
 
+  // ✅ LIMPAR CAMPOS
   document.getElementById('desc').value = '';
   document.getElementById('valor').value = '';
+  document.getElementById('dataGasto').value = '';
+
+  // ✅ FEEDBACK VISUAL
+  alert("✅ Despesa salva com sucesso");
 
   carregar();
 }
@@ -223,7 +234,12 @@ function render(){
       div.className = 'item';
 
       div.innerHTML = `
-        <div>➖ ${g.descricao}</div>
+        <div>
+        ➖ ${g.descricao} <br>
+        <small style="color:#94a3b8;">
+        📅 ${formatarData(g.data)}
+        </small>
+        </div>
         <div class="saida">- R$ ${Number(g.valor).toFixed(2)}</div>
       `;
 
