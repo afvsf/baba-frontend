@@ -125,7 +125,7 @@ button{
 <input id="desc" placeholder="Descrição">
 <input id="valor" type="number" placeholder="Valor">
 
-<button onclick="salvarDespesa()">Salvar Despesa</button>
+<button id="btnSalvar" onclick="salvarDespesa()">Salvar</button>
 </div>
 
 <!-- LISTAS -->
@@ -149,6 +149,7 @@ const API = 'https://baba-backend-production.up.railway.app';
 
 let mensalidades = [];
 let gastos = [];
+let editandoId = null;
 
 // ===== CARREGAR =====
 async function carregar(){
@@ -177,21 +178,64 @@ async function salvarDespesa(){
     return alert("Preencha tudo");
   }
 
-  await fetch(API+'/gastos',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(dados)
+  if(editandoId){
+
+    // ✏️ UPDATE
+    await fetch(API+'/gastos/'+editandoId,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(dados)
+    });
+
+  } else {
+
+    // ➕ INSERT
+    await fetch(API+'/gastos',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(dados)
+    });
+
+  }
+
+  limpar();
+  editandoId = null;
+  atualizarBotao();
+  carregar();
+}
+
+
+function editarGasto(g){
+
+  document.getElementById('desc').value = g.descricao;
+  document.getElementById('valor').value = g.valor;
+  document.getElementById('dataGasto').value = g.data?.slice(0,10);
+
+  editandoId = g.id;
+
+  atualizarBotao();
+}
+
+async function excluirGasto(id){
+
+  if(!confirm("Excluir despesa?")) return;
+
+  await fetch(API+'/gastos/'+id,{
+    method:'DELETE'
   });
 
-  // ✅ LIMPAR CAMPOS
+  carregar();
+}
+
+function limpar(){
   document.getElementById('desc').value = '';
   document.getElementById('valor').value = '';
   document.getElementById('dataGasto').value = '';
+}
 
-  // ✅ FEEDBACK VISUAL
-  alert("✅ Despesa salva com sucesso");
-
-  carregar();
+function atualizarBotao(){
+  const btn = document.getElementById('btnSalvar');
+  btn.textContent = editandoId ? 'Atualizar' : 'Salvar';
 }
 
 // ===== RENDER =====
@@ -240,7 +284,12 @@ function render(){
         📅 ${formatarData(g.data)}
         </small>
         </div>
+        <div>
         <div class="saida">- R$ ${Number(g.valor).toFixed(2)}</div>
+
+        <button onclick='editarGasto(${JSON.stringify(g)})'>✏️</button>
+        <button onclick="excluirGasto(${g.id})">🗑️</button>
+      </div>
       `;
 
       lista.appendChild(div);
