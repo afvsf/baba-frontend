@@ -83,6 +83,12 @@ button{
 
 <div class="container">
 
+<div class="card">
+  <h3>📅 Filtrar por Mês</h3>
+
+  <input type="month" id="filtroMes">
+</div>
+
 <!-- RESUMO -->
 <div class="card">
 <h3>📊 Resumo do Mês</h3>
@@ -175,6 +181,7 @@ async function salvarDespesa(){
 function render(){
 
   const lista = document.getElementById('listaFinanceiro');
+  const mesSelecionado = document.getElementById('filtroMes').value;
 
   lista.innerHTML = '';
 
@@ -182,34 +189,40 @@ function render(){
   let despesas = 0;
 
   // 💰 ENTRADAS (mensalidades)
-  mensalidades.forEach(m=>{
-    entradas += Number(m.valor);
+  mensalidades
+    .filter(m => m.mes === mesSelecionado)
+    .forEach(m=>{
 
-    let div = document.createElement('div');
-    div.className = 'item';
+      entradas += Number(m.valor);
 
-    div.innerHTML = `
-      <div>💰 Mensalidade (${m.mes})</div>
-      <div class="entrada">+ R$ ${Number(m.valor).toFixed(2)}</div>
-    `;
+      let div = document.createElement('div');
+      div.className = 'item';
 
-    lista.appendChild(div);
-  });
+      div.innerHTML = `
+        <div>💰 Mensalidade (${m.mes})</div>
+        <div class="entrada">+ R$ ${Number(m.valor).toFixed(2)}</div>
+      `;
+
+      lista.appendChild(div);
+    });
 
   // ➖ DESPESAS
-  gastos.forEach(g=>{
-    despesas += Number(g.valor);
+  gastos
+    .filter(g => g.data && g.data.startsWith(mesSelecionado))
+    .forEach(g=>{
 
-    let div = document.createElement('div');
-    div.className = 'item';
+      despesas += Number(g.valor);
 
-    div.innerHTML = `
-      <div>➖ ${g.descricao}</div>
-      <div class="saida">- R$ ${Number(g.valor).toFixed(2)}</div>
-    `;
+      let div = document.createElement('div');
+      div.className = 'item';
 
-    lista.appendChild(div);
-  });
+      div.innerHTML = `
+        <div>➖ ${g.descricao}</div>
+        <div class="saida">- R$ ${Number(g.valor).toFixed(2)}</div>
+      `;
+
+      lista.appendChild(div);
+    });
 
   // 📊 RESUMO
   const saldo = entradas - despesas;
@@ -224,9 +237,17 @@ function render(){
     saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 }
 
+
 // INIT
 carregar();
 
+
+const hoje = new Date().toISOString().slice(0,7);
+document.getElementById('filtroMes').value = hoje;
+
+document.getElementById('filtroMes')
+  .addEventListener('change', render);
+  
 </script>
 
 </body>
