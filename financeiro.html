@@ -162,7 +162,11 @@ async function carregar(){
 
 function formatarData(data){
   if(!data) return '-';
-  return new Date(data).toLocaleDateString('pt-BR');
+
+  // 🔥 pega só a parte da data (YYYY-MM-DD)
+  const [ano, mes, dia] = data.split('T')[0].split('-');
+
+  return `${dia}/${mes}/${ano}`;
 }
 
 // ===== SALVAR DESPESA =====
