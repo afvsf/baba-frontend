@@ -147,6 +147,7 @@ verificarAcesso();
 
 const API = 'https://baba-backend-production.up.railway.app';
 
+let jogadores = [];
 let mensalidades = [];
 let gastos = [];
 let editandoId = null;
@@ -154,6 +155,7 @@ let editandoId = null;
 // ===== CARREGAR =====
 async function carregar(){
 
+  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
   mensalidades = await fetch(API+'/mensalidades').then(r=>r.json());
   gastos = await fetch(API+'/gastos').then(r=>r.json());
 
@@ -243,9 +245,16 @@ function atualizarBotao(){
 }
 
 function getNomeJogador(id){
+
+  // 🔥 PROTEÇÃO (evita erro antes de carregar dados)
+  if(!jogadores || jogadores.length === 0){
+    return '---';
+  }
+
   const j = jogadores.find(x =>
     String(x.id) === String(id)
   );
+
   return j ? (j.apelido || j.nome) : '---';
 }
 
@@ -258,6 +267,12 @@ function formatarMes(mes){
 
 // ===== RENDER =====
 function render(){
+
+    // 🔥 EVITA RENDER ANTES DE CARREGAR
+  if(!jogadores || jogadores.length === 0){
+    console.log("Carregando jogadores...");
+    return;
+  }
 
   const lista = document.getElementById('listaFinanceiro');
   const mesSelecionado = document.getElementById('filtroMes').value;
