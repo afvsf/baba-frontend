@@ -86,11 +86,16 @@ async function login(){
     alert("Erro ao conectar com servidor");
 
     
-    document.addEventListener('keydown', function(e){
+document.addEventListener('keydown', function(e){
   if(e.key === 'Enter'){
-    login();
+    const ativo = document.activeElement.id;
+
+    if(ativo === 'usuario' || ativo === 'senha'){
+      login();
+    }
   }
 });
+
 </script>
 
 </body>
