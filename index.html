@@ -210,6 +210,98 @@ th,td{
 </div>
 </div>
 
+<div id="modalPDF" style="
+display:none;
+position:fixed;
+top:0; left:0;
+width:100%; height:100%;
+background:rgba(0,0,0,0.9);
+justify-content:center;
+align-items:center;
+">
+
+<div style="
+width:95%;
+height:90%;
+background:#1e293b;
+border-radius:10px;
+overflow:hidden;
+position:relative;
+">
+
+<button onclick="fecharRegulamento()" style="
+position:absolute;
+top:10px;
+right:10px;
+background:#ef4444;
+padding:8px;
+border:none;
+border-radius:6px;
+z-index:10;
+">❌</button>
+
+<iframe src="regulamento.pdf" style="width:100%;height:80%;border:none;"></iframe>
+
+<div style="padding:10px; text-align:center;">
+
+<select id="jogadorAceite"></select>
+
+<br><br>
+
+<button onclick="aceitarRegulamento()" class="btn">
+✅ Aceitar Regulamento
+</button>
+
+</div>
+
+</div>
+</div>
+
+<script>
+function abrirRegulamento(){
+  document.getElementById('modalPDF').style.display = 'flex';
+  carregarJogadoresAceite();
+}
+
+function fecharRegulamento(){
+  document.getElementById('modalPDF').style.display = 'none';
+}
+
+async function carregarJogadoresAceite(){
+
+  const res = await fetch(API+'/jogadores');
+  const jogadores = await res.json();
+
+  const select = document.getElementById('jogadorAceite');
+  select.innerHTML = '<option value="">Selecione</option>';
+
+  jogadores.forEach(j=>{
+    select.innerHTML += `
+      <option value="${j.id}">
+        ${j.apelido || j.nome}
+      </option>
+    `;
+  });
+}
+
+async function aceitarRegulamento(){
+
+  const id = document.getElementById('jogadorAceite').value;
+
+  if(!id){
+    return alert("Selecione o jogador");
+  }
+
+  await fetch(API+'/aceitar-regulamento/'+id,{
+    method:'PUT'
+  });
+
+  alert("Regulamento aceito com sucesso ✅");
+  fecharRegulamento();
+}
+</script>  
+  
+  
 <script>
 const API = 'https://baba-backend-production.up.railway.app';
 
