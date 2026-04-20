@@ -247,7 +247,7 @@ let registros = [];
 // ===== CARREGAR =====
 async function carregar(){
   jogadores = await api('/jogadores').then(r=>r.json());
-  registros = await api('/jogadores').then(r=>r.json());
+  registros = await api('/registros').then(r=>r.json());
 
   renderSelect();
   renderTudo();
