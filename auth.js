@@ -1,33 +1,17 @@
-// senha simples (pode mudar)
-const SENHA = "123456";
+const token = localStorage.getItem('token');
 
-// verificar acesso
-function verificarAcesso(){
+if(!token){
+  window.location.href = 'login.html';
+} else {
+  try{
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const exp = payload.exp * 1000;
 
-  const autorizado = localStorage.getItem("baba_auth");
-
-  if(autorizado !== "ok"){
-    pedirSenha();
+    if(Date.now() > exp){
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+  }catch{
+    window.location.href = 'login.html';
   }
-}
-
-// pedir senha
-function pedirSenha(){
-
-  const senha = prompt("🔒 Área restrita\nDigite a senha:");
-
-  if(senha === SENHA){
-    localStorage.setItem("baba_auth","ok");
-    location.reload();
-  }else{
-    alert("❌ Acesso negado");
-    window.location.href = "index.html";
-  }
-}
-
-// logout
-function logout(){
-  localStorage.removeItem("baba_auth");
-  alert("Saiu do sistema");
-  window.location.href = "index.html";
 }
