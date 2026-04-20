@@ -225,6 +225,11 @@ async function carregar(){
   registros = await api('/registros').then(r=>r.json());
   const mensal = await api('/mensalidades').then(r=>r.json());
 
+if(!Array.isArray(mensal)){
+  console.error('Erro mensalidades:', mensal);
+  return;
+}
+
   mensalidades = {};
 
   mensal.forEach(m=>{
