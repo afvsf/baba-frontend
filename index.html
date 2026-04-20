@@ -214,6 +214,21 @@ th,td{
 <script>
 const API = 'https://baba-backend-production.up.railway.app';
 
+// 🔥 FUNÇÃO GLOBAL DE REQUISIÇÃO
+function api(url, options = {}){
+
+  const token = localStorage.getItem('token');
+
+  return fetch(API + url, {
+    ...options,
+    headers: {
+      'Content-Type':'application/json',
+      ...(token && { 'Authorization': 'Bearer ' + token }),
+      ...(options.headers || {})
+    }
+  });
+}
+
 let jogadores = [];
 let registros = [];
 let mensalidades = {};
