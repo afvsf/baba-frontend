@@ -221,9 +221,9 @@ let mensalidades = {};
 // ===== CARREGAR =====
 async function carregar(){
 
-  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
-  registros = await fetch(API+'/registros').then(r=>r.json());
-  const mensal = await fetch(API+'/mensalidades').then(r=>r.json());
+  jogadores = await api('/jogadores').then(r=>r.json());
+  registros = await api('/registros').then(r=>r.json());
+  const mensal = await api('/mensalidades').then(r=>r.json());
 
   mensalidades = {};
 
