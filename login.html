@@ -49,26 +49,36 @@ button{
 const API = 'https://baba-backend-production.up.railway.app';
 
 async function login(){
+  try{
 
-  const usuario = document.getElementById('usuario').value;
-  const senha = document.getElementById('senha').value;
+    const usuario = document.getElementById('usuario').value;
+    const senha = document.getElementById('senha').value;
 
-  const res = await fetch(API+'/login',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({usuario, senha})
-  });
+    if(!usuario || !senha){
+      return alert("Preencha usuário e senha");
+    }
 
-  if(res.status !== 200){
-    alert("Login inválido");
-    return;
+    const res = await fetch(API+'/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({usuario, senha})
+    });
+
+    if(res.status !== 200){
+      alert("Login inválido");
+      return;
+    }
+
+    const data = await res.json();
+
+    localStorage.setItem('token', data.token);
+
+    window.location.href = 'admin.html';
+
+  }catch(err){
+    console.error(err);
+    alert("Erro ao conectar com servidor");
   }
-
-  const data = await res.json();
-
-  localStorage.setItem('token', data.token);
-
-  window.location.href = 'admin.html';
 }
 </script>
 
