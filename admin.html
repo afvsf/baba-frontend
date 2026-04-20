@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel Admin</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+}
+.card{
+  background:#1e293b;
+  padding:15px;
+  margin:10px;
+  border-radius:10px;
+}
+.btn{
+  display:inline-block;
+  padding:10px;
+  background:#3b82f6;
+  margin:5px;
+  border-radius:8px;
+  color:#fff;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<h2 style="text-align:center;">⚙️ Painel Administrativo</h2>
+
+<div style="text-align:center;">
+  <a href="cadastro_jogador.html" class="btn">👤 Jogadores</a>
+  <a href="financeiro.html" class="btn">💰 Financeiro</a>
+  <a href="baba.html" class="btn">📅 Baba</a>
+  <button onclick="logout()" class="btn" style="background:#ef4444;">Sair</button>
+</div>
+
+<div class="card" id="stats"></div>
+
+<script>
+const API = 'https://baba-backend-production.up.railway.app';
+
+function api(url, options = {}){
+  const token = localStorage.getItem('token');
+
+  if(!token){
+    window.location.href = 'login.html';
+  }
+
+  return fetch(API + url, {
+    ...options,
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization': 'Bearer ' + token
+    }
+  });
+}
+
+function logout(){
+  localStorage.removeItem('token');
+  window.location.href = 'login.html';
+}
+
+async function carregar(){
+
+  const jogadores = await api('/jogadores').then(r=>r.json());
+  const gastos = await api('/gastos').then(r=>r.json());
+
+  document.getElementById('stats').innerHTML = `
+    👥 Jogadores: ${jogadores.length} <br>
+    💸 Despesas: ${gastos.length}
+  `;
+}
+
+carregar();
+</script>
+
+</body>
+</html>
