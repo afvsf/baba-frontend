@@ -84,8 +84,10 @@ async function login(){
   }catch(err){
     console.error(err);
     alert("Erro ao conectar com servidor");
+  }
+}
 
-    
+// ENTER FUNCIONANDO
 document.addEventListener('keydown', function(e){
   if(e.key === 'Enter'){
     const ativo = document.activeElement.id;
@@ -95,7 +97,6 @@ document.addEventListener('keydown', function(e){
     }
   }
 });
-
 </script>
 
 </body>
