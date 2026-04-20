@@ -227,13 +227,28 @@ verificarAcesso();
 <script>
 const API = 'https://baba-backend-production.up.railway.app';
 
+// 🔐 FUNÇÃO GLOBAL DE CHAMADA API (COLOCA AQUI)
+function api(url, options = {}){
+
+  const token = localStorage.getItem('token');
+
+  return fetch(API + url, {
+    ...options,
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
+    }
+  });
+}
+
 let jogadores = [];
 let registros = [];
 
 // ===== CARREGAR =====
 async function carregar(){
-  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
-  registros = await fetch(API+'/registros').then(r=>r.json());
+  jogadores = await api('/jogadores').then(r=>r.json());
+  registros = await api('/jogadores').then(r=>r.json());
 
   renderSelect();
   renderTudo();
@@ -269,6 +284,7 @@ function formatarDataBR(data){
 
   return `${dia}/${mes}/${ano}`;
 }
+  
 
 // ===== REGISTRAR =====
 async function registrar(){
@@ -286,7 +302,7 @@ async function registrar(){
   // 🔥 SE EXISTE → ATUALIZA
   if(existente){
 
-    await fetch(API + '/registro/' + existente.id, {
+    await api('/registro/' + existente.id, {
       method:'PUT',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
@@ -306,7 +322,7 @@ async function registrar(){
   }
 
   // 🔥 SE NÃO EXISTE → CRIA
-  await fetch(API+'/registro',{
+  await api('/registro/',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
@@ -329,7 +345,7 @@ async function removerRegistro(id){
 
   if(!confirm("Remover participação?")) return;
 
-  await fetch(API + '/registro/' + id, {
+  await api('/registro/' + id, {
     method: 'DELETE'
   });
 
