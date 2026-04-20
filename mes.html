@@ -201,6 +201,9 @@ th{
 
 <!-- 🔐 AUTH -->
 <script src="auth.js"></script>
+<script>
+verificarAcesso();
+</script>
 
   
 <script>
@@ -234,8 +237,8 @@ async function carregar(){
 
   const ano = document.getElementById('ano').value;
 
-  jogadores = await fetch(API+'/jogadores').then(r=>r.json());
-  const mensal = await fetch(API+'/mensalidades').then(r=>r.json());
+  jogadores = await api('/jogadores').then(r=>r.json());
+  const mensal = await api('/mensalidades').then(r=>r.json());
 
   mensalidades = {};
 
@@ -362,7 +365,7 @@ async function pagar(jogadorId, mes){
 
   let data = prompt("Data:", new Date().toISOString().slice(0,10));
 
-  await fetch(API+'/mensalidades',{
+  await api('/mensalidades',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ jogadorId, mes, valor, data })
