@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Login Admin</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:10px;
+  width:300px;
+}
+input,button{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:6px;
+}
+button{
+  background:#22c55e;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>🔐 Login</h2>
+
+  <input id="usuario" placeholder="Usuário">
+  <input id="senha" type="password" placeholder="Senha">
+
+  <button onclick="login()">Entrar</button>
+</div>
+
+<script>
+const API = 'https://baba-backend-production.up.railway.app';
+
+async function login(){
+
+  const usuario = document.getElementById('usuario').value;
+  const senha = document.getElementById('senha').value;
+
+  const res = await fetch(API+'/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({usuario, senha})
+  });
+
+  if(res.status !== 200){
+    alert("Login inválido");
+    return;
+  }
+
+  const data = await res.json();
+
+  localStorage.setItem('token', data.token);
+
+  window.location.href = 'admin.html';
+}
+</script>
+
+</body>
+</html>
