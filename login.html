@@ -48,6 +48,12 @@ button{
 <script>
 const API = 'https://baba-backend-production.up.railway.app';
 
+const token = localStorage.getItem('token');
+
+if(token){
+  window.location.href = 'admin.html';
+}
+
 async function login(){
   try{
 
@@ -78,8 +84,13 @@ async function login(){
   }catch(err){
     console.error(err);
     alert("Erro ao conectar com servidor");
+
+    
+    document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    login();
   }
-}
+});
 </script>
 
 </body>
