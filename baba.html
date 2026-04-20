@@ -229,8 +229,11 @@ const API = 'https://baba-backend-production.up.railway.app';
 
 // 🔐 FUNÇÃO GLOBAL DE CHAMADA API (COLOCA AQUI)
 function api(url, options = {}){
-
   const token = localStorage.getItem('token');
+
+  if(!token){
+    window.location.href = 'login.html';
+  }
 
   return fetch(API + url, {
     ...options,
