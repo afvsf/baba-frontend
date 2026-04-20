@@ -146,7 +146,7 @@ th,td{
   <a href="mes.html" class="btn">💰 Mensalidades</a>
   <a href="baba.html" class="btn">📅 Baba do Dia</a>
   <a href="financeiro.html" class="btn">💰 Financeiro</a>
-  <button onclick="pedirSenha()" class="btn">
+<button onclick="irAdmin()" class="btn">
 🔒 Área Administrativa
 </button>
 </div>
@@ -241,6 +241,16 @@ if(!Array.isArray(mensal)){
   renderRanking();
 }
 
+function irAdmin(){
+
+  const token = localStorage.getItem('token');
+
+  if(token){
+    window.location.href = 'admin.html';
+  } else {
+    window.location.href = 'login.html';
+  }
+}
 
 // ===== FORMATA DATA =====
 function formatarData(data){
