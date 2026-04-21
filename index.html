@@ -459,6 +459,37 @@ function contarDevendo(j){
   return total;
 }
 
+
+
+function abrirCamera(){
+  const input = document.getElementById('fotoInput');
+  input.setAttribute('capture','environment'); // câmera traseira
+  input.click();
+}
+
+function abrirGaleria(){
+  const input = document.getElementById('fotoInput');
+  input.removeAttribute('capture'); // abre galeria
+  input.click();
+}
+
+async function uploadFoto(file){
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'baba_jogadores'); // seu preset
+
+  const res = await fetch('https://api.cloudinary.com/v1_1/dldjnmlon/image/upload',{
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await res.json();
+
+  return data.secure_url;
+}
+
+
 // ===== JOGADORES =====
 function renderJogadores(){
 
