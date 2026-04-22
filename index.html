@@ -372,6 +372,7 @@ function api(url, options = {}){
   });
 }
 let fotoFile = null;
+let fotoPreview = '';
 let jogadores = [];
 let registros = [];
 let mensalidades = {};
@@ -489,6 +490,83 @@ async function uploadFoto(file){
   return data.secure_url;
 }
 
+async function salvarJogador(){
+
+  const nome = document.getElementById('nome').value.trim();
+  const apelido = document.getElementById('apelido').value.trim();
+  const posicao = document.getElementById('posicao').value.trim();
+  const telefone = document.getElementById('telefone').value;
+  const tipo = document.getElementById('tipoJogador').value;
+  const dataCadastro = document.getElementById('dataCadastro').value;
+  const aceitou = document.getElementById('aceite').checked;
+
+  const foto = document.getElementById('previewFoto').src || '';
+
+  // 🔒 VALIDAÇÕES
+  if(!nome){
+    return alert("Digite o nome");
+  }
+
+  if(!posicao){
+    return alert("Digite a posição");
+  }
+
+  if(!telefone || telefone.length < 14){
+    return alert("Telefone inválido");
+  }
+
+  if(!aceitou){
+    return alert("⚠️ Você precisa aceitar o regulamento");
+  }
+
+  // 🔥 EVITAR DUPLICADO
+  const lista = await fetch(API+'/jogadores').then(r=>r.json());
+
+  const existe = lista.some(j =>
+    j.nome.toLowerCase() === nome.toLowerCase() ||
+    (j.telefone && j.telefone === telefone)
+  );
+
+  if(existe){
+    return alert("⚠️ Jogador já cadastrado");
+  }
+
+  const jogador = {
+    id: Date.now().toString(),
+    nome,
+    apelido,
+    posicao,
+    telefone,
+    tipo,
+    dataCadastro: dataCadastro || new Date().toISOString(),
+    foto,
+    aceitou_regulamento: true
+  };
+
+  await fetch(API+'/jogadores',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(jogador)
+  });
+
+  alert("✅ Jogador cadastrado!");
+
+  limparFormulario();
+  carregar();
+}
+
+function limparFormulario(){
+  document.getElementById('nome').value = '';
+  document.getElementById('apelido').value = '';
+  document.getElementById('posicao').value = '';
+  document.getElementById('telefone').value = '';
+  document.getElementById('dataCadastro').value = '';
+  document.getElementById('aceite').checked = false;
+
+  const img = document.getElementById('previewFoto');
+  img.style.display = 'none';
+  img.src = '';
+}
 
 // ===== JOGADORES =====
 function renderJogadores(){
