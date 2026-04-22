@@ -196,12 +196,23 @@ th,td{
 </select>
 
 <!-- 🔥 NOVO -->
-<div style="margin-top:10px;">
-  <input type="checkbox" id="aceite">
-  <label>
+<div style="
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  font-size:14px;
+">
+
+  <input type="checkbox" id="aceite" style="width:16px;height:16px;">
+
+  <label for="aceite" style="margin:0; cursor:pointer;">
     Li e aceito o 
-    <a href="regulamento.pdf" target="_blank">regulamento</a>
+    <a href="regulamento.pdf" target="_blank" style="color:#38bdf8;">
+      regulamento
+    </a>
   </label>
+
 </div>
 
 <button id="btnSalvar" class="btn" onclick="salvarJogador()">
