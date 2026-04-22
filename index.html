@@ -883,5 +883,27 @@ setInterval(carregar, 10000);
 
 </script>
 
+ <script> 
+document.getElementById('fotoInput').addEventListener('change', function(e){
+
+  const file = e.target.files[0];
+
+  if(!file) return;
+
+  fotoFile = file;
+
+  const reader = new FileReader();
+
+  reader.onload = function(ev){
+    const img = document.getElementById('previewFoto');
+
+    img.src = ev.target.result;
+    img.style.display = 'block';
+  };
+
+  reader.readAsDataURL(file);
+});
+</script>
+  
 </body>
 </html>
