@@ -179,6 +179,7 @@ th,td{
   border-radius:50%;
   margin-top:10px;
   object-fit:cover;
+  display:none;
 ">
 
 </div>
@@ -883,25 +884,31 @@ setInterval(carregar, 10000);
 
 </script>
 
- <script> 
-document.getElementById('fotoInput').addEventListener('change', function(e){
+<script>
+window.addEventListener('load', () => {
 
-  const file = e.target.files[0];
+  const input = document.getElementById('fotoInput');
 
-  if(!file) return;
+  input.addEventListener('change', function(e){
 
-  fotoFile = file;
+    const file = e.target.files[0];
 
-  const reader = new FileReader();
+    if(!file) return;
 
-  reader.onload = function(ev){
-    const img = document.getElementById('previewFoto');
+    fotoFile = file;
 
-    img.src = ev.target.result;
-    img.style.display = 'block';
-  };
+    const reader = new FileReader();
 
-  reader.readAsDataURL(file);
+    reader.onload = function(ev){
+      const img = document.getElementById('previewFoto');
+
+      img.src = ev.target.result;
+      img.style.display = 'block';
+    };
+
+    reader.readAsDataURL(file);
+  });
+
 });
 </script>
   
