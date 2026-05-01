@@ -517,61 +517,50 @@ async function salvarJogador(){
   const dataCadastro = document.getElementById('dataCadastro').value;
   const aceitou = document.getElementById('aceite').checked;
 
+  const telLimpo = telefone.replace(/\D/g, '');
   const foto = document.getElementById('previewFoto').src || '';
 
-  // 🔒 VALIDAÇÕES
-  if(!nome){
-    return alert("Digite o nome");
-  }
-
-  if(!posicao){
-    return alert("Digite a posição");
-  }
-
-  const telLimpo = telefone.replace(/\D/g, '');
-
-if(telLimpo.length < 10){
-  return alert("Telefone inválido");
-}
-
-  if(!aceitou){
-    return alert("⚠️ Você precisa aceitar o regulamento");
-  }
-
-  // 🔥 EVITAR DUPLICADO
-  const lista = await fetch(API+'/jogadores').then(r=>r.json());
-
-  const existe = lista.some(j =>
-    j.nome.toLowerCase() === nome.toLowerCase() ||
-    (j.telefone && j.telefone === telefone)
-  );
-
-  if(existe){
-    return alert("⚠️ Jogador já cadastrado");
-  }
+  if(!nome) return alert("Digite o nome");
+  if(!posicao) return alert("Digite a posição");
+  if(telLimpo.length < 10) return alert("Telefone inválido");
+  if(!aceitou) return alert("Aceite o regulamento");
 
   const jogador = {
     id: Date.now().toString(),
     nome,
     apelido,
     posicao,
-    telefone,
+    telefone: telLimpo,
     tipo,
     dataCadastro: dataCadastro || new Date().toISOString(),
     foto,
     aceitou_regulamento: true
   };
 
-  await fetch(API+'/jogadores',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(jogador)
-  });
+  try{
 
-  alert("✅ Jogador cadastrado!");
+    const res = await fetch(API+'/jogadores',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(jogador)
+    });
 
-  limparFormulario();
-  carregar();
+    const retorno = await res.json();
+
+    if(!res.ok){
+      console.error(retorno);
+      return alert("Erro ao salvar jogador");
+    }
+
+    alert("✅ Jogador cadastrado!");
+
+    limparFormulario();
+    carregar();
+
+  }catch(err){
+    console.error(err);
+    alert("Erro de conexão com servidor");
+  }
 }
 
 function limparFormulario(){
