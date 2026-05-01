@@ -518,26 +518,32 @@ async function salvarJogador(){
   const aceitou = document.getElementById('aceite').checked;
 
   const telLimpo = telefone.replace(/\D/g, '');
-  const foto = document.getElementById('previewFoto').src || '';
 
   if(!nome) return alert("Digite o nome");
   if(!posicao) return alert("Digite a posição");
   if(telLimpo.length < 10) return alert("Telefone inválido");
   if(!aceitou) return alert("Aceite o regulamento");
 
-  const jogador = {
-    id: Date.now().toString(),
-    nome,
-    apelido,
-    posicao,
-    telefone: telLimpo,
-    tipo,
-    dataCadastro: dataCadastro || new Date().toISOString(),
-    foto,
-    aceitou_regulamento: true
-  };
+  let foto = '';
 
   try{
+
+    // 🔥 UPLOAD DA FOTO (SE EXISTIR)
+    if(fotoFile){
+      foto = await uploadFoto(fotoFile);
+    }
+
+    const jogador = {
+      id: Date.now().toString(),
+      nome,
+      apelido,
+      posicao,
+      telefone: telLimpo,
+      tipo,
+      dataCadastro: dataCadastro || new Date().toISOString(),
+      foto,
+      aceitou_regulamento: true
+    };
 
     const res = await fetch(API+'/jogadores',{
       method:'POST',
@@ -559,7 +565,7 @@ async function salvarJogador(){
 
   }catch(err){
     console.error(err);
-    alert("Erro de conexão com servidor");
+    alert("Erro ao enviar dados");
   }
 }
 
