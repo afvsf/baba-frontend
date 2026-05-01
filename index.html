@@ -528,9 +528,11 @@ async function salvarJogador(){
     return alert("Digite a posição");
   }
 
-  if(!telefone || telefone.length < 14){
-    return alert("Telefone inválido");
-  }
+  const telLimpo = telefone.replace(/\D/g, '');
+
+if(telLimpo.length < 10){
+  return alert("Telefone inválido");
+}
 
   if(!aceitou){
     return alert("⚠️ Você precisa aceitar o regulamento");
