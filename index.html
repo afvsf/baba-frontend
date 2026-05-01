@@ -507,7 +507,7 @@ async function uploadFoto(file){
   return data.secure_url;
 }
 
-async function salvarJogador(){
+ async function salvarJogador(){
 
   const nome = document.getElementById('nome').value.trim();
   const apelido = document.getElementById('apelido').value.trim();
@@ -517,57 +517,52 @@ async function salvarJogador(){
   const dataCadastro = document.getElementById('dataCadastro').value;
   const aceitou = document.getElementById('aceite').checked;
 
-  const telLimpo = telefone.replace(/\D/g, '');
-
   if(!nome) return alert("Digite o nome");
   if(!posicao) return alert("Digite a posição");
-  if(telLimpo.length < 10) return alert("Telefone inválido");
-  if(!aceitou) return alert("Aceite o regulamento");
 
+  if(!telefone || telefone.replace(/\D/g,'').length < 10){
+    return alert("Telefone inválido");
+  }
+
+  if(!aceitou){
+    return alert("⚠️ Aceite o regulamento");
+  }
+
+  // 🔥 UPLOAD DA FOTO (CORRETO)
   let foto = '';
 
-  try{
-
-    // 🔥 UPLOAD DA FOTO (SE EXISTIR)
-    if(fotoFile){
-      foto = await uploadFoto(fotoFile);
-    }
-
-    const jogador = {
-      id: Date.now().toString(),
-      nome,
-      apelido,
-      posicao,
-      telefone: telLimpo,
-      tipo,
-      dataCadastro: dataCadastro || new Date().toISOString(),
-      foto,
-      aceitou_regulamento: true
-    };
-
-    const res = await fetch(API+'/jogadores',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(jogador)
-    });
-
-    const retorno = await res.json();
-
-    if(!res.ok){
-      console.error(retorno);
-      return alert("Erro ao salvar jogador");
-    }
-
-    alert("✅ Jogador cadastrado!");
-
-    limparFormulario();
-    carregar();
-
-  }catch(err){
-    console.error(err);
-    alert("Erro ao enviar dados");
+  if(fotoFile){
+    foto = await uploadFoto(fotoFile);
   }
-}
+
+  const jogador = {
+    id: Date.now().toString(),
+    nome,
+    apelido,
+    posicao,
+    telefone,
+    tipo,
+    dataCadastro: dataCadastro || new Date().toISOString(),
+    foto,
+    aceitou_regulamento: true
+  };
+
+  const res = await fetch(API+'/jogadores',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(jogador)
+  });
+
+  if(!res.ok){
+    const erro = await res.text();
+    console.error("Erro backend:", erro);
+    return alert("Erro ao salvar jogador");
+  }
+
+  alert("✅ Jogador cadastrado!");
+  limparFormulario();
+  carregar();
+} 
 
 function limparFormulario(){
   document.getElementById('nome').value = '';
