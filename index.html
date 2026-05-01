@@ -81,6 +81,16 @@ th,td{
   display:none !important;
 }
 
+#boxCadastro{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.4s ease;
+}
+
+#boxCadastro.ativo{
+  max-height:1000px;
+}
+
 /* 📱 MOBILE */
 @media(max-width:600px){
 
@@ -174,7 +184,7 @@ th,td{
 <button class="btn" onclick="toggleCadastro()">
   ➕ Cadastrar Jogador
 </button>
-<div id="boxCadastro" style="display:none;">
+<div id="boxCadastro">
   <div class="card">
     <h2>👤 Cadastro Jogador</h2>
 
@@ -371,7 +381,15 @@ async function carregarJogadoresAceite(){
 
 function toggleCadastro(){
   const box = document.getElementById('boxCadastro');
+  const btn = event.target;
+
   box.classList.toggle('ativo');
+
+  if(box.classList.contains('ativo')){
+    btn.innerText = '➖ Fechar Cadastro';
+  }else{
+    btn.innerText = '➕ Cadastrar Jogador';
+  }
 }
 
 async function aceitarRegulamento(){
@@ -583,7 +601,7 @@ async function uploadFoto(file){
   alert("✅ Jogador cadastrado!");
   limparFormulario();
   carregar();
-  document.getElementById('boxCadastro').style.display = 'none';
+  document.getElementById('boxCadastro').classList.remove('ativo');
 } 
 
 function limparFormulario(){
