@@ -284,6 +284,13 @@ Salvar
   </div>
 </div>
 
+
+<div class="card">
+  <h3>📝 Lista de Presença (Hoje)</h3>
+
+  <div id="listaPresenca"></div>
+</div>
+
 <!-- RANKINGS -->
 <div class="grid">
 
@@ -422,6 +429,88 @@ function toggleJogadores(btn){
   }
 }
 
+
+function renderPresenca(){
+
+  const data = document.getElementById('dataIndex').value;
+  const container = document.getElementById('listaPresenca');
+
+  if(!data){
+    container.innerHTML = 'Selecione uma data';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  jogadores.forEach(j => {
+
+    const registro = registros.find(r =>
+      String(r.jogadorId || r.jogadorid) === String(j.id) &&
+      r.data && r.data.startsWith(data)
+    );
+
+    let status = '❌ Não confirmado';
+    let cor = '#ef4444';
+
+    if(registro){
+      if(registro.confirmado){
+        status = '🟢 Confirmado';
+        cor = '#22c55e';
+      }else{
+        status = '🟡 Aguardando ADM';
+        cor = '#facc15';
+      }
+    }
+
+    let btn = '';
+
+    if(!registro){
+      btn = `
+        <button onclick="registrarParticipacao('${j.id}')">
+          ✔️ Confirmar Presença
+        </button>
+      `;
+    }
+
+    let card = document.createElement('div');
+    card.className = 'card-registro';
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;">
+
+        <img 
+          src="${j.foto || 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
+          style="
+            width:45px;
+            height:45px;
+            border-radius:50%;
+            object-fit:cover;
+          "
+        >
+
+        <div style="flex:1;">
+          <h4>${j.apelido || j.nome}</h4>
+          <div style="font-size:12px;color:#94a3b8;">
+            ${j.posicao || ''}
+          </div>
+        </div>
+
+        <div style="text-align:right;">
+          <div style="color:${cor}; font-size:13px; font-weight:bold;">
+            ${status}
+          </div>
+        </div>
+
+      </div>
+
+      ${btn}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+  
 function fecharTodos(){
   document.querySelectorAll('.box-toggle').forEach(b=>{
     b.classList.remove('ativo');
@@ -490,6 +579,7 @@ if(!Array.isArray(mensal)){
 
   renderJogadores();
   renderRanking();
+  renderPresenca();
 }
 
 function irAdmin(){
