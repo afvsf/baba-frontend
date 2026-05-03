@@ -91,6 +91,16 @@ th,td{
   max-height:1000px;
 }
 
+.box-toggle{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.4s ease;
+}
+
+.box-toggle.ativo{
+  max-height:2000px;
+}
+
 /* 📱 MOBILE */
 @media(max-width:600px){
 
@@ -247,30 +257,32 @@ Salvar
 </div>
 </div>
   
-<!-- JOGADORES -->
-<button class="btn" onclick="toggleCadastro()">
+<!-- BOTÃO -->
+<button class="btn" onclick="toggleJogadores(this)">
   👥 Jogadores
 </button>
-<div id="boxCadastro">
-<div class="card">
-<h3>👥 Jogadores</h3>
 
-<table>
-<thead>
-<tr>
-<th>Jogador</th>
-<th>Apelido</th>
-<th>Posição</th>
-<th>Tipo</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody id="tabelaJogadores"></tbody>
-</table>
+<!-- BOX JOGADORES -->
+<div id="boxJogadores" class="box-toggle">
+  <div class="card">
+    <h3>👥 Jogadores</h3>
 
-<div id="listaMobile"></div>
-</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Jogador</th>
+          <th>Apelido</th>
+          <th>Posição</th>
+          <th>Tipo</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaJogadores"></tbody>
+    </table>
+
+    <div id="listaMobile"></div>
   </div>
+</div>
 
 <!-- RANKINGS -->
 <div class="grid">
@@ -395,6 +407,25 @@ function toggleCadastro(){
   }else{
     btn.innerText = '➕ Cadastrar Jogador';
   }
+}
+
+function toggleJogadores(btn){
+  const box = document.getElementById('boxJogadores');
+
+  if(!box.classList.contains('ativo')){
+    fecharTodos();
+    box.classList.add('ativo');
+    btn.innerText = '➖ Fechar Jogadores';
+  }else{
+    box.classList.remove('ativo');
+    btn.innerText = '👥 Jogadores';
+  }
+}
+
+function fecharTodos(){
+  document.querySelectorAll('.box-toggle').forEach(b=>{
+    b.classList.remove('ativo');
+  });
 }
 
 async function aceitarRegulamento(){
