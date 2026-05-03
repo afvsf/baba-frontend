@@ -161,6 +161,18 @@ th,td{
 <input type="date" id="data">
 </div>
 
+<div class="card">
+  <h3>⚙️ Configurar Baba</h3>
+
+  <input type="date" id="dataBaba">
+
+  <button onclick="definirDataBaba()">
+    📅 Definir Data do Baba
+  </button>
+
+  <p id="dataAtualBaba"></p>
+</div>
+  
 <!-- REGISTRO -->
 <div class="card">
 <h3>➕ Registrar</h3>
@@ -189,7 +201,11 @@ th,td{
 <!-- PARTICIPAÇÕES -->
 <div class="card">
 <h3>📋 Participações</h3>
+<div class="card">
+  <h3>✅ Confirmar Presença</h3>
 
+  <div id="listaConfirmacao"></div>
+</div>
 <div class="tabela-scroll">
   <table>
     <thead>
@@ -246,11 +262,15 @@ let registros = [];
 
 // ===== CARREGAR =====
 async function carregar(){
+
   jogadores = await api('/jogadores').then(r=>r.json());
   registros = await api('/registros').then(r=>r.json());
 
+  await carregarConfig(); // 🔥 NOVO
+
   renderSelect();
   renderTudo();
+  renderConfirmacao(); // 🔥 NOVO
 }
 
 // ===== SELECT =====
@@ -506,6 +526,101 @@ function renderResumo(data){
 
   document.getElementById('resumoBaba').innerHTML =
     `👥 ${totalJogadores} jogadores | ⚽ ${totalGols} gols`;
+}
+
+
+let dataBabaAtual = null;
+
+async function carregarConfig(){
+
+  const res = await api('/config');
+  const config = await res.json();
+
+  dataBabaAtual = config.data_baba;
+
+  document.getElementById('dataBaba').value = dataBabaAtual || '';
+  document.getElementById('data').value = dataBabaAtual || '';
+
+  document.getElementById('dataAtualBaba').innerHTML =
+    dataBabaAtual ? `📅 Baba definido: ${formatarDataBR(dataBabaAtual)}` : 'Nenhuma data definida';
+}
+
+async function definirDataBaba(){
+
+  const data = document.getElementById('dataBaba').value;
+
+  if(!data) return alert("Selecione a data");
+
+  await api('/config', {
+    method:'PUT',
+    body: JSON.stringify({ data_baba: data })
+  });
+
+  alert("✅ Data do baba definida!");
+  carregar();
+}
+
+
+function renderConfirmacao(){
+
+  const container = document.getElementById('listaConfirmacao');
+
+  if(!dataBabaAtual){
+    container.innerHTML = 'Defina a data do baba';
+    return;
+  }
+
+  const lista = registros.filter(r =>
+    r.data && r.data.startsWith(dataBabaAtual)
+  );
+
+  if(lista.length === 0){
+    container.innerHTML = 'Nenhum jogador marcou presença';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  lista.forEach(r => {
+
+    const jogador = jogadores.find(j =>
+      String(j.id) === String(r.jogadorId || r.jogadorid)
+    );
+
+    const nome = jogador ? (jogador.apelido || jogador.nome) : '⚠️';
+
+    const confirmado = r.confirmado == 1;
+
+    let div = document.createElement('div');
+    div.className = 'card-registro';
+
+    div.innerHTML = `
+      <h4>${nome}</h4>
+
+      <div class="info">
+        Status: 
+        ${confirmado 
+          ? '<span style="color:#22c55e;">✅ Confirmado</span>' 
+          : '<span style="color:#facc15;">⏳ Aguardando</span>'}
+      </div>
+
+      <button onclick="confirmarPresenca('${r.id}')">
+        ${confirmado ? '✔️ Confirmado' : '✅ Confirmar'}
+      </button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+
+async function confirmarPresenca(id){
+
+  await api('/registros/confirmar/' + id, {
+    method:'PUT'
+  });
+
+  carregar();
 }
 
 // ===== RANKING =====
