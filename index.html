@@ -248,6 +248,10 @@ Salvar
 </div>
   
 <!-- JOGADORES -->
+<button class="btn" onclick="toggleCadastro()">
+  👥 Jogadores
+</button>
+<div id="boxCadastro">
 <div class="card">
 <h3>👥 Jogadores</h3>
 
@@ -266,6 +270,7 @@ Salvar
 
 <div id="listaMobile"></div>
 </div>
+  </div>
 
 <!-- RANKINGS -->
 <div class="grid">
@@ -618,6 +623,52 @@ function limparFormulario(){
 }
 
 // ===== JOGADORES =====
+
+async function registrarParticipacao(jogadorId){
+
+  const data = document.getElementById('dataIndex').value;
+
+  if(!data){
+    return alert("Selecione a data");
+  }
+
+  // evitar duplicado
+  const jaExiste = registros.some(r =>
+    String(r.jogadorId || r.jogadorid) === String(jogadorId) &&
+    r.data && r.data.startsWith(data)
+  );
+
+  if(jaExiste){
+    return alert("⚠️ Já está na lista");
+  }
+
+  const registro = {
+    id: Date.now().toString(),
+    jogadorId,
+    data,
+    gols: 0,
+    cartao_amarelo: 0,
+    cartao_azul: 0,
+    cartao_vermelho: 0,
+    obs: '',
+    confirmado: false // 🔥 NOVO
+  };
+
+  const res = await api('/registros', {
+    method:'POST',
+    body: JSON.stringify(registro)
+  });
+
+  if(!res.ok){
+    return alert("Erro ao registrar");
+  }
+
+  alert("✅ Presença solicitada");
+  carregar();
+}
+
+
+  
 function renderJogadores(){
 
   const tb = document.getElementById('tabelaJogadores');
