@@ -454,10 +454,10 @@ function renderPresenca(){
   const data = dataBabaAtual;
   const container = document.getElementById('listaPresenca');
 
-  if(!data){
-    container.innerHTML = 'Selecione uma data';
-    return;
-  }
+ if(!dataBabaAtual){
+  container.innerHTML = '⚠️ Data do baba não definida pelo administrador';
+  return;
+}
 
   container.innerHTML = '';
 
