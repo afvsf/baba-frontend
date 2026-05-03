@@ -377,6 +377,25 @@ z-index:10;
 </div>
 
 <script>
+
+
+
+async function carregarConfig(){
+
+  try{
+
+    const res = await fetch(API + '/config');
+    const config = await res.json();
+
+    dataBabaAtual = config.data_baba || null;
+
+  }catch(err){
+    console.error("Erro ao carregar config:", err);
+    dataBabaAtual = null;
+  }
+}
+
+  
 function abrirRegulamento(){
   document.getElementById('modalPDF').style.display = 'flex';
   carregarJogadoresAceite();
@@ -557,6 +576,7 @@ let fotoPreview = '';
 let jogadores = [];
 let registros = [];
 let mensalidades = {};
+let dataBabaAtual = null;
 
 // ===== CARREGAR =====
 async function carregar(){
@@ -564,6 +584,8 @@ async function carregar(){
   jogadores = await api('/jogadores').then(r=>r.json());
   registros = await api('/registros').then(r=>r.json());
   const mensal = await api('/mensalidades').then(r=>r.json());
+
+   await carregarConfig(); // 🔥 ESSENCIAL
 
 if(!Array.isArray(mensal)){
   console.error('Erro mensalidades:', mensal);
