@@ -589,6 +589,8 @@ let dataBabaAtual = null;
 // ===== CARREGAR =====
 async function carregar(){
 
+  await carregarDataBaba();
+
   jogadores = await api('/jogadores').then(r=>r.json());
   registros = await api('/registros').then(r=>r.json());
   const mensal = await api('/mensalidades').then(r=>r.json());
