@@ -536,7 +536,10 @@ async function carregarConfig(){
   const res = await api('/config');
   const config = await res.json();
 
-  dataBabaAtual = config.data_baba;
+  dataBabaAtual =
+   config.data_baba
+   ? config.data_baba.split('T')[0]
+   : null;
 
   document.getElementById('dataBaba').value = dataBabaAtual || '';
   document.getElementById('data').value = dataBabaAtual || '';
