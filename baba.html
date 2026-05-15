@@ -563,64 +563,92 @@ async function definirDataBaba(){
 
 function renderConfirmacao(){
 
-  const container = document.getElementById('listaConfirmacao');
+  const container =
+    document.getElementById('listaConfirmacao');
+
+  container.innerHTML='';
 
   if(!dataBabaAtual){
-    container.innerHTML = 'Defina a data do baba';
+    container.innerHTML='📅 Defina a data do baba';
     return;
   }
 
-  const lista = registros.filter(r =>
-    r.data && r.data.startsWith(dataBabaAtual)
-  );
+  // normaliza data
+  const dataAtual =
+    dataBabaAtual.split('T')[0];
 
-  if(lista.length === 0){
-    container.innerHTML = 'Nenhum jogador marcou presença';
-    return;
-  }
+  jogadores.forEach(j=>{
 
-  container.innerHTML = '';
+    // procura presença do jogador
+    const registro =
+      registros.find(r=>
 
-  lista.forEach(r => {
+        r.data &&
+        r.data.startsWith(dataAtual) &&
+        String(r.jogadorId || r.jogadorid)
+        === String(j.id)
 
-    const jogador = jogadores.find(j =>
-      String(j.id) === String(r.jogadorId || r.jogadorid)
-    );
+      );
 
-    const nome = jogador ? (jogador.apelido || jogador.nome) : '⚠️';
+    const confirmado =
+      registro?.confirmado === true;
 
-    const confirmado = r.confirmado == 1;
+    let div =
+      document.createElement('div');
 
-    let div = document.createElement('div');
-    div.className = 'card-registro';
+    div.className='card-registro';
 
-    div.innerHTML = `
-      <h4>${nome}</h4>
+    div.innerHTML=`
+      <h4>
+      ${j.apelido || j.nome}
+      </h4>
 
       <div class="info">
-        Status: 
-        ${confirmado 
-          ? '<span style="color:#22c55e;">✅ Confirmado</span>' 
-          : '<span style="color:#facc15;">⏳ Aguardando</span>'}
+      ${
+        confirmado
+        ? '✅ Confirmado'
+        : '⏳ Não confirmado'
+      }
       </div>
 
-      <button onclick="confirmarPresenca('${r.id}')">
-        ${confirmado ? '✔️ Confirmado' : '✅ Confirmar'}
+      <button
+      onclick="confirmarPresenca('${j.id}')">
+
+      ${
+        confirmado
+        ? '✔️ Confirmado'
+        : '✅ Confirmar'
+      }
+
       </button>
     `;
 
     container.appendChild(div);
+
   });
+
 }
 
 
-async function confirmarPresenca(id){
+async function confirmarPresenca(jogadorId){
 
-  await api('/registros/confirmar/' + id, {
-    method:'PUT'
-  });
+   await api('/registro',{
+      method:'POST',
+      body:JSON.stringify({
 
-  carregar();
+         data:dataBabaAtual.split('T')[0],
+         jogadorId,
+         confirmado:true,
+         gols:0,
+         cartao_amarelo:0,
+         cartao_azul:0,
+         cartao_vermelho:0,
+         obs:''
+
+      })
+   });
+
+   carregar();
 }
 
 // ===== RANKING =====
