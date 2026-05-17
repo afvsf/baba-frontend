@@ -631,40 +631,56 @@ function formatarData(data){
   return new Date(data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
+let dataBabaAtual = null;
+
 async function carregarDataBaba(){
 
   try{
 
-    // sem api()
+    // NÃO usar api()
     const res = await fetch(
       API + '/config'
     );
 
+    if(!res.ok){
+      throw new Error(
+        'Falha ao carregar config'
+      );
+    }
+
     const config =
       await res.json();
 
+    console.log(
+      'CONFIG:',
+      config
+    );
+
     dataBabaAtual =
-      config.data_baba
-      ? config.data_baba.split('T')[0]
+      config?.data_baba
+      ? config.data_baba
+          .split('T')[0]
       : null;
 
-    document.getElementById(
+    document
+    .getElementById(
       'dataBabaInfo'
     ).innerHTML = dataBabaAtual
 
-    ? `📅 Próximo Baba:
-       <b>${formatarDataBR(dataBabaAtual)}</b>`
+      ? `📅 Próximo Baba:
+         <b>${formatarDataBR(dataBabaAtual)}</b>`
 
-    : 'Nenhuma data definida';
+      : 'Nenhuma data definida';
 
   }catch(err){
 
-    console.log(err);
+    console.error(err);
 
-    document.getElementById(
+    document
+    .getElementById(
       'dataBabaInfo'
     ).innerHTML =
-      'Erro ao carregar data';
+      'Nenhuma data definida';
 
   }
 
