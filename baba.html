@@ -550,19 +550,39 @@ async function carregarConfig(){
 
 async function definirDataBaba(){
 
-  const data = document.getElementById('dataBaba').value;
+  const data =
+    document.getElementById(
+      'dataBaba'
+    ).value;
 
-  if(!data) return alert("Selecione a data");
+  if(!data)
+    return alert(
+      'Selecione a data'
+    );
 
-  await api('/config', {
-    method:'PUT',
-    body: JSON.stringify({ data_baba: data })
-  });
+  const res =
+    await api('/config',{
 
-  alert("✅ Data do baba definida!");
+      method:'PUT',
+
+      body:JSON.stringify({
+        data_baba:data
+      })
+
+    });
+
+  const json =
+    await res.json();
+
+  console.log(json);
+
+  alert(
+   '✅ Baba marcado'
+  );
+
   carregar();
-}
 
+}
 
 function renderConfirmacao(){
 
