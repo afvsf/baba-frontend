@@ -631,39 +631,46 @@ function formatarData(data){
   return new Date(data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
-
 async function carregarDataBaba(){
 
-   try{
+  try{
 
-      const res =
-      await api('/config');
+    // sem api()
+    const res = await fetch(
+      API + '/config'
+    );
 
-      const config =
+    const config =
       await res.json();
 
-      dataBabaAtual =
+    dataBabaAtual =
       config.data_baba
       ? config.data_baba.split('T')[0]
       : null;
 
-      document
-      .getElementById('dataBabaInfo')
-      .innerHTML = dataBabaAtual
-      ? `⚽ Próximo baba: <b>${formatarDataBR(dataBabaAtual)}</b>`
-      : 'Nenhuma data definida';
+    document.getElementById(
+      'dataBabaInfo'
+    ).innerHTML = dataBabaAtual
 
-   }catch(e){
+    ? `📅 Próximo Baba:
+       <b>${formatarDataBR(dataBabaAtual)}</b>`
 
-      document
-      .getElementById('dataBabaInfo')
-      .innerHTML =
+    : 'Nenhuma data definida';
+
+  }catch(err){
+
+    console.log(err);
+
+    document.getElementById(
+      'dataBabaInfo'
+    ).innerHTML =
       'Erro ao carregar data';
 
-   }
+  }
 
 }
 
+  
 // ===== STATUS =====
 function contarDevendo(j){
 
