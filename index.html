@@ -480,7 +480,7 @@ function renderPresenca(){
     let cor = '#ef4444';
 
     if(registro){
-      if(registro.confirmado){
+      if(estaConfirmado(registro.confirmado)){
         status = '🟢 Confirmado';
         cor = '#22c55e';
       }else{
