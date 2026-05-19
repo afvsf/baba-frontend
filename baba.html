@@ -303,6 +303,17 @@ function formatarDataBR(data){
 
   return `${dia}/${mes}/${ano}`;
 }
+
+function estaConfirmado(valor){
+
+  return (
+    valor === true ||
+    valor === 1 ||
+    valor === '1' ||
+    valor === 'true'
+  );
+
+}
   
 
 // ===== REGISTRAR =====
