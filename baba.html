@@ -632,7 +632,9 @@ function renderConfirmacao(){
       );
 
     const confirmado =
-      registro?.confirmado === true;
+   estaConfirmado(
+      r.confirmado
+   );
 
     let div =
       document.createElement('div');
