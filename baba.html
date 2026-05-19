@@ -446,74 +446,182 @@ function renderTudo(){
 // ===== REGISTROS =====
 function renderRegistros(data){
 
-  const tb = document.getElementById('listaRegistros');
-  const mobile = document.getElementById('listaRegistrosMobile');
-mobile.innerHTML = '';
+  const tb =
+    document.getElementById(
+      'listaRegistros'
+    );
+
+  const mobile =
+    document.getElementById(
+      'listaRegistrosMobile'
+    );
+
+  mobile.innerHTML='';
 
   if(!data){
-    tb.innerHTML = '<tr><td colspan="7">Selecione uma data</td></tr>';
+
+    tb.innerHTML=
+    '<tr><td colspan="7">Selecione uma data</td></tr>';
+
     return;
   }
 
-  const lista = registros.filter(r =>
-  r.data && r.data.startsWith(data)
-);
+  // 🔥 corrigido
+  const lista =
+    registros.filter(r =>
 
-  tb.innerHTML = '';
+      normalizarData(
+        r.data
+      ) ===
 
-  if(lista.length === 0){
-    tb.innerHTML = '<tr><td colspan="7">Nenhum jogador registrado</td></tr>';
+      normalizarData(
+        data
+      )
+
+    );
+
+  tb.innerHTML='';
+
+  if(lista.length===0){
+
+    tb.innerHTML=
+    '<tr><td colspan="7">Nenhum jogador registrado</td></tr>';
+
     return;
   }
 
-lista.forEach(r=>{
+  lista.forEach(r=>{
 
-  const jogador = jogadores.find(j => 
-    String(j.id) === String(r.jogadorId || r.jogadorid)
-  );
+    const jogador =
+      jogadores.find(j=>
 
-  let tr = document.createElement('tr');
+        String(j.id)===String(
+          r.jogadorId ||
+          r.jogadorid
+        )
 
-  // 🔥 destaque visual
-  if(r.id == registroEditando){
-    tr.style.background = '#334155';
-  }
+      );
 
-  tr.innerHTML = `
-    <td>${jogador ? (jogador.apelido || jogador.nome) : '⚠️ Não encontrado'}</td>
-    <td>${r.gols}</td>
-    <td>${r.cartao_amarelo || 0}</td>
-    <td>${r.cartao_azul || 0}</td>
-    <td>${r.cartao_vermelho || 0}</td>
-    <td>${r.obs || ''}</td>
-    <td>
-      <button onclick="editarRegistro('${r.id}')">✏️</button>
-      <button onclick="removerRegistro('${r.id}')">🗑️</button>
-    </td>
-  `;
+    let tr =
+      document.createElement(
+        'tr'
+      );
 
-  tb.appendChild(tr);
+    if(
+      r.id ==
+      registroEditando
+    ){
+      tr.style.background=
+      '#334155';
+    }
 
-  // ===== MOBILE CARD
-let card = document.createElement('div');
-card.className = 'card-registro';
+    tr.innerHTML=`
 
-card.innerHTML = `
-  <h4>${jogador ? (jogador.apelido || jogador.nome) : '⚠️ Não encontrado'}</h4>
+      <td>
+      ${
+        jogador
+        ? (jogador.apelido || jogador.nome)
+        : '⚠️ Não encontrado'
+      }
+      </td>
 
-  <div class="info">⚽ Gols: ${r.gols}</div>
-  <div class="info">🟨 ${r.cartao_amarelo || 0} | 🟦 ${r.cartao_azul || 0} | 🟥 ${r.cartao_vermelho || 0}</div>
-  <div class="info">Obs: ${r.obs || '-'}</div>
+      <td>${r.gols}</td>
 
-  <div class="acoes">
-    <button onclick="editarRegistro('${r.id}')">✏️</button>
-    <button onclick="removerRegistro('${r.id}')">🗑️</button>
-  </div>
-`;
+      <td>
+      ${r.cartao_amarelo||0}
+      </td>
 
-mobile.appendChild(card);
-});
+      <td>
+      ${r.cartao_azul||0}
+      </td>
 
+      <td>
+      ${r.cartao_vermelho||0}
+      </td>
+
+      <td>
+      ${r.obs||''}
+      </td>
+
+      <td>
+
+      <button
+      onclick="editarRegistro('${r.id}')">
+
+      ✏️
+
+      </button>
+
+      <button
+      onclick="removerRegistro('${r.id}')">
+
+      🗑️
+
+      </button>
+
+      </td>
+    `;
+
+    tb.appendChild(tr);
+
+    let card=
+    document.createElement(
+      'div'
+    );
+
+    card.className=
+    'card-registro';
+
+    card.innerHTML=`
+
+      <h4>
+      ${
+        jogador
+        ? (jogador.apelido || jogador.nome)
+        : '⚠️ Não encontrado'
+      }
+      </h4>
+
+      <div class="info">
+      ⚽ ${r.gols}
+      </div>
+
+      <div class="info">
+      🟨 ${r.cartao_amarelo||0}
+      |
+      🟦 ${r.cartao_azul||0}
+      |
+      🟥 ${r.cartao_vermelho||0}
+      </div>
+
+      <div class="info">
+      Obs:
+      ${r.obs||'-'}
+      </div>
+
+      <div class="acoes">
+
+      <button
+      onclick="editarRegistro('${r.id}')">
+
+      ✏️
+
+      </button>
+
+      <button
+      onclick="removerRegistro('${r.id}')">
+
+      🗑️
+
+      </button>
+
+      </div>
+
+    `;
+
+    mobile.appendChild(card);
+
+  });
 
 }
 
