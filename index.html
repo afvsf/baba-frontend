@@ -560,6 +560,7 @@ async function aceitarRegulamento(){
   fecharRegulamento();
 }
 </script>  
+
   
   
 <script>
@@ -630,6 +631,17 @@ function irAdmin(){
   } else {
     window.location.href = 'login.html';
   }
+}
+
+function estaConfirmado(valor){
+
+  return (
+    valor === true ||
+    valor === 1 ||
+    valor === '1' ||
+    valor === 'true'
+  );
+
 }
 
 // ===== FORMATA DATA =====
