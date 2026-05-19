@@ -584,6 +584,7 @@ let fotoPreview = '';
 let jogadores = [];
 let registros = [];
 let mensalidades = {};
+let dataBabaAtual = null;
 
 // ===== CARREGAR =====
 async function carregar(){
@@ -638,8 +639,6 @@ function formatarData(data){
 }
 
 
-// variável global (somente UMA vez)
-let dataBabaAtual = null;
 
 async function carregarDataBaba(){
 
