@@ -638,6 +638,19 @@ function formatarData(data){
   return new Date(data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
+// ADICIONE AQUI
+function formatarDataBR(data){
+
+  if(!data) return '-';
+
+  data=data.split('T')[0];
+
+  const [ano,mes,dia]=
+  data.split('-');
+
+  return `${dia}/${mes}/${ano}`;
+}
+
 
 
 async function carregarDataBaba(){
