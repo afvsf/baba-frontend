@@ -557,9 +557,9 @@ async function carregarConfig(){
   const config = await res.json();
 
   dataBabaAtual =
-   config.data_baba
-   ? config.data_baba.split('T')[0]
-   : null;
+   normalizarData(
+      config.data_baba
+   );
 
   document.getElementById('dataBaba').value = dataBabaAtual || '';
   document.getElementById('data').value = dataBabaAtual || '';
