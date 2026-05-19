@@ -584,34 +584,40 @@ let fotoPreview = '';
 let jogadores = [];
 let registros = [];
 let mensalidades = {};
-let dataBabaAtual = null;
 
 // ===== CARREGAR =====
 async function carregar(){
 
   await carregarDataBaba();
 
-  jogadores = await api('/jogadores').then(r=>r.json());
-  registros = await api('/registros').then(r=>r.json());
-  const mensal = await api('/mensalidades').then(r=>r.json());
+  jogadores =
+    await api('/jogadores')
+    .then(r=>r.json());
 
-   await carregarConfig(); // 🔥 ESSENCIAL
+  registros =
+    await api('/registros')
+    .then(r=>r.json());
 
-if(!Array.isArray(mensal)){
-  console.error('Erro mensalidades:', mensal);
-  return;
-}
+  const mensal =
+    await api('/mensalidades')
+    .then(r=>r.json());
 
-  mensalidades = {};
+  mensalidades={};
 
   mensal.forEach(m=>{
-    if(!mensalidades[m.mes]) mensalidades[m.mes]=[];
+
+    if(!mensalidades[m.mes]){
+      mensalidades[m.mes]=[];
+    }
+
     mensalidades[m.mes].push(m);
+
   });
 
   renderJogadores();
   renderRanking();
   renderPresenca();
+  renderParticipacoesIndex();
 }
 
 function irAdmin(){
@@ -631,61 +637,65 @@ function formatarData(data){
   return new Date(data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
+
+// variável global (somente UMA vez)
 let dataBabaAtual = null;
 
 async function carregarDataBaba(){
 
   try{
 
-    // NÃO usar api()
     const res = await fetch(
       API + '/config'
     );
 
     if(!res.ok){
-      throw new Error(
-        'Falha ao carregar config'
-      );
+      throw new Error('Erro config');
     }
 
     const config =
       await res.json();
 
-    console.log(
-      'CONFIG:',
-      config
-    );
+    console.log('CONFIG:',config);
 
     dataBabaAtual =
       config?.data_baba
-      ? config.data_baba
-          .split('T')[0]
+      ? config.data_baba.split('T')[0]
       : null;
 
-    document
-    .getElementById(
-      'dataBabaInfo'
-    ).innerHTML = dataBabaAtual
+    const el =
+      document.getElementById(
+        'dataBabaInfo'
+      );
 
-      ? `📅 Próximo Baba:
-         <b>${formatarDataBR(dataBabaAtual)}</b>`
+    if(el){
 
-      : 'Nenhuma data definida';
+      el.innerHTML =
+        dataBabaAtual
+
+        ? `📅 Próximo Baba:
+           <b>${formatarDataBR(dataBabaAtual)}</b>`
+
+        : 'Nenhuma data definida';
+    }
 
   }catch(err){
 
-    console.error(err);
+    console.error(
+      'Erro ao carregar data:',
+      err
+    );
 
-    document
-    .getElementById(
+    document.getElementById(
       'dataBabaInfo'
     ).innerHTML =
-      'Nenhuma data definida';
+      'Erro ao carregar data';
 
+    dataBabaAtual = null;
   }
 
 }
-
+  
   
 // ===== STATUS =====
 function contarDevendo(j){
@@ -835,7 +845,7 @@ function limparFormulario(){
 
 async function registrarParticipacao(jogadorId){
 
-  const data = document.getElementById('dataIndex').value;
+  const data = dataBabaAtual;
 
   if(!data){
     return alert("Selecione a data");
@@ -970,7 +980,7 @@ function renderJogadores(){
  // ===== Renderizar Participação
 function renderParticipacoesIndex(){
 
-  const data = document.getElementById('dataIndex').value;
+  const data = dataBabaAtual;
   const container = document.getElementById('listaIndex');
 
   if(!data){
