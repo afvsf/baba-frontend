@@ -614,57 +614,75 @@ async function definirDataBaba(){
 function renderConfirmacao(){
 
   const container =
-    document.getElementById('listaConfirmacao');
+    document.getElementById(
+      'listaConfirmacao'
+    );
 
   container.innerHTML='';
 
   if(!dataBabaAtual){
-    container.innerHTML='📅 Defina a data do baba';
+
+    container.innerHTML=
+      '📅 Defina a data do baba';
+
     return;
   }
 
-  // normaliza data
   const dataAtual =
-    dataBabaAtual.split('T')[0];
+    dataBabaAtual
+    .split('T')[0];
 
   jogadores.forEach(j=>{
 
-    // procura presença do jogador
     const registro =
-      registros.find(r=>
+      registros.find(r =>
 
         r.data &&
-        r.data.startsWith(dataAtual) &&
-        String(r.jogadorId || r.jogadorid)
-        === String(j.id)
+        r.data.split('T')[0] === dataAtual &&
+
+        String(
+          r.jogadorId ||
+          r.jogadorid
+        ) === String(j.id)
 
       );
 
+    // sem solicitação ainda
+    if(!registro){
+      return;
+    }
+
     const confirmado =
-   estaConfirmado(
-      r.confirmado
-   );
+      estaConfirmado(
+        registro.confirmado
+      );
 
     let div =
       document.createElement('div');
 
-    div.className='card-registro';
+    div.className =
+      'card-registro';
 
     div.innerHTML=`
+
       <h4>
-      ${j.apelido || j.nome}
+        ${j.apelido || j.nome}
       </h4>
 
       <div class="info">
-      ${
-        confirmado
-        ? '✅ Confirmado'
-        : '⏳ Não confirmado'
-      }
+
+        ${
+          confirmado
+
+          ? '<span style="color:#22c55e">✅ Confirmado</span>'
+
+          : '<span style="color:#facc15">⏳ Aguardando ADM</span>'
+        }
+
       </div>
 
       <button
-      onclick="confirmarPresenca('${j.id}')">
+      onclick="confirmarPresenca('${registro.id}')">
 
       ${
         confirmado
@@ -673,6 +691,7 @@ function renderConfirmacao(){
       }
 
       </button>
+
     `;
 
     container.appendChild(div);
