@@ -808,27 +808,72 @@ function renderConfirmacao(){
 
 }
 
+async function confirmarPresenca(id){
 
-async function confirmarPresenca(jogadorId){
+  try{
 
-   await api('/registro',{
-      method:'POST',
-      body:JSON.stringify({
+    const res = await api(
+      '/registros/confirmar/' + id,
+      {
+        method:'PUT'
+      }
+    );
 
-         data:dataBabaAtual.split('T')[0],
-         jogadorId,
-         confirmado:true,
-         gols:0,
-         cartao_amarelo:0,
-         cartao_azul:0,
-         cartao_vermelho:0,
-         obs:''
+    const data =
+      await res.json();
 
-      })
-   });
+    console.log(
+      'CONFIRMAR:',
+      data
+    );
 
-   carregar();
+    if(!res.ok){
+
+      alert(
+        data.erro ||
+        'Erro ao confirmar'
+      );
+
+      return;
+    }
+
+    // atualiza lista local sem esperar
+    registros =
+      registros.map(r => {
+
+        if(String(r.id)===String(id)){
+
+          return {
+            ...r,
+            confirmado:true
+          };
+
+        }
+
+        return r;
+
+      });
+
+    renderConfirmacao();
+
+    alert(
+      '✅ Presença confirmada'
+    );
+
+    carregar();
+
+  }catch(err){
+
+    console.error(err);
+
+    alert(
+      'Erro ao confirmar presença'
+    );
+
+  }
+
 }
+
 
 // ===== RANKING =====
 function renderTop3(){
