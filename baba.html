@@ -286,6 +286,15 @@ function renderSelect(){
   });
 }
 
+function normalizarData(data){
+
+   if(!data) return '';
+
+   return data
+      .split('T')[0]
+      .trim();
+}
+
 // ✅ COLOQUE AQUI 👇
 function formatarDataBR(data){
 
