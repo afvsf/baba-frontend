@@ -328,55 +328,132 @@ function estaConfirmado(valor){
 // ===== REGISTRAR =====
 async function registrar(){
 
-  const data = document.getElementById('data').value;
-  const jogadorId = document.getElementById('jogador').value;
+  const data =
+    document.getElementById('data').value;
 
-  if(!data) return alert("Selecione data");
+  const jogadorId =
+    document.getElementById('jogador').value;
 
-  // 🔍 verifica se já existe registro desse jogador nessa data
-  const existente = registros.find(r =>
-    r.data === data && String(r.jogadorId) === String(jogadorId)
-  );
+  if(!data){
+    return alert(
+      "Selecione data"
+    );
+  }
 
-  // 🔥 SE EXISTE → ATUALIZA
-  if(existente){
+  const payload = {
 
-    await api('/registro/' + existente.id, {
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        data,
-        jogadorId,
-        gols: +document.getElementById('gols').value || 0,
-        cartao_amarelo: +document.getElementById('amarelo').value || 0,
-        cartao_azul: +document.getElementById('azul').value || 0,
-        cartao_vermelho: +document.getElementById('vermelho').value || 0,
-        obs: document.getElementById('obs').value
-      })
-    });
+    data,
+    jogadorId,
 
-    toast("♻️ Atualizado automaticamente!");
+    gols:
+      +document.getElementById(
+        'gols'
+      ).value || 0,
+
+    cartao_amarelo:
+      +document.getElementById(
+        'amarelo'
+      ).value || 0,
+
+    cartao_azul:
+      +document.getElementById(
+        'azul'
+      ).value || 0,
+
+    cartao_vermelho:
+      +document.getElementById(
+        'vermelho'
+      ).value || 0,
+
+    obs:
+      document.getElementById(
+        'obs'
+      ).value
+  };
+
+
+  // 🔥 MODO EDIÇÃO
+  if(registroEditando){
+
+    await api(
+      '/registro/' +
+      registroEditando,
+      {
+        method:'PUT',
+        body:JSON.stringify(
+          payload
+        )
+      }
+    );
+
+    toast(
+      "✏️ Registro atualizado"
+    );
+
+    registroEditando=null;
+
+    document
+      .getElementById(
+        'btnCancelar'
+      ).style.display='none';
+
+    limparCampos();
+
     carregar();
+
     return;
   }
 
-  // 🔥 SE NÃO EXISTE → CRIA
-  await api('/registro/',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      data,
-      jogadorId,
-      gols: +document.getElementById('gols').value || 0,
-      cartao_amarelo: +document.getElementById('amarelo').value || 0,
-      cartao_azul: +document.getElementById('azul').value || 0,
-      cartao_vermelho: +document.getElementById('vermelho').value || 0,
-      obs: document.getElementById('obs').value
-    })
-  });
 
-  toast("✅ Registrado!");
+  // 🔥 NOVO REGISTRO
+  const existente =
+    registros.find(r =>
+
+      normalizarData(
+        r.data
+      )===
+
+      normalizarData(
+        data
+      )
+
+      &&
+
+      String(
+        r.jogadorId ||
+        r.jogadorid
+      )===String(
+        jogadorId
+      )
+
+    );
+
+  if(existente){
+
+    return alert(
+      'Jogador já registrado'
+    );
+
+  }
+
+  await api(
+    '/registro',
+    {
+      method:'POST',
+      body:JSON.stringify(
+        payload
+      )
+    }
+  );
+
+  limparCampos();
+
+  toast(
+    "✅ Registrado!"
+  );
+
   carregar();
+
 }
 
 // ===== REMOVER PARTICIPAÇÃO =====
