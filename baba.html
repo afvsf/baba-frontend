@@ -335,124 +335,95 @@ async function registrar(){
     document.getElementById('jogador').value;
 
   if(!data){
-    return alert(
-      "Selecione data"
-    );
+    return alert("Selecione data");
   }
 
-  const payload = {
+  const payload={
 
     data,
     jogadorId,
 
-    gols:
-      +document.getElementById(
-        'gols'
-      ).value || 0,
+    gols:+document.getElementById(
+      'gols'
+    ).value || 0,
 
-    cartao_amarelo:
-      +document.getElementById(
-        'amarelo'
-      ).value || 0,
+    cartao_amarelo:+
+    document.getElementById(
+      'amarelo'
+    ).value ||0,
 
-    cartao_azul:
-      +document.getElementById(
-        'azul'
-      ).value || 0,
+    cartao_azul:+
+    document.getElementById(
+      'azul'
+    ).value ||0,
 
-    cartao_vermelho:
-      +document.getElementById(
-        'vermelho'
-      ).value || 0,
+    cartao_vermelho:+
+    document.getElementById(
+      'vermelho'
+    ).value ||0,
 
     obs:
-      document.getElementById(
-        'obs'
-      ).value
+    document.getElementById(
+      'obs'
+    ).value
   };
 
 
-  // 🔥 MODO EDIÇÃO
-  if(registroEditando){
+  try{
 
+    // MODO EDIÇÃO
+    if(registroEditando){
+
+      await api(
+        '/registros/' +
+        registroEditando,
+        {
+          method:'PUT',
+          body:JSON.stringify(
+            payload
+          )
+        }
+      );
+
+      toast(
+        '✅ Atualizado'
+      );
+
+      cancelarEdicao();
+
+      carregar();
+
+      return;
+    }
+
+    // NOVO
     await api(
-      '/registro/' +
-      registroEditando,
+      '/registros',
       {
-        method:'PUT',
+        method:'POST',
         body:JSON.stringify(
           payload
         )
       }
     );
 
-    toast(
-      "✏️ Registro atualizado"
-    );
-
-    registroEditando=null;
-
-    document
-      .getElementById(
-        'btnCancelar'
-      ).style.display='none';
-
     limparCampos();
+
+    toast(
+      '✅ Registrado'
+    );
 
     carregar();
 
-    return;
-  }
+  }catch(err){
 
+    console.log(err);
 
-  // 🔥 NOVO REGISTRO
-  const existente =
-    registros.find(r =>
-
-      normalizarData(
-        r.data
-      )===
-
-      normalizarData(
-        data
-      )
-
-      &&
-
-      String(
-        r.jogadorId ||
-        r.jogadorid
-      )===String(
-        jogadorId
-      )
-
-    );
-
-  if(existente){
-
-    return alert(
-      'Jogador já registrado'
+    alert(
+      'Erro ao salvar'
     );
 
   }
-
-  await api(
-    '/registro',
-    {
-      method:'POST',
-      body:JSON.stringify(
-        payload
-      )
-    }
-  );
-
-  limparCampos();
-
-  toast(
-    "✅ Registrado!"
-  );
-
-  carregar();
 
 }
 
