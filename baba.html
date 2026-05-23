@@ -432,7 +432,7 @@ async function removerRegistro(id){
 
   if(!confirm("Remover participação?")) return;
 
-  await api('/registro/' + id, {
+  await api('/registros/' + id, {
     method: 'DELETE'
   });
 
