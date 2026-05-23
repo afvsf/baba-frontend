@@ -1012,43 +1012,32 @@ function renderParticipacoesIndex(){
     document.getElementById('listaIndex');
 
   if(!data){
-
-    container.innerHTML =
-      '📅 Selecione uma data';
-
+    container.innerHTML='📅 Selecione uma data';
     return;
   }
 
-  const lista =
-    registros.filter(r =>
+  const lista = registros.filter(r=>
 
-      r.data &&
+    r.data &&
+    r.data.split('T')[0]===data
 
-      r.data
-      .split('T')[0]
-      === data
-
-    );
-
-  let totalGols=0;
-  let artilharia={};
+  );
 
   container.innerHTML='';
 
   if(lista.length===0){
-
-    container.innerHTML=
-      'Nenhuma participação';
-
+    container.innerHTML='Nenhuma participação';
     return;
   }
 
+  let totalGols=0;
+  let artilharia={};
+
   lista.forEach(r=>{
 
-    totalGols +=
-      Number(r.gols||0);
+    totalGols += Number(r.gols||0);
 
-    const jogador =
+    const jogador=
       jogadores.find(j=>
 
         String(j.id)===String(
@@ -1058,7 +1047,7 @@ function renderParticipacoesIndex(){
 
       );
 
-    const nome =
+    const nome=
       jogador
       ? (jogador.apelido || jogador.nome)
       : '⚠️';
@@ -1067,22 +1056,18 @@ function renderParticipacoesIndex(){
       artilharia[nome]=0;
     }
 
-    artilharia[nome]+=
-      Number(r.gols||0);
+    artilharia[nome]+=Number(r.gols||0);
 
-    let card =
-      document.createElement('div');
+    let card=document.createElement('div');
 
-    card.className=
-      'card-registro';
+    card.className='card-registro';
 
     card.innerHTML=`
 
       <h4>${nome}</h4>
 
       <div class="info">
-      ⚽ Gols:
-      ${r.gols || 0}
+      ⚽ Gols: ${r.gols||0}
       </div>
 
       <div class="info">
@@ -1094,23 +1079,55 @@ function renderParticipacoesIndex(){
       </div>
 
       <div class="info">
-      📝 ${r.obs || '-'}
+      📝 ${r.obs||'-'}
       </div>
 
       <div class="info">
       ${
-        r.confirmado
+        estaConfirmado(r.confirmado)
         ? '🟢 Confirmado'
         : '🟡 Aguardando ADM'
       }
       </div>
+
     `;
 
     container.appendChild(card);
 
   });
 
-  // resumo no topo
+
+  // ===== ARILHEIRO
+  let artilheiro='-';
+  let maxGols=0;
+  let jogadorTop=null;
+
+  Object.entries(artilharia)
+  .forEach(([nome,gols])=>{
+
+      if(gols>maxGols){
+
+          maxGols=gols;
+          artilheiro=nome;
+
+          jogadorTop=
+            jogadores.find(j=>
+
+            (j.apelido||j.nome)
+            ===nome
+
+          );
+      }
+
+  });
+
+  const foto=
+    jogadorTop?.foto ||
+
+    'https://ui-avatars.com/api/?name='+
+    encodeURIComponent(artilheiro);
+
+
   let resumo=
     document.createElement('div');
 
@@ -1118,83 +1135,45 @@ function renderParticipacoesIndex(){
 
   resumo.innerHTML=`
 
-     <h3>📊 Resumo do Dia</h3>
+    <h3>📊 Resumo do Dia</h3>
 
-     👥 Jogadores:
-     <b>${lista.length}</b>
+    👥 Jogadores:
+    <b>${lista.length}</b>
 
-     <br><br>
+    <br><br>
 
-     ⚽ Total gols:
-     <b>${totalGols}</b>
+    ⚽ Total gols:
+    <b>${totalGols}</b>
+
+    <div style="text-align:center;margin-top:15px">
+
+      <h4>
+      🏆 Artilheiro do Dia
+      </h4>
+
+      <img
+      src="${foto}"
+
+      style="
+      width:100px;
+      height:100px;
+      border-radius:50%;
+      object-fit:cover;
+      border:3px solid gold;
+      ">
+
+      <p>
+      <b>${artilheiro}</b>
+      </p>
+
+      ⚽ ${maxGols} gols
+
+    </div>
 
   `;
 
   container.prepend(resumo);
 
-}
-
- // 🔥 CALCULAR ARTILHEIRO
-let artilheiro = '-';
-let maxGols = 0;
-let jogadorTop = null;
-
-Object.entries(artilharia).forEach(([nome, gols])=>{
-  if(gols > maxGols){
-    maxGols = gols;
-    artilheiro = nome;
-
-    jogadorTop = jogadores.find(j =>
-      (j.apelido || j.nome) === nome
-    );
-  }
-});
-
-// 🔥 FOTO DO ARTILHEIRO
-const foto = jogadorTop?.foto
-  ? jogadorTop.foto
-  : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(artilheiro);
-
-// 🔥 CARD RESUMO
-let resumoTop = document.createElement('div');
-resumoTop.className = 'card';
-
-resumoTop.innerHTML = `
-  <h3 style="text-align:center;">📊 Resumo do Dia</h3>
-
-  <p style="text-align:center;">
-    ⚽ Total de gols: <b>${totalGols}</b>
-  </p>
-
-  <div style="text-align:center;margin-top:15px;">
-
-    <h4>🏆 Artilheiro do Dia</h4>
-
-    <img 
-      src="${foto}"
-      style="
-        width:100px;
-        height:100px;
-        border-radius:50%;
-        object-fit:cover;
-        border:3px solid gold;
-        box-shadow:0 0 15px rgba(255,215,0,0.8);
-        margin-top:10px;
-      "
-    >
-
-    <p style="font-size:18px;margin:8px 0;">
-      <b>${artilheiro}</b>
-    </p>
-
-    <p>⚽ ${maxGols} gols</p>
-
-  </div>
-`;
-
-// 🔥 COLOCA NO TOPO
-container.prepend(resumoTop);
- 
 }
 
 // ===== RANKING =====
@@ -1281,6 +1260,21 @@ renderParticipacoesIndex();
 
 // 🔄 atualização automática leve
 setInterval(carregar, 10000);
+
+
+document
+.getElementById('dataIndex')
+.addEventListener(
+   'change',
+   renderParticipacoesIndex
+);
+
+document
+.getElementById('dataIndex')
+.value =
+new Date()
+.toISOString()
+.slice(0,10);
 
 </script>
 
