@@ -477,38 +477,79 @@ function limparCampos(){
   document.getElementById('obs').value = '';
 }
 
-
 // ===== EDITAR PARTICIPAÇÃO =====
 let registroEditando = null;
 
 function editarRegistro(id){
 
-  const r = registros.find(r => r.id == id);
-  if(!r) return;
+  const r = registros.find(x =>
+    String(x.id) === String(id)
+  );
+
+  if(!r){
+    return alert("Registro não encontrado");
+  }
 
   registroEditando = id;
 
-  document.getElementById('gols').value = r.gols;
-  document.getElementById('amarelo').value = r.cartao_amarelo || 0;
-  document.getElementById('azul').value = r.cartao_azul || 0;
-  document.getElementById('vermelho').value = r.cartao_vermelho || 0;
-  document.getElementById('obs').value = r.obs || '';
+  document.getElementById('gols').value =
+    r.gols || 0;
 
-  document.getElementById('jogador').value = r.jogadorId || r.jogadorid;
+  document.getElementById('amarelo').value =
+    r.cartao_amarelo || 0;
 
-  // 🔥 MOSTRA BOTÃO CANCELAR
-  document.getElementById('btnCancelar').style.display = 'block';
+  document.getElementById('azul').value =
+    r.cartao_azul || 0;
 
-  toast("✅ Registro salvo!");
+  document.getElementById('vermelho').value =
+    r.cartao_vermelho || 0;
+
+  document.getElementById('obs').value =
+    r.obs || '';
+
+  document.getElementById('jogador').value =
+    r.jogadorId || r.jogadorid;
+
+  document.getElementById('btnCancelar')
+    .style.display='block';
+
+  document.querySelector(
+    'button[onclick="registrar()"]'
+  ).innerText='💾 Atualizar';
+
+  toast("✏️ Editando participação");
 }
 
+
 function cancelarEdicao(){
+
   registroEditando = null;
+
   limparCampos();
 
-  document.getElementById('btnCancelar').style.display = 'none';
+  document.getElementById(
+    'btnCancelar'
+  ).style.display='none';
 
-  toast("✅ Registro salvo!");
+  document.querySelector(
+    'button[onclick="registrar()"]'
+  ).innerText='Registrar';
+
+  toast("Edição cancelada");
+}
+
+
+function limparCampos(){
+
+  document.getElementById('gols').value='';
+
+  document.getElementById('amarelo').value='';
+
+  document.getElementById('azul').value='';
+
+  document.getElementById('vermelho').value='';
+
+  document.getElementById('obs').value='';
 }
 
   
