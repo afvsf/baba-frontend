@@ -453,16 +453,34 @@ let registroEditando = null;
 
 function editarRegistro(id){
 
+  console.log('EDITAR ID:', id);
+
   const r = registros.find(x =>
     String(x.id) === String(id)
   );
 
+  console.log('REGISTRO:', r);
+
   if(!r){
-    return alert("Registro não encontrado");
+    return alert(
+      'Registro não encontrado'
+    );
   }
 
-  registroEditando = id;
+  registroEditando = r.id;
 
+  // data
+  document.getElementById('data').value =
+    normalizarData(r.data);
+
+  // jogador
+  document.getElementById('jogador').value =
+    String(
+      r.jogadorId ||
+      r.jogadorid
+    );
+
+  // estatísticas
   document.getElementById('gols').value =
     r.gols || 0;
 
@@ -478,19 +496,25 @@ function editarRegistro(id){
   document.getElementById('obs').value =
     r.obs || '';
 
-  document.getElementById('jogador').value =
-    r.jogadorId || r.jogadorid;
-
-  document.getElementById('btnCancelar')
-    .style.display='block';
+  document.getElementById(
+    'btnCancelar'
+  ).style.display='block';
 
   document.querySelector(
     'button[onclick="registrar()"]'
   ).innerText='💾 Atualizar';
 
-  toast("✏️ Editando participação");
-}
+  // sobe a tela até o formulário
+  window.scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
 
+  toast(
+    '✏️ Editando participação'
+  );
+
+}
 
 function cancelarEdicao(){
 
