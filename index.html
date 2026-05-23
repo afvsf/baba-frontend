@@ -1002,62 +1002,137 @@ function renderJogadores(){
 }
 
  // ===== Renderizar Participação
+// ===== Participações por Data
 function renderParticipacoesIndex(){
 
-  const data = dataBabaAtual;
-  const container = document.getElementById('listaIndex');
+  const data =
+    document.getElementById('dataIndex').value;
+
+  const container =
+    document.getElementById('listaIndex');
 
   if(!data){
-    container.innerHTML = 'Selecione uma data';
+
+    container.innerHTML =
+      '📅 Selecione uma data';
+
     return;
   }
 
-  const lista = registros.filter(r =>
-    r.data && r.data.startsWith(data)
-  );
+  const lista =
+    registros.filter(r =>
 
-  let totalGols = 0;
-  let artilharia = {};
+      r.data &&
 
-  if(lista.length === 0){
-    container.innerHTML = 'Nenhuma participação';
-    return;
-  }
+      r.data
+      .split('T')[0]
+      === data
 
-  container.innerHTML = '';
-  
-  // 🔥 LOOP PRINCIPAL
-  lista.forEach(r => {
-
-    totalGols += r.gols || 0;
-
-    const jogador = jogadores.find(j =>
-      String(j.id) === String(r.jogadorId || r.jogadorid)
     );
 
-    const nome = jogador
+  let totalGols=0;
+  let artilharia={};
+
+  container.innerHTML='';
+
+  if(lista.length===0){
+
+    container.innerHTML=
+      'Nenhuma participação';
+
+    return;
+  }
+
+  lista.forEach(r=>{
+
+    totalGols +=
+      Number(r.gols||0);
+
+    const jogador =
+      jogadores.find(j=>
+
+        String(j.id)===String(
+          r.jogadorId ||
+          r.jogadorid
+        )
+
+      );
+
+    const nome =
+      jogador
       ? (jogador.apelido || jogador.nome)
       : '⚠️';
 
     if(!artilharia[nome]){
-      artilharia[nome] = 0;
+      artilharia[nome]=0;
     }
 
-    artilharia[nome] += r.gols || 0;
+    artilharia[nome]+=
+      Number(r.gols||0);
 
-    let card = document.createElement('div');
-    card.className = 'card-registro';
+    let card =
+      document.createElement('div');
 
-    card.innerHTML = `
+    card.className=
+      'card-registro';
+
+    card.innerHTML=`
+
       <h4>${nome}</h4>
 
-      <div class="info">⚽ Gols: ${r.gols}</div>
-      <div class="info">🟨 ${r.cartao_amarelo || 0} | 🟦 ${r.cartao_azul || 0} | 🟥 ${r.cartao_vermelho || 0}</div>
-      <div class="info">Obs: ${r.obs || '-'}</div>
+      <div class="info">
+      ⚽ Gols:
+      ${r.gols || 0}
+      </div>
+
+      <div class="info">
+      🟨 ${r.cartao_amarelo||0}
+      |
+      🟦 ${r.cartao_azul||0}
+      |
+      🟥 ${r.cartao_vermelho||0}
+      </div>
+
+      <div class="info">
+      📝 ${r.obs || '-'}
+      </div>
+
+      <div class="info">
+      ${
+        r.confirmado
+        ? '🟢 Confirmado'
+        : '🟡 Aguardando ADM'
+      }
+      </div>
     `;
 
     container.appendChild(card);
+
   });
+
+  // resumo no topo
+  let resumo=
+    document.createElement('div');
+
+  resumo.className='card';
+
+  resumo.innerHTML=`
+
+     <h3>📊 Resumo do Dia</h3>
+
+     👥 Jogadores:
+     <b>${lista.length}</b>
+
+     <br><br>
+
+     ⚽ Total gols:
+     <b>${totalGols}</b>
+
+  `;
+
+  container.prepend(resumo);
+
+}
 
  // 🔥 CALCULAR ARTILHEIRO
 let artilheiro = '-';
