@@ -653,13 +653,45 @@ function renderRegistros(data){
 
     tr.innerHTML=`
 
-      <td>
-      ${
-        jogador
-        ? (jogador.apelido || jogador.nome)
-        : '⚠️ Não encontrado'
-      }
-      </td>
+     <td>
+
+${jogador
+? `
+<div style="
+display:flex;
+align-items:center;
+gap:8px;
+justify-content:center;
+">
+
+${jogador.apelido || jogador.nome}
+
+<span style="
+background:${
+jogador.tipo==='mensal'
+? '#16a34a'
+: '#0284c7'
+};
+
+padding:3px 8px;
+border-radius:20px;
+font-size:11px;
+color:white;
+">
+
+${
+jogador.tipo==='mensal'
+? '💰 Mensalista'
+: '🎟️ Avulso'
+}
+
+</span>
+
+</div>
+`
+:'⚠️ Não encontrado'}
+
+</td>
 
       <td>${r.gols}</td>
 
