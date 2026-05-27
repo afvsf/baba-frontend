@@ -1025,6 +1025,50 @@ function renderConfirmacao(){
 }
   
 
+async function cancelarParticipacao(id){
+
+  if(!confirm(
+    "Cancelar participação deste jogador?"
+  )){
+    return;
+  }
+
+  try{
+
+    await api(
+      '/registros/' + id,
+      {
+        method:'DELETE'
+      }
+    );
+
+    // remove localmente
+    registros =
+      registros.filter(r =>
+
+      String(r.id)!==String(id)
+
+    );
+
+    renderConfirmacao();
+
+    alert(
+      '❌ Participação cancelada'
+    );
+
+    carregar();
+
+  }catch(err){
+
+    console.error(err);
+
+    alert(
+      'Erro ao cancelar participação'
+    );
+
+  }
+
+}
   
 
 async function confirmarPresenca(id){
