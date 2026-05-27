@@ -1056,16 +1056,43 @@ function renderConfirmacao(){
       margin-top:10px;
       ">
 
-      <button
-      style="flex:1"
-      onclick="confirmarPresenca('${registro.id}')">
+       <button
 
+      style="
+      flex:1;
+      font-weight:bold;
+      background:
+      
+      ${
+      confirmado
+      ? '#22c55e'   // verde
+      : '#facc15'   // amarelo
+      };
+      
+      color:
+      ${
+      confirmado
+      ? 'white'
+      : '#111827'
+      };
+      "
+      
+      onclick="confirmarPresenca('${registro.id}')"
+      
+      ${
+      confirmado
+      ? 'disabled'
+      : ''
+      }
+      
+      >
+      
       ${
       confirmado
       ? '✔️ Confirmado'
-      : '✅ Confirmar'
+      : '⏳ Confirmar'
       }
-
+      
       </button>
 
       <button
