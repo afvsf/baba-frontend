@@ -275,15 +275,38 @@ async function carregar(){
 
 // ===== SELECT =====
 function renderSelect(){
-  const sel = document.getElementById('jogador');
-  sel.innerHTML = '';
+
+  const sel =
+    document.getElementById(
+      'jogador'
+    );
+
+  sel.innerHTML='';
 
   jogadores.forEach(j=>{
-    let opt = document.createElement('option');
+
+    let opt =
+      document.createElement(
+        'option'
+      );
+
     opt.value = j.id;
-    opt.textContent = j.nome;
+
+    // 🔥 identifica o tipo
+    opt.textContent =
+
+      `${j.apelido || j.nome}
+
+      ${j.tipo==='mensal'
+
+      ? '💰 Mensalista'
+
+      : '🎟️ Avulso'}`;
+
     sel.appendChild(opt);
+
   });
+
 }
 
 function normalizarData(data){
