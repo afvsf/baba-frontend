@@ -1248,33 +1248,39 @@ function montarRanking(id, dados, campo, desc=true){
     });
 }
 
-document.getElementById('dataIndex')
-  .addEventListener('change', renderParticipacoesIndex);
-
 // INIT
-carregar();
+async function iniciar(){
 
-const hoje = new Date().toISOString().slice(0,10);
-document.getElementById('dataIndex').value = hoje;
-renderParticipacoesIndex();
+   await carregar();
 
-// 🔄 atualização automática leve
-setInterval(carregar, 10000);
+   // usa data do próximo baba
+   document.getElementById('dataIndex').value =
+      dataBabaAtual ||
+      new Date()
+      .toISOString()
+      .slice(0,10);
 
+   renderParticipacoesIndex();
 
-document
-.getElementById('dataIndex')
-.addEventListener(
-   'change',
-   renderParticipacoesIndex
-);
+   document
+   .getElementById('dataIndex')
+   .addEventListener(
+      'change',
+      renderParticipacoesIndex
+   );
 
-document
-.getElementById('dataIndex')
-.value =
-new Date()
-.toISOString()
-.slice(0,10);
+}
+
+iniciar();
+
+// atualização automática
+setInterval(async()=>{
+
+   await carregar();
+
+   renderParticipacoesIndex();
+
+},10000);
 
 </script>
 
