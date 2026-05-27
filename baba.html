@@ -740,12 +740,36 @@ jogador.tipo==='mensal'
     card.innerHTML=`
 
       <h4>
-      ${
-        jogador
-        ? (jogador.apelido || jogador.nome)
-        : '⚠️ Não encontrado'
-      }
-      </h4>
+
+${
+jogador
+? (jogador.apelido || jogador.nome)
+: '⚠️ Não encontrado'
+}
+
+<span style="
+background:${
+jogador?.tipo==='mensal'
+? '#16a34a'
+: '#0284c7'
+};
+
+padding:3px 8px;
+border-radius:20px;
+font-size:10px;
+color:white;
+margin-left:6px;
+">
+
+${
+jogador?.tipo==='mensal'
+? '💰 Mensalista'
+: '🎟️ Avulso'
+}
+
+</span>
+
+</h4>
 
       <div class="info">
       ⚽ ${r.gols}
