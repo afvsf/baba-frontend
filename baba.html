@@ -1005,16 +1005,40 @@ function renderConfirmacao(){
 
       </div>
 
-      <button
-      onclick="confirmarPresenca('${registro.id}')">
+     <div style="
+display:flex;
+gap:6px;
+margin-top:10px;
+">
 
-      ${
-        confirmado
-        ? '✔️ Confirmado'
-        : '✅ Confirmar'
-      }
+<button
+style="flex:1"
+onclick="confirmarPresenca('${registro.id}')">
 
-      </button>
+${
+confirmado
+? '✔️ Confirmado'
+: '✅ Confirmar'
+}
+
+</button>
+
+<button
+style="
+flex:1;
+background:#ef4444;
+"
+onclick="
+cancelarParticipacao(
+'${registro.id}'
+)
+">
+
+❌ Cancelar
+
+</button>
+
+</div>
 
     `;
 
