@@ -664,23 +664,17 @@ function formatarDataBR(data){
 }
 
 
-
 async function carregarDataBaba(){
 
   try{
 
-    const res = await fetch(
-      API + '/config'
-    );
+    const res = await fetch(API + '/config');
 
     if(!res.ok){
       throw new Error('Erro config');
     }
 
-    const config =
-      await res.json();
-
-    console.log('CONFIG:',config);
+    const config = await res.json();
 
     dataBabaAtual =
       config?.data_baba
@@ -688,18 +682,14 @@ async function carregarDataBaba(){
       : null;
 
     const el =
-      document.getElementById(
-        'dataBabaInfo'
-      );
+      document.getElementById('dataBabaInfo');
 
     if(el){
 
       el.innerHTML =
         dataBabaAtual
-
         ? `📅 Próximo Baba:
            <b>${formatarDataBR(dataBabaAtual)}</b>`
-
         : 'Nenhuma data definida';
     }
 
@@ -710,15 +700,10 @@ async function carregarDataBaba(){
       err
     );
 
-    document.getElementById(
-      'dataBabaInfo'
-    ).innerHTML =
-      'Erro ao carregar data';
-
     dataBabaAtual = null;
   }
-
 }
+
   
   
 // ===== STATUS =====
