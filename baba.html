@@ -844,8 +844,7 @@ function renderConfirmacao(){
   }
 
   const dataAtual =
-    dataBabaAtual
-    .split('T')[0];
+    dataBabaAtual.split('T')[0];
 
   jogadores.forEach(j=>{
 
@@ -853,16 +852,15 @@ function renderConfirmacao(){
       registros.find(r =>
 
         r.data &&
-        r.data.split('T')[0] === dataAtual &&
+        r.data.split('T')[0]===dataAtual &&
 
         String(
           r.jogadorId ||
           r.jogadorid
-        ) === String(j.id)
+        )===String(j.id)
 
       );
 
-    // sem solicitação ainda
     if(!registro){
       return;
     }
@@ -872,27 +870,59 @@ function renderConfirmacao(){
         registro.confirmado
       );
 
+    // 🔥 TAG DO TIPO
+    const tipoJogador =
+      j.tipo === 'mensal'
+
+      ? `
+      <span style="
+      background:#16a34a;
+      color:white;
+      padding:3px 8px;
+      border-radius:20px;
+      font-size:11px;
+      margin-left:8px;
+      ">
+      💰 Mensalista
+      </span>
+      `
+
+      :
+
+      `
+      <span style="
+      background:#0284c7;
+      color:white;
+      padding:3px 8px;
+      border-radius:20px;
+      font-size:11px;
+      margin-left:8px;
+      ">
+      🎟️ Avulso
+      </span>
+      `;
+
     let div =
       document.createElement('div');
 
-    div.className =
-      'card-registro';
+    div.className='card-registro';
 
     div.innerHTML=`
 
       <h4>
         ${j.apelido || j.nome}
+        ${tipoJogador}
       </h4>
 
       <div class="info">
 
-        ${
-          confirmado
+      ${
+        confirmado
 
-          ? '<span style="color:#22c55e">✅ Confirmado</span>'
+        ? '<span style="color:#22c55e">✅ Confirmado</span>'
 
-          : '<span style="color:#facc15">⏳ Aguardando ADM</span>'
-        }
+        : '<span style="color:#facc15">⏳ Aguardando ADM</span>'
+      }
 
       </div>
 
@@ -914,6 +944,9 @@ function renderConfirmacao(){
   });
 
 }
+  
+
+  
 
 async function confirmarPresenca(id){
 
