@@ -1198,20 +1198,7 @@ async function confirmarPresenca(id){
 
     // atualiza lista local sem esperar
     registros =
-      registros.map(r => {
-
-        if(String(r.id)===String(id)){
-
-          return {
-            ...r,
-            confirmado:true
-          };
-
-        }
-
-        return r;
-
-      });
+     
 
     renderConfirmacao();
 
