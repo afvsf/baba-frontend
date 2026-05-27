@@ -460,38 +460,175 @@ function toggleJogadores(btn){
 function renderPresenca(){
 
   const data = dataBabaAtual;
-  const container = document.getElementById('listaPresenca');
 
- if(!dataBabaAtual){
-  container.innerHTML = '⚠️ Data do baba não definida pelo administrador';
-  return;
-}
+  const container =
+    document.getElementById(
+      'listaPresenca'
+    );
+
+  if(!dataBabaAtual){
+
+    container.innerHTML =
+      '⚠️ Data do baba não definida pelo administrador';
+
+    return;
+  }
 
   container.innerHTML = '';
 
-  jogadores.forEach(j => {
+  // 🔥 ORDENAÇÃO
+  const listaOrdenada = [...jogadores].sort((a,b)=>{
 
-    const registro = registros.find(r =>
-      String(r.jogadorId || r.jogadorid) === String(j.id) &&
-      r.data && r.data.startsWith(data)
+    const registroA = registros.find(r =>
+
+      String(
+        r.jogadorId ||
+        r.jogadorid
+      ) === String(a.id)
+
+      &&
+
+      r.data &&
+      r.data.startsWith(data)
+
     );
 
-    let status = '❌ Não confirmado';
-    let cor = '#ef4444';
+    const registroB = registros.find(r =>
+
+      String(
+        r.jogadorId ||
+        r.jogadorid
+      ) === String(b.id)
+
+      &&
+
+      r.data &&
+      r.data.startsWith(data)
+
+    );
+
+    const confirmadoA =
+
+      registroA &&
+
+      estaConfirmado(
+        registroA.confirmado
+      );
+
+    const confirmadoB =
+
+      registroB &&
+
+      estaConfirmado(
+        registroB.confirmado
+      );
+
+    // 🟢 confirmados primeiro
+    if(confirmadoA && !confirmadoB){
+      return -1;
+    }
+
+    if(!confirmadoA && confirmadoB){
+      return 1;
+    }
+
+    // 🟢 ORDEM REAL DE CONFIRMAÇÃO ADM
+    if(confirmadoA && confirmadoB){
+
+      return new Date(
+        registroA.confirmado_em || 0
+      )
+
+      -
+
+      new Date(
+        registroB.confirmado_em || 0
+      );
+
+    }
+
+    // 🟡 aguardando ADM
+    if(
+      registroA &&
+      !confirmadoA &&
+      (!registroB || confirmadoB)
+    ){
+      return -1;
+    }
+
+    if(
+      registroB &&
+      !confirmadoB &&
+      (!registroA || confirmadoA)
+    ){
+      return 1;
+    }
+
+    // 🔤 restante por nome
+    return (
+      a.apelido || a.nome
+    ).localeCompare(
+
+      b.apelido || b.nome
+
+    );
+
+  });
+
+
+  // 🔥 RENDER
+  listaOrdenada.forEach(j => {
+
+    const registro = registros.find(r =>
+
+      String(
+        r.jogadorId ||
+        r.jogadorid
+      ) === String(j.id)
+
+      &&
+
+      r.data &&
+      r.data.startsWith(data)
+
+    );
+
+    let status =
+      '❌ Não confirmado';
+
+    let cor =
+      '#ef4444';
 
     if(registro){
-      if(estaConfirmado(registro.confirmado)){
-        status = '🟢 Confirmado';
-        cor = '#22c55e';
+
+      if(
+        estaConfirmado(
+          registro.confirmado
+        )
+      ){
+
+        status =
+          '🟢 Confirmado';
+
+        cor =
+          '#22c55e';
+
       }else{
-        status = '🟡 Aguardando ADM';
-        cor = '#facc15';
+
+        status =
+          '🟡 Aguardando ADM';
+
+        cor =
+          '#facc15';
+
       }
+
     }
 
     let btn = '';
 
     if(!registro){
+
       btn = `
         <button onclick="registrarParticipacao('${j.id}')">
           ✔️ Confirmar Presença
@@ -499,14 +636,31 @@ function renderPresenca(){
       `;
     }
 
-    let card = document.createElement('div');
-    card.className = 'card-registro';
+    let card =
+      document.createElement(
+        'div'
+      );
+
+    card.className =
+      'card-registro';
 
     card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;">
 
-        <img 
-          src="${j.foto || 'https://ui-avatars.com/api/?name='+encodeURIComponent(j.nome)}"
+      <div style="
+      display:flex;
+      align-items:center;
+      gap:10px;
+      ">
+
+        <img
+          src="${
+            j.foto ||
+
+            'https://ui-avatars.com/api/?name='+
+
+            encodeURIComponent(j.nome)
+          }"
+
           style="
             width:45px;
             height:45px;
@@ -516,55 +670,75 @@ function renderPresenca(){
         >
 
         <div style="flex:1;">
+
           <h4 style="
-display:flex;
-align-items:center;
-gap:8px;
-margin:0;
-">
+          display:flex;
+          align-items:center;
+          gap:8px;
+          margin:0;
+          flex-wrap:wrap;
+          ">
 
-${j.apelido || j.nome}
+          ${j.apelido || j.nome}
 
-<span style="
-padding:3px 8px;
-border-radius:20px;
-font-size:11px;
-font-weight:bold;
-background:${
-   j.tipo==='mensal'
-   ? '#16a34a'
-   : '#0284c7'
-};
-color:white;
-">
+          <span style="
+            padding:3px 8px;
+            border-radius:20px;
+            font-size:11px;
+            font-weight:bold;
+            background:${
+              j.tipo === 'mensal'
+              ? '#16a34a'
+              : '#0284c7'
+            };
+            color:white;
+          ">
 
-${
-   j.tipo==='mensal'
-   ? '💰 Mensalista'
-   : '🎟️ Avulso'
-}
+          ${
+            j.tipo === 'mensal'
+            ? '💰 Mensalista'
+            : '🎟️ Avulso'
+          }
 
-</span>
+          </span>
 
-</h4>
-          <div style="font-size:12px;color:#94a3b8;">
+          </h4>
+
+          <div style="
+          font-size:12px;
+          color:#94a3b8;
+          ">
+
             ${j.posicao || ''}
+
           </div>
+
         </div>
 
         <div style="text-align:right;">
-          <div style="color:${cor}; font-size:13px; font-weight:bold;">
+
+          <div style="
+          color:${cor};
+          font-size:13px;
+          font-weight:bold;
+          ">
+
             ${status}
+
           </div>
+
         </div>
 
       </div>
 
       ${btn}
+
     `;
 
     container.appendChild(card);
+
   });
+
 }
 
   
