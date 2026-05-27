@@ -925,10 +925,13 @@ function renderConfirmacao(){
   const dataAtual =
     dataBabaAtual.split('T')[0];
 
+  // monta lista vinculando jogador + registro
+  let lista = [];
+
   jogadores.forEach(j=>{
 
     const registro =
-      registros.find(r =>
+      registros.find(r=>
 
         r.data &&
         r.data.split('T')[0]===dataAtual &&
@@ -940,18 +943,57 @@ function renderConfirmacao(){
 
       );
 
-    if(!registro){
-      return;
-    }
+    if(!registro) return;
 
-    const confirmado =
+    lista.push({
+      jogador:j,
+      registro,
+      confirmado:
       estaConfirmado(
         registro.confirmado
-      );
+      )
+    });
 
-    // 🔥 TAG DO TIPO
+  });
+
+  // 🔥 ordenação
+  lista.sort((a,b)=>{
+
+    // aguardando primeiro
+    if(
+      a.confirmado !==
+      b.confirmado
+    ){
+
+      return a.confirmado - b.confirmado;
+    }
+
+    // depois por nome
+    return (
+      a.jogador.apelido ||
+      a.jogador.nome
+    ).localeCompare(
+
+      b.jogador.apelido ||
+      b.jogador.nome
+
+    );
+
+  });
+
+  lista.forEach(item=>{
+
+    const j =
+      item.jogador;
+
+    const registro =
+      item.registro;
+
+    const confirmado =
+      item.confirmado;
+
     const tipoJogador =
-      j.tipo === 'mensal'
+      j.tipo==='mensal'
 
       ? `
       <span style="
@@ -982,63 +1024,66 @@ function renderConfirmacao(){
       `;
 
     let div =
-      document.createElement('div');
+      document.createElement(
+        'div'
+      );
 
-    div.className='card-registro';
+    div.className =
+      'card-registro';
 
     div.innerHTML=`
 
       <h4>
-        ${j.apelido || j.nome}
-        ${tipoJogador}
+      ${j.apelido || j.nome}
+      ${tipoJogador}
       </h4>
 
       <div class="info">
 
       ${
-        confirmado
+      confirmado
 
-        ? '<span style="color:#22c55e">✅ Confirmado</span>'
+      ? '<span style="color:#22c55e">✅ Confirmado</span>'
 
-        : '<span style="color:#facc15">⏳ Aguardando ADM</span>'
+      : '<span style="color:#facc15">⏳ Aguardando ADM</span>'
       }
 
       </div>
 
-     <div style="
-display:flex;
-gap:6px;
-margin-top:10px;
-">
+      <div style="
+      display:flex;
+      gap:5px;
+      margin-top:10px;
+      ">
 
-<button
-style="flex:1"
-onclick="confirmarPresenca('${registro.id}')">
+      <button
+      style="flex:1"
+      onclick="confirmarPresenca('${registro.id}')">
 
-${
-confirmado
-? '✔️ Confirmado'
-: '✅ Confirmar'
-}
+      ${
+      confirmado
+      ? '✔️ Confirmado'
+      : '✅ Confirmar'
+      }
 
-</button>
+      </button>
 
-<button
-style="
-flex:1;
-background:#ef4444;
-"
-onclick="
-cancelarParticipacao(
-'${registro.id}'
-)
-">
+      <button
+      style="
+      flex:1;
+      background:#ef4444;
+      "
+      onclick="
+      cancelarParticipacao(
+      '${registro.id}'
+      )
+      ">
 
-❌ Cancelar
+      ❌ Cancelar
 
-</button>
+      </button>
 
-</div>
+      </div>
 
     `;
 
