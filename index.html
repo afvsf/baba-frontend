@@ -1233,12 +1233,12 @@ function montarRanking(id, dados, campo, desc=true){
     });
 }
 
-// INIT
+// ===== INICIAR
 async function iniciar(){
 
    await carregar();
 
-   // usa data do próximo baba
+   // define data inicial
    document.getElementById('dataIndex').value =
       dataBabaAtual ||
       new Date()
@@ -1253,16 +1253,24 @@ async function iniciar(){
       'change',
       renderParticipacoesIndex
    );
-
 }
 
 iniciar();
 
-// atualização automática
+
+// Atualização automática leve
 setInterval(async()=>{
 
-   await carregar();
+   jogadores =
+      await api('/jogadores')
+      .then(r=>r.json());
 
+   registros =
+      await api('/registros')
+      .then(r=>r.json());
+
+   renderPresenca();
+   renderRanking();
    renderParticipacoesIndex();
 
 },10000);
