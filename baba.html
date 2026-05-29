@@ -1311,7 +1311,23 @@ document.getElementById('data').addEventListener('change', renderTudo);
 
 // INIT
 carregar();
+
+  
 </script>
+
+<script>
+if('serviceWorker' in navigator){
+
+  navigator.serviceWorker
+  .register('/service-worker.js')
+
+  .then(() => {
+    console.log('PWA ativo');
+  });
+
+}
+</script>
+  
 
 </body>
 </html>
