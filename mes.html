@@ -322,21 +322,23 @@ function render(ano){
   )
   .forEach(j => {
 
-    const dataCadStr = j.dataCadastro || j.datacadastro;
-    if(!dataCadStr) return;
-
-    const [anoCad, mesCad, diaCad] =
+  // 🔥 aceita jogador sem dataCadastro
+  const dataCadStr =
+    j.dataCadastro ||
+    j.datacadastro ||
+    `${ano}-01-01`;
+  
+  const partes =
     dataCadStr
     .split('T')[0]
     .split('-')
     .map(Number);
   
-    const dCad =
-    new Date(
-      anoCad,
-      mesCad - 1,
-      diaCad
-    );
+  const dCad = new Date(
+    partes[0],
+    partes[1] - 1,
+    partes[2]
+  );
      
 
     let pagosHTML = '';
