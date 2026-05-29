@@ -258,14 +258,25 @@ function getMeses(ano){
 // ===== REGRA DIA 10
 function podeCobrar(mes){
   const hoje = new Date();
-  const [a,m] = mes.split('-');
-  const dataMes = new Date(a, m-1, 1);
 
-  if(hoje.getFullYear()==a && hoje.getMonth()==m-1){
-    return hoje.getDate()>10;
+  const [a,m] =
+    mes.split('-').map(Number);
+
+  const dataMes =
+    new Date(a, m-1, 1);
+
+  if(
+    hoje.getFullYear() === a &&
+    hoje.getMonth() === m-1
+  ){
+    return hoje.getDate() > 10;
   }
 
-  return dataMes < new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  return dataMes <= new Date(
+    hoje.getFullYear(),
+    hoje.getMonth(),
+    1
+  );
 }
 
 // ===== CARREGAR
