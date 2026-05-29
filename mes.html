@@ -314,7 +314,19 @@ function render(ano){
     const dataCadStr = j.dataCadastro || j.datacadastro;
     if(!dataCadStr) return;
 
-    const dCad = new Date(dataCadStr.split('T')[0]);
+    const [anoCad, mesCad, diaCad] =
+    dataCadStr
+    .split('T')[0]
+    .split('-')
+    .map(Number);
+  
+    const dCad =
+    new Date(
+      anoCad,
+      mesCad - 1,
+      diaCad
+    );
+     
 
     let pagosHTML = '';
     let devendoMeses = [];
