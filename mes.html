@@ -305,7 +305,10 @@ function render(ano){
   container.innerHTML = '';
 
   jogadores
-  .filter(j => j.tipo === 'mensal')
+  .filter(j => 
+    j.tipo === 'mensal' ||
+    j.tipo === 'mensalista'
+  )
   .forEach(j => {
 
     const dataCadStr = j.dataCadastro || j.datacadastro;
