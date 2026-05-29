@@ -459,5 +459,19 @@ async function pagar(jogadorId, mes){
 carregar();
 </script>
 
+<script>
+if('serviceWorker' in navigator){
+
+  navigator.serviceWorker
+  .register('/service-worker.js')
+
+  .then(() => {
+    console.log('PWA ativo');
+  });
+
+}
+</script>
+  
+
 </body>
 </html>
