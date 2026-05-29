@@ -351,8 +351,17 @@ function render(ano){
 
       if(dMes < dCad) return;
 
-      const pag = (mensalidades[mes]||[])
-        .find(p => String(p.jogadorId||p.jogadorid) === String(j.id));
+      const pag = (mensalidades[mes] || [])
+      .find(p => {
+      
+        const jogadorMensalidade =
+          p.jogadorId ||
+          p.jogadorid;
+      
+        return String(jogadorMensalidade)
+          === String(j.id);
+      
+      });
 
       if(pag){
 
