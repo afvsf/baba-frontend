@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>📊 Dashboard do Baba</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:15px;
+}
+
+h1{
+  text-align:center;
+}
+
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-top:20px;
+}
+
+.card{
+  background:#1e293b;
+  border-radius:12px;
+  padding:15px;
+  text-align:center;
+}
+
+.card h2{
+  margin:0;
+  font-size:28px;
+  color:#22c55e;
+}
+
+.lista{
+  background:#1e293b;
+  margin-top:15px;
+  padding:15px;
+  border-radius:12px;
+}
+
+.lista h3{
+  margin-top:0;
+}
+
+.item{
+  padding:8px;
+  border-bottom:1px solid #334155;
+}
+
+.menu{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+.btn{
+  display:inline-block;
+  padding:10px 15px;
+  border-radius:8px;
+  background:#2563eb;
+  color:white;
+  text-decoration:none;
+}
+</style>
+</head>
+<body>
+
+<div class="menu">
+  <a href="index.html" class="btn">🏠 Início</a>
+</div>
+
+<h1>⚽ Dashboard Inteligente</h1>
+
+<div class="dashboard">
+
+<div class="card">
+<h4>💰 Arrecadado</h4>
+<h2 id="arrecadado">R$0</h2>
+</div>
+
+<div class="card">
+<h4>👥 Mensalistas</h4>
+<h2 id="mensalistas">0</h2>
+</div>
+
+<div class="card">
+<h4>🎟️ Avulsos</h4>
+<h2 id="avulsos">0</h2>
+</div>
+
+<div class="card">
+<h4>⚽ Média por Baba</h4>
+<h2 id="media">0</h2>
+</div>
+
+</div>
+
+<div class="lista">
+<h3>🏆 Ranking de Gols</h3>
+<div id="rankingGols"></div>
+</div>
+
+<div class="lista">
+<h3>🔥 Ranking de Presença</h3>
+<div id="rankingPresenca"></div>
+</div>
+
+<div class="lista">
+<h3>🟢 Jogador Mais Disciplinado</h3>
+<div id="disciplinado"></div>
+</div>
+
+<div class="lista">
+<h3>🟥 Jogador com Mais Cartões</h3>
+<div id="cartoes"></div>
+</div>
+
+<script>
+
+const API =
+'https://baba-backend-production.up.railway.app';
+
+function api(url){
+
+ const token =
+ localStorage.getItem('token');
+
+ return fetch(API+url,{
+   headers:{
+     Authorization:'Bearer '+token
+   }
+ }).then(r=>r.json());
+
+}
+
+let jogadores=[];
+let registros=[];
+let mensalidades=[];
+
+async function carregar(){
+
+ jogadores =
+ await api('/jogadores');
+
+ registros =
+ await api('/registros');
+
+ mensalidades =
+ await api('/mensalidades');
+
+ montarDashboard();
+
+}
+
+function montarDashboard(){
+
+ // ======================
+ // ARRECADAÇÃO
+ // ======================
+
+ let arrecadado =
+ mensalidades.reduce(
+   (s,m)=>s+Number(m.valor||0),0
+ );
+
+ document.getElementById(
+ 'arrecadado'
+ ).innerText =
+ 'R$ '+arrecadado.toFixed(2);
+
+ // ======================
+ // MENSALISTAS
+ // ======================
+
+ const mensalistas =
+ jogadores.filter(j=>
+   j.tipo==='mensal' ||
+   j.tipo==='mensalista'
+ ).length;
+
+ document.getElementById(
+ 'mensalistas'
+ ).innerText =
+ mensalistas;
+
+ // ======================
+ // AVULSOS
+ // ======================
+
+ const avulsos =
+ jogadores.filter(j=>
+   j.tipo==='avulso'
+ ).length;
+
+ document.getElementById(
+ 'avulsos'
+ ).innerText =
+ avulsos;
+
+ // ======================
+ // GOLS
+ // ======================
+
+ let golsJogador={};
+
+ registros.forEach(r=>{
+
+   const id =
+   r.jogadorid ||
+   r.jogadorId;
+
+   if(!golsJogador[id])
+     golsJogador[id]=0;
+
+   golsJogador[id]+=
+   Number(r.gols||0);
+
+ });
+
+ let rankingGols =
+ Object.entries(golsJogador)
+ .sort((a,b)=>b[1]-a[1])
+ .slice(0,10);
+
+ document.getElementById(
+ 'rankingGols'
+ ).innerHTML =
+
+ rankingGols.map((g,i)=>{
+
+   const jogador =
+   jogadores.find(j=>
+    String(j.id)===String(g[0])
+   );
+
+   return `
+   <div class="item">
+   ${i+1}º -
+   ${jogador?.apelido || jogador?.nome || 'Jogador'}
+   (${g[1]} gols)
+   </div>`;
+ }).join('');
+
+ // ======================
+ // PRESENÇA
+ // ======================
+
+ let presenca={};
+
+ registros.forEach(r=>{
+
+   const id =
+   r.jogadorid ||
+   r.jogadorId;
+
+   if(!presenca[id])
+    presenca[id]=0;
+
+   presenca[id]++;
+
+ });
+
+ let rankingPresenca =
+ Object.entries(presenca)
+ .sort((a,b)=>b[1]-a[1])
+ .slice(0,10);
+
+ document.getElementById(
+ 'rankingPresenca'
+ ).innerHTML =
+
+ rankingPresenca.map((p,i)=>{
+
+   const jogador =
+   jogadores.find(j=>
+    String(j.id)===String(p[0])
+   );
+
+   return `
+   <div class="item">
+   ${i+1}º -
+   ${jogador?.apelido || jogador?.nome}
+   (${p[1]} presenças)
+   </div>`;
+ }).join('');
+
+ // ======================
+ // DISCIPLINADO
+ // ======================
+
+ let disciplina={};
+
+ registros.forEach(r=>{
+
+   const id =
+   r.jogadorid ||
+   r.jogadorId;
+
+   if(!disciplina[id])
+    disciplina[id]=0;
+
+   disciplina[id]+=
+
+   Number(r.cartao_amarelo||0)+
+   Number(r.cartao_azul||0)+
+   Number(r.cartao_vermelho||0);
+
+ });
+
+ const disciplinado =
+ Object.entries(disciplina)
+ .sort((a,b)=>a[1]-b[1])[0];
+
+ if(disciplinado){
+
+ const j =
+ jogadores.find(x=>
+ String(x.id)===String(disciplinado[0])
+ );
+
+ document.getElementById(
+ 'disciplinado'
+ ).innerHTML=
+ `
+ <div class="item">
+ 🏅 ${j?.apelido || j?.nome}
+ <br>
+ ${disciplinado[1]} cartões
+ </div>
+ `;
+ }
+
+ // ======================
+ // MAIS CARTÕES
+ // ======================
+
+ const maisCartoes =
+ Object.entries(disciplina)
+ .sort((a,b)=>b[1]-a[1])[0];
+
+ if(maisCartoes){
+
+ const j =
+ jogadores.find(x=>
+ String(x.id)===String(maisCartoes[0])
+ );
+
+ document.getElementById(
+ 'cartoes'
+ ).innerHTML=
+ `
+ <div class="item">
+ 🚨 ${j?.apelido || j?.nome}
+ <br>
+ ${maisCartoes[1]} cartões
+ </div>
+ `;
+ }
+
+ // ======================
+ // MÉDIA POR BABA
+ // ======================
+
+ let dias={};
+
+ registros.forEach(r=>{
+
+   if(!dias[r.data])
+      dias[r.data]=0;
+
+   dias[r.data]++;
+
+ });
+
+ const totalDias =
+ Object.keys(dias).length;
+
+ const media =
+ totalDias
+ ? (registros.length/totalDias)
+ : 0;
+
+ document.getElementById(
+ 'media'
+ ).innerText =
+ media.toFixed(1);
+
+}
+
+carregar();
+
+</script>
+
+</body>
+</html>
