@@ -29,10 +29,9 @@ h2{
 
 .card{
   background:#1e293b;
-  padding:20px;
+  padding:30px;
   border-radius:15px;
   margin-bottom:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,.4);
 }
 
 .btn{
@@ -55,7 +54,7 @@ h2{
 
 .kpi{
   text-align:center;
-  transition:.2s;
+  padding:30px;
 }
 
 .kpi:hover{
@@ -63,27 +62,23 @@ h2{
 }
 
 .kpi h2{
-  font-size:46px;
-  margin:10px 0;
+  font-size:72px;
+  margin:15px 0;
   color:#22c55e;
+  font-weight:bold;
 }
 
 .kpi span{
   display:block;
-  font-size:15px;
+  font-size:24px;
   color:#cbd5e1;
-  margin-bottom:5px;
+  font-weight:bold;
 }
 
 .ranking-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px;
-  margin-bottom:8px;
-  border-radius:10px;
-  background:#0f172a;
-  font-size:18px;
+  padding:18px;
+  font-size:24px;
+  border-radius:12px;
 }
 
 .ranking-item:nth-child(1){
@@ -105,14 +100,16 @@ h2{
 }
 
 h3{
-  font-size:24px;
-  margin-top:0;
-  margin-bottom:15px;
-  color:#f8fafc;
+  font-size:32px;
+  margin-bottom:20px;
 }
 
 @media(max-width:600px){
 
+   .kpi{
+    padding:35px;
+  }
+  
   body{
     padding:10px;
   }
@@ -122,20 +119,20 @@ h3{
   }
 
   .kpi h2{
-    font-size:56px;
+    font-size:90px;
   }
 
   .kpi span{
-    font-size:18px;
+    font-size:26px;
   }
 
   .ranking-item{
-    font-size:20px;
-    padding:15px;
+    font-size:24px;
+    padding:20px;
   }
 
   h3{
-    font-size:22px;
+    font-size:28px;
   }
 
 }
