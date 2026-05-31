@@ -48,7 +48,69 @@ body{
   <button onclick="logout()" class="btn" style="background:#ef4444;">Sair</button>
 </div>
 
-<div class="card" id="stats"></div>
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+    margin:15px;
+  ">
+
+    <div class="card">
+      👥 Jogadores<br>
+      <h2 id="totalJogadores">0</h2>
+    </div>
+
+    <div class="card">
+      💰 Arrecadado Mês<br>
+      <h2 id="totalMensalidades">R$ 0</h2>
+    </div>
+
+    <div class="card">
+      🟢 Mensalistas<br>
+      <h2 id="totalMensalistas">0</h2>
+    </div>
+
+    <div class="card">
+      🎟️ Avulsos<br>
+      <h2 id="totalAvulsos">0</h2>
+    </div>
+
+    <div class="card">
+      ⚽ Total Gols<br>
+      <h2 id="totalGols">0</h2>
+    </div>
+
+    <div class="card">
+      📅 Presenças<br>
+      <h2 id="totalPresencas">0</h2>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h3>🏆 Ranking de Gols</h3>
+    <div id="rankingGols"></div>
+  </div>
+
+  <div class="card">
+    <h3>📅 Ranking de Presença</h3>
+    <div id="rankingPresenca"></div>
+  </div>
+
+  <div class="card">
+    <h3>🟨 Jogadores Mais Disciplinados</h3>
+    <div id="rankingDisciplina"></div>
+  </div>
+
+  <div class="card">
+    <h3>🚨 Mais Cartões</h3>
+    <div id="rankingCartoes"></div>
+  </div>
+
+</div>
 
 <script>
 const API = 'https://baba-backend-production.up.railway.app';
@@ -76,13 +138,224 @@ function logout(){
 
 async function carregar(){
 
-  const jogadores = await api('/jogadores').then(r=>r.json());
-  const gastos = await api('/gastos').then(r=>r.json());
+  const jogadores =
+    await api('/jogadores')
+    .then(r=>r.json());
 
-  document.getElementById('stats').innerHTML = `
-    👥 Jogadores: ${jogadores.length} <br>
-    💸 Despesas: ${gastos.length}
-  `;
+  const registros =
+    await api('/registros')
+    .then(r=>r.json());
+
+  const mensalidades =
+    await api('/mensalidades')
+    .then(r=>r.json());
+
+  const hoje = new Date();
+
+  const mesAtual =
+    `${hoje.getFullYear()}-${String(
+      hoje.getMonth()+1
+    ).padStart(2,'0')}`;
+
+  // RESUMOS
+  const mensalistas =
+    jogadores.filter(j =>
+      j.tipo === 'mensal' ||
+      j.tipo === 'mensalista'
+    );
+
+  const avulsos =
+    jogadores.filter(j =>
+      j.tipo === 'avulso'
+    );
+
+  const arrecadado =
+    mensalidades
+      .filter(m => m.mes === mesAtual)
+      .reduce((s,m)=>
+        s + Number(m.valor || 0)
+      ,0);
+
+  const totalGols =
+    registros.reduce((s,r)=>
+      s + Number(r.gols || 0)
+    ,0);
+
+  document.getElementById(
+    'totalJogadores'
+  ).innerHTML = jogadores.length;
+
+  document.getElementById(
+    'totalMensalistas'
+  ).innerHTML = mensalistas.length;
+
+  document.getElementById(
+    'totalAvulsos'
+  ).innerHTML = avulsos.length;
+
+  document.getElementById(
+    'totalMensalidades'
+  ).innerHTML =
+    'R$ ' + arrecadado.toFixed(2);
+
+  document.getElementById(
+    'totalGols'
+  ).innerHTML = totalGols;
+
+  document.getElementById(
+    'totalPresencas'
+  ).innerHTML =
+    registros.length;
+
+  montarRanking(
+    jogadores,
+    registros
+  );
+}
+
+function montarRanking(
+  jogadores,
+  registros
+){
+
+  const gols = {};
+  const presencas = {};
+  const cartoes = {};
+
+  jogadores.forEach(j=>{
+
+    gols[j.id] = 0;
+    presencas[j.id] = 0;
+    cartoes[j.id] = 0;
+
+  });
+
+  registros.forEach(r=>{
+
+    const id =
+      r.jogadorid ||
+      r.jogadorId;
+
+    gols[id] =
+      (gols[id] || 0) +
+      Number(r.gols || 0);
+
+    presencas[id] =
+      (presencas[id] || 0) + 1;
+
+    cartoes[id] =
+      (cartoes[id] || 0) +
+      Number(r.cartao_amarelo || 0) +
+      Number(r.cartao_azul || 0) +
+      Number(r.cartao_vermelho || 0);
+
+  });
+
+  // GOLS
+  document.getElementById(
+    'rankingGols'
+  ).innerHTML =
+    gerarLista(
+      jogadores,
+      gols,
+      '⚽'
+    );
+
+  // PRESENÇA
+  document.getElementById(
+    'rankingPresenca'
+  ).innerHTML =
+    gerarLista(
+      jogadores,
+      presencas,
+      '📅'
+    );
+
+  // DISCIPLINA
+  document.getElementById(
+    'rankingDisciplina'
+  ).innerHTML =
+    gerarListaMenor(
+      jogadores,
+      cartoes,
+      '🟨'
+    );
+
+  // CARTÕES
+  document.getElementById(
+    'rankingCartoes'
+  ).innerHTML =
+    gerarLista(
+      jogadores,
+      cartoes,
+      '🚨'
+    );
+}
+
+function gerarLista(
+  jogadores,
+  dados,
+  emoji
+){
+
+  return Object.entries(dados)
+
+  .sort((a,b)=>
+    b[1]-a[1]
+  )
+
+  .slice(0,5)
+
+  .map((x,i)=>{
+
+    const j =
+      jogadores.find(
+        p=>String(p.id)===String(x[0])
+      );
+
+    return `
+      ${i+1}º -
+      ${j?.apelido || j?.nome}
+      (${emoji} ${x[1]})
+      <br>
+    `;
+
+  })
+
+  .join('');
+}
+
+function gerarListaMenor(
+  jogadores,
+  dados,
+  emoji
+){
+
+  return Object.entries(dados)
+
+  .sort((a,b)=>
+    a[1]-b[1]
+  )
+
+  .slice(0,5)
+
+  .map((x,i)=>{
+
+    const j =
+      jogadores.find(
+        p=>String(p.id)===String(x[0])
+      );
+
+    return `
+      ${i+1}º -
+      ${j?.apelido || j?.nome}
+      (${emoji} ${x[1]})
+      <br>
+    `;
+
+  })
+
+  .join('');
 }
 
 carregar();
