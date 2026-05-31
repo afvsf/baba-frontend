@@ -13,26 +13,133 @@
 <title>Painel Admin</title>
 
 <style>
+
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#0f172a;
   color:#fff;
+  margin:0;
+  padding:15px;
 }
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
 .card{
   background:#1e293b;
-  padding:15px;
-  margin:10px;
-  border-radius:10px;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:15px;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
 }
+
 .btn{
   display:inline-block;
-  padding:10px;
+  padding:10px 15px;
   background:#3b82f6;
   margin:5px;
   border-radius:8px;
   color:#fff;
   text-decoration:none;
+  font-weight:bold;
 }
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.kpi{
+  text-align:center;
+  transition:.2s;
+}
+
+.kpi:hover{
+  transform:translateY(-3px);
+}
+
+.kpi h2{
+  font-size:46px;
+  margin:10px 0;
+  color:#22c55e;
+}
+
+.kpi span{
+  display:block;
+  font-size:15px;
+  color:#cbd5e1;
+  margin-bottom:5px;
+}
+
+.ranking-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  margin-bottom:8px;
+  border-radius:10px;
+  background:#0f172a;
+  font-size:18px;
+}
+
+.ranking-item:nth-child(1){
+  background:#14532d;
+  font-weight:bold;
+}
+
+.ranking-item:nth-child(2){
+  background:#334155;
+}
+
+.ranking-item:nth-child(3){
+  background:#475569;
+}
+
+.ranking-item span:last-child{
+  font-weight:bold;
+  color:#22c55e;
+}
+
+h3{
+  font-size:24px;
+  margin-top:0;
+  margin-bottom:15px;
+  color:#f8fafc;
+}
+
+@media(max-width:600px){
+
+  body{
+    padding:10px;
+  }
+
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+
+  .kpi h2{
+    font-size:56px;
+  }
+
+  .kpi span{
+    font-size:18px;
+  }
+
+  .ranking-item{
+    font-size:20px;
+    padding:15px;
+  }
+
+  h3{
+    font-size:22px;
+  }
+
+}
+
 </style>
 </head>
 
@@ -51,44 +158,40 @@ body{
 <!-- DASHBOARD -->
 <div id="dashboard">
 
-  <div style="
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:10px;
-    margin:15px;
-  ">
+  <div class="dashboard-grid">
 
-    <div class="card">
-      👥 Jogadores<br>
+    <div class="card kpi">
+      <span>👥 Jogadores</span>
       <h2 id="totalJogadores">0</h2>
     </div>
 
-    <div class="card">
-      💰 Arrecadado Mês<br>
+    <div class="card kpi">
+      <span>💰 Arrecadado Mês</span>
       <h2 id="totalMensalidades">R$ 0</h2>
     </div>
 
-    <div class="card">
-      🟢 Mensalistas<br>
+    <div class="card kpi">
+      <span>🟢 Mensalistas</span>
       <h2 id="totalMensalistas">0</h2>
     </div>
 
-    <div class="card">
-      🎟️ Avulsos<br>
+    <div class="card kpi">
+      <span>🎟️ Avulsos</span>
       <h2 id="totalAvulsos">0</h2>
     </div>
 
-    <div class="card">
-      ⚽ Total Gols<br>
+    <div class="card kpi">
+      <span>⚽ Total Gols</span>
       <h2 id="totalGols">0</h2>
     </div>
 
-    <div class="card">
-      📅 Presenças<br>
+    <div class="card kpi">
+      <span>📅 Presenças</span>
       <h2 id="totalPresencas">0</h2>
     </div>
 
   </div>
+
 
   <div class="card">
     <h3>🏆 Ranking de Gols</h3>
@@ -292,70 +395,68 @@ function montarRanking(
     );
 }
 
-function gerarLista(
-  jogadores,
-  dados,
-  emoji
-){
+function gerarLista(jogadores,dados,emoji){
 
   return Object.entries(dados)
 
-  .sort((a,b)=>
-    b[1]-a[1]
-  )
+    .sort((a,b)=>b[1]-a[1])
 
-  .slice(0,5)
+    .slice(0,5)
 
-  .map((x,i)=>{
+    .map((x,i)=>{
 
-    const j =
-      jogadores.find(
-        p=>String(p.id)===String(x[0])
+      const j = jogadores.find(
+        p => String(p.id) === String(x[0])
       );
 
-    return `
-      ${i+1}º -
-      ${j?.apelido || j?.nome}
-      (${emoji} ${x[1]})
-      <br>
-    `;
+      const medalha =
+        i===0 ? '🥇' :
+        i===1 ? '🥈' :
+        i===2 ? '🥉' :
+        `${i+1}º`;
 
-  })
+      return `
+        <div class="ranking-item">
+          <span>${medalha} ${j?.apelido || j?.nome}</span>
+          <span>${emoji} ${x[1]}</span>
+        </div>
+      `;
 
-  .join('');
+    })
+
+    .join('');
 }
 
-function gerarListaMenor(
-  jogadores,
-  dados,
-  emoji
-){
+function gerarListaMenor(jogadores,dados,emoji){
 
   return Object.entries(dados)
 
-  .sort((a,b)=>
-    a[1]-b[1]
-  )
+    .sort((a,b)=>a[1]-b[1])
 
-  .slice(0,5)
+    .slice(0,5)
 
-  .map((x,i)=>{
+    .map((x,i)=>{
 
-    const j =
-      jogadores.find(
-        p=>String(p.id)===String(x[0])
+      const j = jogadores.find(
+        p => String(p.id) === String(x[0])
       );
 
-    return `
-      ${i+1}º -
-      ${j?.apelido || j?.nome}
-      (${emoji} ${x[1]})
-      <br>
-    `;
+      const medalha =
+        i===0 ? '🥇' :
+        i===1 ? '🥈' :
+        i===2 ? '🥉' :
+        `${i+1}º`;
 
-  })
+      return `
+        <div class="ranking-item">
+          <span>${medalha} ${j?.apelido || j?.nome}</span>
+          <span>${emoji} ${x[1]}</span>
+        </div>
+      `;
 
-  .join('');
+    })
+
+    .join('');
 }
 
 carregar();
