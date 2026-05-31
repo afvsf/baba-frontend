@@ -15,8 +15,12 @@
 
 <style>
 
+*{
+  box-sizing:border-box;
+}
+
 body{
-  font-family: Arial, sans-serif;
+  font-family:Arial, sans-serif;
   background:#0f172a;
   color:#fff;
   margin:0;
@@ -26,70 +30,93 @@ body{
 h2{
   text-align:center;
   margin-bottom:20px;
-}
-
-.card{
-  background:#1e293b;
-  padding:30px;
-  border-radius:15px;
-  margin-bottom:15px;
+  font-size:32px;
 }
 
 .btn{
   display:inline-block;
-  padding:10px 15px;
+  padding:12px 18px;
   background:#3b82f6;
   margin:5px;
-  border-radius:8px;
+  border-radius:10px;
   color:#fff;
   text-decoration:none;
   font-weight:bold;
 }
 
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:15px;
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
+}
+
+/* ==========================
+   DASHBOARD KPI
+========================== */
+
 .dashboard-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
-  gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-bottom:20px;
 }
 
 .kpi{
+  text-align:center;
   min-height:180px;
   display:flex;
   flex-direction:column;
   justify-content:center;
-}
-
-.kpi:hover{
-  transform:translateY(-3px);
-}
-
-.kpi h2{
-  font-size:90px;
-  margin:15px 0;
-  color:#22c55e;
-  line-height:1;
+  align-items:center;
 }
 
 .kpi span{
-  font-size:28px;
+  font-size:clamp(16px,2vw,22px);
+  color:#cbd5e1;
   font-weight:bold;
 }
+
+.kpi h2{
+  margin:10px 0 0;
+  font-size:clamp(42px,5vw,72px);
+  line-height:1;
+  color:#22c55e;
+  font-weight:bold;
+  word-break:break-word;
+}
+
+/* ==========================
+   TÍTULOS DOS RANKINGS
+========================== */
+
+h3{
+  margin:0 0 15px;
+  font-size:28px;
+}
+
+/* ==========================
+   RANKINGS
+========================== */
 
 .ranking-item{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:20px;
-  margin-bottom:10px;
-  border-radius:12px;
+  gap:10px;
+
   background:#0f172a;
-  font-size:26px;
+  border-radius:12px;
+  padding:14px 18px;
+  margin-bottom:8px;
+
+  font-size:18px;
   font-weight:bold;
 }
 
 .ranking-item:nth-child(1){
   background:#14532d;
-  font-weight:bold;
 }
 
 .ranking-item:nth-child(2){
@@ -100,38 +127,71 @@ h2{
   background:#475569;
 }
 
+.ranking-item span:first-child{
+  flex:1;
+}
+
 .ranking-item span:last-child{
-  font-weight:bold;
   color:#22c55e;
+  white-space:nowrap;
 }
 
-h3{
-  font-size:32px;
-  margin-bottom:20px;
-}
+/* ==========================
+   MOBILE
+========================== */
 
-@media(max-width:600px){
+@media(max-width:768px){
+
+  body{
+    padding:10px;
+  }
+
+  h2{
+    font-size:24px;
+  }
 
   .dashboard-grid{
     grid-template-columns:1fr;
   }
 
-  .kpi h2{
-    font-size:70px;
+  .kpi{
+    min-height:150px;
   }
 
   .kpi span{
+    font-size:18px;
+  }
+
+  .kpi h2{
+    font-size:56px;
+  }
+
+  h3{
     font-size:22px;
   }
 
   .ranking-item{
-    font-size:20px;
-    padding:15px;
+    flex-direction:column;
+    align-items:flex-start;
+    font-size:17px;
+    padding:12px;
+  }
+
+  .ranking-item span:last-child{
+    margin-top:5px;
+  }
+
+  .btn{
+    display:block;
+    width:100%;
+    margin:6px 0;
+    text-align:center;
   }
 
 }
 
 </style>
+
 </head>
 
 <body>
